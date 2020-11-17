@@ -32,6 +32,7 @@ $MySQL_config[1]['dbname'] = 'ebuef';
 * Write own functions
   * Delay calculator
   * Acceleration computer
+  * Current position of the train
 * Send data to the trains
 
 ## Deutsch
@@ -66,4 +67,5 @@ $MySQL_config[1]['dbname'] = 'ebuef';
 * Eigene Funktionen schreiben
   * Verzögerungsrechner
   * Beschleunigungsrechner
+  * Aktuelle Position des Zuges
 * Daten an die Züge senden
