@@ -59,7 +59,7 @@ $MySQL_config[1]['passwort'] = 'password';
 $MySQL_config[1]['dbname'] = 'ebuef';
 ```
 
-### Todo
+### Aufgaben
 * Funktionen deklarieren
 * Eigene Funktionen schreiben
 * Daten an die Züge senden
