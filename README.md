@@ -30,6 +30,8 @@ $MySQL_config[1]['dbname'] = 'ebuef';
 ### Todo
 * Declare functions
 * Write own functions
+  * Delay calculator
+  * Acceleration computer
 * Send data to the trains
 
 ## Deutsch
@@ -62,4 +64,6 @@ $MySQL_config[1]['dbname'] = 'ebuef';
 ### Aufgaben
 * Funktionen deklarieren
 * Eigene Funktionen schreiben
+  * Verzögerungsrechner
+  * Beschleunigungsrechner
 * Daten an die Züge senden
