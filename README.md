@@ -1,5 +1,9 @@
 # TrainControl
 
+## Englisch
+
+<hr>
+
 To use this code you have to create a file called db_access.php in the config folder and specify the access to the database. The file should look like this:
 
 ```php
@@ -13,6 +17,8 @@ $MySQL_config[1]['passwort'] = 'password';
 $MySQL_config[1]['dbname'] = 'ebuef';
 
 ```
+
+## Deutsch
 
 <hr>
 
