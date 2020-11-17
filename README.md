@@ -2,8 +2,6 @@
 
 ## Englisch
 
-<hr>
-
 To use this code you have to create a file called db_access.php in the config folder and specify the access to the database. The file should look like this:
 
 ```php
@@ -19,9 +17,6 @@ $MySQL_config[1]['dbname'] = 'ebuef';
 ```
 
 ## Deutsch
-
-<hr>
-
 
 Um diesen Code nutzen zu können, musst du in dem config Ordner eine Datei namens db_access.php erstellen und den Zugang zu der Datenbank festlegen. Die Datei müsste so aussehen:
 
