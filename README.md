@@ -39,6 +39,7 @@ $MySQL_config[1]['dbname'] = 'ebuef';
 ## Sources
 
 * [Systemführung ZBMS - Bestimmung der dynamischen Bremskurven](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjb6Kfj74rtAhXDx4UKHU5oDl8QFjADegQIBBAC&url=https%3A%2F%2Fwww.bav.admin.ch%2Fdam%2Fbav%2Fde%2Fdokumente%2Fthemen%2Fzugbeeinflussung%2Fzbms_dynamische_bremskurven.pdf.download.pdf%2F160707_Bestimmung_der_dynamischen_Bremskurven_V_11_d.pdf&usg=AOvVaw3ipZf7fEzocRlxqQNWxwOO)
+* [Maschek, Ulrich - Zugbeeinflussung](https://link.springer.com/chapter/10.1007/978-3-8348-2654-1_7)
 
 ## Deutsch
 
@@ -79,3 +80,4 @@ $MySQL_config[1]['dbname'] = 'ebuef';
 ## Quellen
 
 * [Systemführung ZBMS - Bestimmung der dynamischen Bremskurven](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjb6Kfj74rtAhXDx4UKHU5oDl8QFjADegQIBBAC&url=https%3A%2F%2Fwww.bav.admin.ch%2Fdam%2Fbav%2Fde%2Fdokumente%2Fthemen%2Fzugbeeinflussung%2Fzbms_dynamische_bremskurven.pdf.download.pdf%2F160707_Bestimmung_der_dynamischen_Bremskurven_V_11_d.pdf&usg=AOvVaw3ipZf7fEzocRlxqQNWxwOO)
+* [Maschek, Ulrich - Zugbeeinflussung](https://link.springer.com/chapter/10.1007/978-3-8348-2654-1_7)
