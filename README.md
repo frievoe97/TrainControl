@@ -29,6 +29,12 @@ $MySQL_config[1]['dbname'] = 'ebuef';
 ?>
 ```
 
+## Overview of the functions
+
+* func1()
+* func2()
+* func3()
+
 ### Used programs
 
 * DataGrip (Jetbrains)
@@ -77,6 +83,12 @@ $MySQL_config[1]['dbname'] = 'ebuef';
 
 ?>
 ```
+
+## Übersicht der Funktionen
+
+* func1()
+* func2()
+* func3()
 
 ### Benutzte Programme
 
