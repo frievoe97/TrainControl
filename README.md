@@ -28,6 +28,11 @@ $MySQL_config[1]['dbname'] = 'ebuef';
 ?>
 ```
 
+## Used programs
+
+* DataGrip (Jetbrains)
+* PhpStorm (Jetbrains)
+
 ### Todo
 * Declare functions
 * Write own functions
@@ -69,6 +74,11 @@ $MySQL_config[1]['passwort'] = 'password';
 $MySQL_config[1]['dbname'] = 'ebuef';
 ?>
 ```
+
+## Benutzte Programme
+
+* DataGrip (Jetbrains)
+* PhpStorm (Jetbrains)
 
 ### Aufgaben
 * Funktionen deklarieren
