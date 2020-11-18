@@ -32,6 +32,7 @@ $MySQL_config[1]['dbname'] = 'ebuef';
 
 * DataGrip (Jetbrains)
 * PhpStorm (Jetbrains)
+* yEd Graph Editor(yworks)
 
 ### Todo
 * Declare functions
@@ -79,6 +80,7 @@ $MySQL_config[1]['dbname'] = 'ebuef';
 
 * DataGrip (Jetbrains)
 * PhpStorm (Jetbrains)
+* yEd Graph Editor(yworks)
 
 ### Aufgaben
 * Funktionen deklarieren
