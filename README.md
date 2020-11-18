@@ -29,7 +29,7 @@ $MySQL_config[1]['dbname'] = 'ebuef';
 ?>
 ```
 
-## Overview of the functions
+### Overview of the functions
 
 * func1()
 * func2()
@@ -110,6 +110,6 @@ $MySQL_config[1]['dbname'] = 'ebuef';
 * [Maschek, Ulrich - Zugbeeinflussung](https://link.springer.com/chapter/10.1007/978-3-8348-2654-1_7)
 * [Wende, Dietrich - Fahrdynamik des Schienenverkehrs](https://www.springer.com/de/book/9783519004196)
 
-## Railway network/Schienennetz
+### Railway network/Schienennetz
 
 <img src="https://github.com/frievoe97/TrainControl/blob/master/plan.svg">
