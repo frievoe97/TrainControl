@@ -1,6 +1,6 @@
 # TrainControl
 
-## Englisch
+## Englisch (German version below)
 
 ### Summary
 
