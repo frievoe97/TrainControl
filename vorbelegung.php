@@ -155,6 +155,4 @@ unset ($fahrplancacheinstance);
 
 */
 
-
-
 ?>

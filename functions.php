@@ -1,10 +1,14 @@
 <?php
 
 // Ermittelt, welcher Fahrzeugdecoder in einem GBT-Feld steht
-function getFahrzeugimAbschnitt (int $gbt_id) { return int $fahrzeug_id; }
+function getFahrzeugimAbschnitt (int $gbt_id) {
+    return int $fahrzeug_id;
+}
 
 // Ermittelt, welcher Fahrzeugdecoder in einem Infra-Feld steht
-function getFahrzeugimInfraAbschnitt (int $infra_id) { return int $fahrzeug_id; }
+function getFahrzeugimInfraAbschnitt (int $infra_id) {
+    return int $fahrzeug_id;
+}
 
 // Ermittelt den Signalbegriff für die Fahrzeugsteuerung
 function fzs_getSignalbegriff(array $abschnittdaten) {

@@ -22,11 +22,6 @@ class DB_MySQL {
   $this->passwort   = $MySQL_config[$ID]['passwort'];
   $this->dbname     = $MySQL_config[$ID]['dbname'];
 
-  var_dump($this->host);
-  var_dump($this->benutzer);
-  var_dump($this->passwort);
-  var_dump($this->dbname);
-  
   $this->verbindung = new mysqli('p:'.$this->host,$this->benutzer, $this->passwort, $this->dbname);
 
   if ($this->verbindung->connect_error) {
