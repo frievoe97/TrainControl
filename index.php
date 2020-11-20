@@ -5,7 +5,9 @@ require 'vorbelegung.php';
 require 'test_functions.php';
 
 
-$fahrzeugGbt = getFahrzeugimAbschnitt_test($alle_abschnitte, 1);
+$fahrzeugGbt = getFahrzeugimAbschnitt_test($alle_abschnitte, 631);
+
+echo $fahrzeugGbt;
 
 
 
@@ -13,6 +15,5 @@ $fahrzeugGbt = getFahrzeugimAbschnitt_test($alle_abschnitte, 1);
 //var_dump($alle_fahrzeuge);
 //var_dump($alle_signalstandorte);
 
-var_dump($DB);
 
 ?>
