@@ -31,9 +31,9 @@ $MySQL_config[1]['dbname'] = 'ebuef';
 
 ### Overview of the functions
 
-* func1()
-* func2()
-* func3()
+* getBrakeDistance()
+* getSpeedPerTime()
+* getCurrentPosition()
 
 ### Used programs
 
@@ -90,9 +90,9 @@ $MySQL_config[1]['dbname'] = 'ebuef';
 
 ### Übersicht der Funktionen
 
-* func1()
-* func2()
-* func3()
+* getBrakeDistance()
+* getSpeedPerTime()
+* getCurrentPosition()
 
 ### Benutzte Programme
 
