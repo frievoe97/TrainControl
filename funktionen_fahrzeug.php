@@ -24,7 +24,14 @@ function getFahrzeugimAbschnitt ($gbt_id) {
   return $fahrzeug[0]->id;
  }
 }
+
+
+
+
 // ------------------------------------------------------------------------------------------------
+
+
+
 // Ermittelt, welcher Fahrzeugdecoder in einem Infra-Feld steht
 function getFahrzeugimInfraAbschnitt ($infra_id) {
  if (empty($infra_id)) { return false; }
@@ -74,6 +81,21 @@ function getFahrzeugdaten (array $fahrzeugdaten, string $abfragetyp) {
     $DB = new DB_MySQL();
     $fzgid = 1;
 
+    if ($fahrzeugdaten["id"] != null) {
+        $fzgid = $fahrzeugdaten["id"];
+    } elseif ($fahrzeugdaten["decoder_adresse"] != null) {
+        $temp = (int) $fahrzeugdaten["decoder_adresse"];
+        $fzgid = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE."`.`id`
+                                    FROM `".DB_TABLE_FAHRZEUGE."`
+                                    WHERE `".DB_TABLE_FAHRZEUGE."`.`adresse` = $temp
+                                    ");
+    } elseif ($fahrzeugdaten["gbt_id"] != null) {
+
+    } else {
+        return false;
+    }
+
+
     $fahrzeugdaten   = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE."`.`id`,
                                     `".DB_TABLE_FAHRZEUGE."`.`adresse`,
                                     `".DB_TABLE_FAHRZEUGE."`.`speed`,
@@ -88,6 +110,9 @@ function getFahrzeugdaten (array $fahrzeugdaten, string $abfragetyp) {
                                     ");
     unset($DB);
 
+    var_dump($fahrzeugdaten);
+
+    /*
     if (strcmp($abfragetyp, dir_speed) == 0) {
         $removeKeys = array(6, 7, 8);
         foreach($removeKeys as $key) {
@@ -128,6 +153,7 @@ function getFahrzeugdaten (array $fahrzeugdaten, string $abfragetyp) {
         return $fahrzeugdaten;
         // speed_verzoegerung: `id`, `speed`,`verzoegerung`, `dir`, `fzs`, `zugtyp`
     }
+    */
 }
 
 
@@ -152,6 +178,20 @@ function getFahrplanzeiten (string $betriebsstelle, int $zug_id, array $options 
 function fzs_getSignalbegriff(array $abschnittdaten) {
     // $abschnittdaten kommen aus der vorbelegung.php, relevant hier "haltfall_id" und als Pflichtfeld "signalstandortid".
     return $signalbegriff; // darin [0]["geschwindigkeit"] relevant;
+}
+
+
+function getBrakeDistance(float $v_0, float $v_1, float $t_reac, float $a) {
+    return $bremsweg = ((($v_0-$v_1)/3.6)*$t_reac)+((pow((($v_0)/3.6), 2)-pow((($v_1)/3.6), 2))/(2*($a+(9.81/1000))));
+}
+
+function getSpeedPerTime(float $v_0, float $v_1, float $t_reac, float $a, int $timeInter) {
+
+}
+
+function getCurrentPosition(float $v_0, int $time_0, int $time_1, float $pos_0) {
+    $time_diff = $time_1 - $time_0;
+    return ($v_0/3.6)*$time_diff+$pos_0;
 }
 
 

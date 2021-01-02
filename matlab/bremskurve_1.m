@@ -22,6 +22,7 @@ disp(a_test);
 x_1 = linspace(0, 40, 20);
 y_1 = linspace(0, 40, 20);
 [X_1,Y_1] = meshgrid(x_1, y_1);
+
 Z_1 = (X_1 - Y_1) * t + ((X_1.^2 - Y_1.^2)/(2 * ((g * st/1000) + a)));
 contourf(X_1,Y_1,Z_1,15)
 
