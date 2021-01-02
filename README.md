@@ -45,6 +45,14 @@ $MySQL_config[1]['dbname'] = 'ebuef';
 
 * php 7.4
 
+### Debugging
+
+If the MySQL error number 1055 should appear during execution, it could be that the following SQL query needs to be executed:
+
+```sql
+SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+```
+
 ### Todo
 * Declare functions
 * Write own functions
@@ -103,6 +111,14 @@ $MySQL_config[1]['dbname'] = 'ebuef';
 ### Anforderungen 
 
 * php 7.4
+
+### Fehlersuche
+
+Sollte während der Ausführung die MySQL-Fehlernummer 1055 erscheinen, könnte es sein, dass die folgende SQL-Abfrage ausgeführt werden muss:
+
+```sql
+SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+```
 
 ### Aufgaben
 * Funktionen deklarieren
