@@ -246,8 +246,23 @@ function getFahrplanzeiten (string $betriebsstelle, int $zug_id, array $options 
 
 // Ermittelt den Signalbegriff für die Fahrzeugsteuerung
 function fzs_getSignalbegriff(array $abschnittdaten) {
+
+    $id = (int) $abschnittdaten["signalstandortid"];
+
+    $DB = new DB_MySQL();
+    $signalbegriff_temp = $DB->select("SELECT `".DB_TABLE_SIGNALE_BEGRIFFE."`.`geschwindigkeit`
+                                            FROM `".DB_TABLE_SIGNALE_BEGRIFFE."`
+                                            WHERE `".DB_TABLE_SIGNALE_BEGRIFFE."`.`id` = $id
+                                            AND `".DB_TABLE_SIGNALE_BEGRIFFE."`.`is_befehlbegriff` IS NOT NULL
+                                            ");
+    unset($DB);
+
+
+    // $signalbegriff = $abschnittdaten->
+
+
     // $abschnittdaten kommen aus der vorbelegung.php, relevant hier "haltfall_id" und als Pflichtfeld "signalstandortid".
-    return $signalbegriff; // darin [0]["geschwindigkeit"] relevant;
+    return $signalbegriff_temp; // darin [0]["geschwindigkeit"] relevant;
 }
 
 
