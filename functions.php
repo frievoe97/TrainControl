@@ -188,22 +188,55 @@ function getFahrzeugdaten (array $fahrzeugdaten, string $abfragetyp) {
 }
 
 
-/*
+
 
 
 // Sendet eine Nachricht an ein konkretes Fahrzeug
 function sendFahrzeugbefehl (int $fahrzeug_id, int $geschwindigkeit) {
 
+    $DB = new DB_MySQL();
+    $DB->select("UPDATE `".DB_TABLE_FAHRZEUGE."`
+                        SET `".DB_TABLE_FAHRZEUGE."`.`speed`=$geschwindigkeit
+                        WHERE `".DB_TABLE_FAHRZEUGE."`.`id` = $fahrzeug_id
+                        ");
+    unset($DB);
+
 }
+
+
 
 // Ermittelt die Ankunfts- und Abfahrtzeit eines Zuges an einer Betriebsstelle
-function getFahrplanzeiten (string $betriebsstelle, int $zug_id, array $options = array ("id" => "zug_id", "art" => "wendepruefung") {
+function getFahrplanzeiten (string $betriebsstelle, int $zug_id, array $options = array ("id" => "zug_id", "art" => "wendepruefung")) {
 
-    return $fahrplandaten (array: abfahrt_soll, ankunft_soll, fahrtrichtung, ist_durchfahrt, uebergang_fahrtrichtung);
+    if(!isset($betriebsstelle, $zug_id)) {
+        return false;
+    }
+
+    $DB = new DB_MySQL();
+    $fahrplandaten_temp = $DB->select("SELECT `".DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`.`ankunft_soll`,
+                        `".DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`.`abfahrt_soll`,
+                        `".DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`.`fahrtrichtung`,
+                        `".DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`.`ist_durchfahrt`
+                        FROM `".DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`
+                        WHERE `".DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`.`betriebsstelle` = '".$betriebsstelle."'
+                        AND `".DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`.`zug_id` = $zug_id
+                        ");
+    unset($DB);
+
+    if(!isset($fahrplandaten_temp[0]->abfahrt_soll, $fahrplandaten_temp[0]->ankunft_soll, $fahrplandaten_temp[0]->fahrtrichtung, $fahrplandaten_temp[0]->ist_durchfahrt)) {
+        return false;
+    }
+
+    $fahrplandaten = [
+        "abfahrt_soll" => $fahrplandaten_temp[0]->abfahrt_soll,
+        "ankunft_soll" => $fahrplandaten_temp[0]->ankunft_soll,
+        "fahrtrichtung" => $fahrplandaten_temp[0]->fahrtrichtung,
+        "ist_durchfahrt" => $fahrplandaten_temp[0]->ist_durchfahrt,
+    ];
+
+    return $fahrplandaten /*(array: abfahrt_soll, ankunft_soll, fahrtrichtung, ist_durchfahrt, uebergang_fahrtrichtung)*/;
 
 }
-
-*/
 
 
 
