@@ -1,8 +1,8 @@
 <?php
 
 require 'vorbelegung.php';
-require 'functions_2.php';
+require 'functions.php';
 
-var_dump(getFahrzeugimInfraAbschnitt(100));
+var_dump(getBrakeDistance(27.78, 0, 2, 0.2));
 
 ?>

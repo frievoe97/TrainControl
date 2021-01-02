@@ -182,7 +182,7 @@ function fzs_getSignalbegriff(array $abschnittdaten) {
 
 
 function getBrakeDistance(float $v_0, float $v_1, float $t_reac, float $a) {
-    return $bremsweg = ((($v_0-$v_1)/3.6)*$t_reac)+((pow((($v_0)/3.6), 2)-pow((($v_1)/3.6), 2))/(2*($a+(9.81/1000))));
+    return $bremsweg = ((($v_0-$v_1))*$t_reac)+((pow((($v_0)), 2)-pow((($v_1)), 2))/(2*($a+(9.81/1000))));
 }
 
 function getSpeedPerTime(float $v_0, float $v_1, float $t_reac, float $a, int $timeInter) {
