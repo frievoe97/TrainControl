@@ -39,7 +39,26 @@ function getFahrzeugimInfraAbschnitt ($infra_id) {
  if (!$gbt_id || empty($gbt_id->id)) { return false;    }
  $fahrzeug = getFahrzeugimAbschnitt($gbt_id->id);
 }
+
+
+function getGleisabschnitt($infra_id) {
+
+    $DB = new DB_MySQL();
+    $gbt_id   = $DB->select("SELECT `". DB_TABLE_FMA_GBT."`.`gbt_id`
+                                    FROM `".DB_TABLE_FMA_GBT."`
+                                    WHERE `".DB_TABLE_FMA_GBT."`.`infra_id` = '".$infra_id."'
+                                   ");
+    unset($DB);
+
+    return $gbt_id[0]->gbt_id;
+}
+
+
+
 // ------------------------------------------------
+
+
+
 // Ermittelt das in Gegenrichtung relevante Signal, wenn ein Zug wendet
 function fzs_getGegensignal ($signal_id) {
  if (!isset($signal_id)) { return false; }
@@ -59,6 +78,12 @@ function fzs_getGegensignal ($signal_id) {
  }
 }
 
+
+
+// ------------------------------------------------
+
+
+
 function wandeleUhrzeit(int $inputzeit, String $zielart, $options = array()) {
 
     $exampleTimeshift = -42709560;
@@ -75,6 +100,12 @@ function wandeleUhrzeit(int $inputzeit, String $zielart, $options = array()) {
        return false;
     }
 }
+
+
+
+// ------------------------------------------------
+
+
 
 function getFahrzeugdaten (array $fahrzeugdaten, string $abfragetyp) {
 
@@ -174,11 +205,22 @@ function getFahrplanzeiten (string $betriebsstelle, int $zug_id, array $options 
 
 */
 
+
+
+// ------------------------------------------------
+
+
+
 // Ermittelt den Signalbegriff für die Fahrzeugsteuerung
 function fzs_getSignalbegriff(array $abschnittdaten) {
     // $abschnittdaten kommen aus der vorbelegung.php, relevant hier "haltfall_id" und als Pflichtfeld "signalstandortid".
     return $signalbegriff; // darin [0]["geschwindigkeit"] relevant;
 }
+
+
+
+// ------------------------------------------------
+
 
 
 function getBrakeDistance(float $v_0, float $v_1, float $t_reac, float $a) {
@@ -193,36 +235,5 @@ function getCurrentPosition(float $v_0, int $time_0, int $time_1, float $pos_0) 
     $time_diff = $time_1 - $time_0;
     return ($v_0/3.6)*$time_diff+$pos_0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ?>
