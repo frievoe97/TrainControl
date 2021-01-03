@@ -112,15 +112,31 @@ function getFahrzeugdaten (array $fahrzeugdaten, string $abfragetyp) {
     $DB = new DB_MySQL();
     $fzgid = 1;
 
-    if ($fahrzeugdaten["id"] != null) {
-        $fzgid = $fahrzeugdaten["id"];
-    } elseif ($fahrzeugdaten["decoder_adresse"] != null) {
+    if (!empty($fahrzeugdaten["id"])) {
+        $fzgid = (int) $fahrzeugdaten["id"];
+    } elseif (!empty($fahrzeugdaten["decoder_adresse"])) {
         $temp = (int) $fahrzeugdaten["decoder_adresse"];
         $fzgid = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE."`.`id`
                                     FROM `".DB_TABLE_FAHRZEUGE."`
                                     WHERE `".DB_TABLE_FAHRZEUGE."`.`adresse` = $temp
                                     ");
-    } elseif ($fahrzeugdaten["gbt_id"] != null) {
+        $fzgid = (int) $fzgid[0]->id;
+
+    } elseif (!empty($fahrzeugdaten["gbt_id"])) {
+        $temp = (int) $fahrzeugdaten["gbt_id"];
+        $fzgid = $DB->select("SELECT `".DB_TABLE_FMA_GBT."`.`gbt_id`, 
+                                    `".DB_TABLE_FMA_GBT."`.`fma_id`,
+                                    `".DB_TABLE_FAHRZEUGE."`.`id` 
+                                    FROM `".DB_TABLE_FMA_GBT."`
+                                    LEFT JOIN `".DB_TABLE_FMA."`
+                                    ON `".DB_TABLE_FMA_GBT."`.`fma_id` = `".DB_TABLE_FMA."`.`fma_id`
+                                    LEFT JOIN `".DB_TABLE_FAHRZEUGE."`
+                                    ON `".DB_TABLE_FAHRZEUGE."`.`adresse` = `".DB_TABLE_FMA."`.`decoder_adresse`
+                                    WHERE `".DB_TABLE_FMA_GBT."`.`gbt_id` = $temp
+                                    AND `".DB_TABLE_FAHRZEUGE."`.`id` IS NOT NULL
+                                    ");
+
+        $fzgid = (int) $fzgid[0]->id;
 
     } else {
         return false;
@@ -253,7 +269,6 @@ function fzs_getSignalbegriff(array $abschnittdaten) {
     $signalbegriff_temp = $DB->select("SELECT `".DB_TABLE_SIGNALE_BEGRIFFE."`.`geschwindigkeit`
                                             FROM `".DB_TABLE_SIGNALE_BEGRIFFE."`
                                             WHERE `".DB_TABLE_SIGNALE_BEGRIFFE."`.`id` = $id
-                                            AND `".DB_TABLE_SIGNALE_BEGRIFFE."`.`is_befehlbegriff` IS NOT NULL
                                             ");
     unset($DB);
 
@@ -262,7 +277,7 @@ function fzs_getSignalbegriff(array $abschnittdaten) {
 
 
     // $abschnittdaten kommen aus der vorbelegung.php, relevant hier "haltfall_id" und als Pflichtfeld "signalstandortid".
-    return $signalbegriff_temp; // darin [0]["geschwindigkeit"] relevant;
+    return $signalbegriff_temp[0]->geschwindigkeit; // darin [0]["geschwindigkeit"] relevant;
 }
 
 
@@ -281,7 +296,7 @@ function getSpeedPerTime(float $v_0, float $v_1, float $t_reac, float $a, int $t
 
 function getCurrentPosition(float $v_0, int $time_0, int $time_1, float $pos_0) {
     $time_diff = $time_1 - $time_0;
-    return ($v_0/3.6)*$time_diff+$pos_0;
+    return ($v_0)*$time_diff+$pos_0;
 }
 
 ?>
