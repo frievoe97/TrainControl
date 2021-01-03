@@ -54,12 +54,10 @@ SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 ```
 
 ### Todo
-* Declare functions
 * Write own functions
   * Delay calculator
   * Acceleration computer
   * Current position of the train
-* Send data to the trains
 
 ### Sources
 
@@ -121,12 +119,10 @@ SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 ```
 
 ### Aufgaben
-* Funktionen deklarieren
 * Eigene Funktionen schreiben
   * Verzögerungsrechner
   * Beschleunigungsrechner
   * Aktuelle Position des Zuges
-* Daten an die Züge senden
 
 ### Quellen
 
