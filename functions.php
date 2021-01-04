@@ -2,27 +2,29 @@
 
 // Ermittelt, welcher Fahrzeugdecoder in einem GBT-Feld steht
 function getFahrzeugimAbschnitt ($gbt_id) {
- if (empty($gbt_id)) { return false; }
 
- $DB = new DB_MySQL();
- $fahrzeug   = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE."`.`id`
+    if (empty($gbt_id)) { return false; }
+
+    $DB = new DB_MySQL();
+    $fahrzeug   = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE."`.`id`
                                     FROM `".DB_TABLE_ZN_GBT."`
                                     LEFT JOIN `".DB_TABLE_FMA_GBT."`
-                                     ON (`".DB_TABLE_ZN_GBT."`.`id` = `".DB_TABLE_FMA_GBT."`.`gbt_id`)
+                                    ON (`".DB_TABLE_ZN_GBT."`.`id` = `".DB_TABLE_FMA_GBT."`.`gbt_id`)
                                     LEFT JOIN `".DB_TABLE_FMA."`
-                                     ON (`".DB_TABLE_FMA_GBT."`.`fma_id` = `".DB_TABLE_FMA."`.`fma_id`)
+                                    ON (`".DB_TABLE_FMA_GBT."`.`fma_id` = `".DB_TABLE_FMA."`.`fma_id`)
                                     LEFT JOIN `".DB_TABLE_FAHRZEUGE."`
-                                     ON (`".DB_TABLE_FMA."`.`decoder_adresse` = `".DB_TABLE_FAHRZEUGE."`.`adresse`)
+                                    ON (`".DB_TABLE_FMA."`.`decoder_adresse` = `".DB_TABLE_FAHRZEUGE."`.`adresse`)
                                     WHERE `".DB_TABLE_ZN_GBT."`.`id` = '".$gbt_id."'
-                                     AND `".DB_TABLE_FMA."`.`decoder_adresse` > 0
-                                   ");
- unset($DB);
+                                    AND `".DB_TABLE_FMA."`.`decoder_adresse` > 0
+                                    ");
+    unset($DB);
 
- if (count($fahrzeug) == 0) {
-  return false;
- } else {
-  return $fahrzeug[0]->id;
- }
+    if (count($fahrzeug) == 0) {
+        return false;
+    } else {
+        return $fahrzeug[0]->id;
+    }
+
 }
 
 
