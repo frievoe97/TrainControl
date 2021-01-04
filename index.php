@@ -16,6 +16,7 @@ $fahrzeugdaten = [
 	"id" => "",
 ];
 
-var_dump(getFahrzeugdaten($fahrzeugdaten, "dir_speed"));
+
+var_dump(getFahrzeugimInfraAbschnitt(1186))
 
 ?>

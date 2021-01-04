@@ -34,10 +34,17 @@ function getFahrzeugimAbschnitt ($gbt_id) {
 
 // Ermittelt, welcher Fahrzeugdecoder in einem Infra-Feld steht
 function getFahrzeugimInfraAbschnitt ($infra_id) {
- if (empty($infra_id)) { return false; }
- $gbt_id = getGleisabschnitt($infra_id);
- if (!$gbt_id || empty($gbt_id->id)) { return false;    }
- $fahrzeug = getFahrzeugimAbschnitt($gbt_id->id);
+
+    if (empty($infra_id)) {
+        return false;
+    }
+
+    $gbt_id = getGleisabschnitt($infra_id);
+
+    if (!$gbt_id || empty($gbt_id)) {
+        return false;
+    }
+    return getFahrzeugimAbschnitt($gbt_id);
 }
 
 
@@ -61,21 +68,25 @@ function getGleisabschnitt($infra_id) {
 
 // Ermittelt das in Gegenrichtung relevante Signal, wenn ein Zug wendet
 function fzs_getGegensignal ($signal_id) {
- if (!isset($signal_id)) { return false; }
- $DB = new DB_MySQL();
- $gegensignal = $DB->select("SELECT `".DB_TABLE_SIGNALE_STANDORTE."`.`id`, `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id`
-                             FROM `".DB_TABLE_SIGNALE_STANDORTE."`
-                             LEFT JOIN `".DB_TABLE_SIGNALE_WENDEN."`
-                              ON (`".DB_TABLE_SIGNALE_STANDORTE."`.`id` = `".DB_TABLE_SIGNALE_WENDEN."` .`gegensignal_id`)
-                             WHERE `".DB_TABLE_SIGNALE_WENDEN."`.`signal_id` = '".$signal_id."'
-                           ");
- unset($DB);
 
- if (count($gegensignal) == 0) {
-  return false;
- } else {
-  return $gegensignal[0];
- }
+    if (!isset($signal_id)) {
+        return false;
+    }
+
+    $DB = new DB_MySQL();
+    $gegensignal = $DB->select("SELECT `".DB_TABLE_SIGNALE_STANDORTE."`.`id`, `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id`
+                                    FROM `".DB_TABLE_SIGNALE_STANDORTE."`
+                                    LEFT JOIN `".DB_TABLE_SIGNALE_WENDEN."`
+                                    ON (`".DB_TABLE_SIGNALE_STANDORTE."`.`id` = `".DB_TABLE_SIGNALE_WENDEN."` .`gegensignal_id`)
+                                    WHERE `".DB_TABLE_SIGNALE_WENDEN."`.`signal_id` = '".$signal_id."'
+                                    ");
+    unset($DB);
+
+    if (count($gegensignal) == 0) {
+        return false;
+    } else {
+        return $gegensignal[0];
+    }
 }
 
 
@@ -86,6 +97,7 @@ function fzs_getGegensignal ($signal_id) {
 
 function wandeleUhrzeit(int $inputzeit, String $zielart, $options = array()) {
 
+    //TODO getTimeshift
     $exampleTimeshift = -42709560;
 
     if (strcmp($zielart, 'simulationszeit') == 0) {
@@ -101,6 +113,12 @@ function wandeleUhrzeit(int $inputzeit, String $zielart, $options = array()) {
     }
 }
 
+// Prüfung, ob die Fahrplansession noch aktuell ist, wenn nicht, dann wird das vorerst Skript beendet, damit es von SYSTEMD wieder neugestartet wird
+function checkFahrplansession () {
+    //TODO
+    //return array("grund" => $grund, "u" => $u, "status" => $status, "id" => $id);
+}
+
 
 
 // ------------------------------------------------
@@ -110,7 +128,6 @@ function wandeleUhrzeit(int $inputzeit, String $zielart, $options = array()) {
 function getFahrzeugdaten (array $fahrzeugdaten, string $abfragetyp) {
 
     $DB = new DB_MySQL();
-    $fzgid = 1;
 
     if (!empty($fahrzeugdaten["id"])) {
         $fzgid = (int) $fahrzeugdaten["id"];
@@ -136,6 +153,16 @@ function getFahrzeugdaten (array $fahrzeugdaten, string $abfragetyp) {
                                     AND `".DB_TABLE_FAHRZEUGE."`.`id` IS NOT NULL
                                     ");
 
+
+        $temp2= [];
+        foreach ($fzgid as $item) {
+            array_push($temp2, $item->id);
+        }
+
+        if (!(count(array_unique($temp2)) === 1 && end($temp2) === $fzgid[0]->id)) {
+            return false;
+        }
+
         $fzgid = (int) $fzgid[0]->id;
 
     } else {
@@ -157,50 +184,45 @@ function getFahrzeugdaten (array $fahrzeugdaten, string $abfragetyp) {
                                     ");
     unset($DB);
 
-    var_dump($fahrzeugdaten);
+    $fahrzeugdaten = (array) $fahrzeugdaten[0];
 
-    /*
-    if (strcmp($abfragetyp, dir_speed) == 0) {
-        $removeKeys = array(6, 7, 8);
+    if (strcmp($abfragetyp, "dir_speed") == 0) {
+        $removeKeys = array("verzoegerung", "zuglaenge", "timestamp");
         foreach($removeKeys as $key) {
             unset($fahrzeugdaten[$key]);
         }
         return $fahrzeugdaten;
-        // dir_speed: `id`, `adresse`, `speed`, `dir`, `fzs`, `zugtyp`
     }
 
-    if (strcmp($abfragetyp, id) == 0) {
-        $removeKeys = array(1, 2, 3, 4, 6, 7, 8);
+    if (strcmp($abfragetyp, "id") == 0) {
+
+        $removeKeys = array("adresse", "speed", "dir", "fzs", "verzoegerung", "zuglaenge", "timestamp");
+        foreach($removeKeys as $key) {
+            unset($fahrzeugdaten[$key]);
+        }
+
+        return $fahrzeugdaten;
+    }
+
+    if (strcmp($abfragetyp, "dir_zugtyp_speed") == 0) {
+        $removeKeys = array("adresse", "verzoegerung", "zuglaenge", "timestamp");
         foreach($removeKeys as $key) {
             unset($fahrzeugdaten[$key]);
         }
         return $fahrzeugdaten;
-        // id: id, zugtyp
     }
 
-    if (strcmp($abfragetyp, dir_zugtyp_speed) == 0) {
-        $removeKeys = array(1, 6, 7, 8);
+    if (strcmp($abfragetyp, "decoder_fzs") == 0) {
+        return $fahrzeugdaten;
+    }
+
+    if (strcmp($abfragetyp, "speed_verzoegerung") == 0) {
+        $removeKeys = array("adresse", "zuglaenge", "timestamp");
         foreach($removeKeys as $key) {
             unset($fahrzeugdaten[$key]);
         }
         return $fahrzeugdaten;
-        // dir_zugtyp_speed: `id`, `speed`,`zugtyp`, `dir`, `fzs`
     }
-
-    if (strcmp($abfragetyp, decoder_fzs) == 0) {
-        return $fahrzeugdaten;
-        // decoder_fzs: `id`, `adresse`, `speed`,`verzoegerung`, `dir`, `zuglaenge`, `zugtyp`, `fzs`, UNIX_TIMESTAMP(`timestamp`) AS `timestamp`
-    }
-
-    if (strcmp($abfragetyp, speed_verzoegerung) == 0) {
-        $removeKeys = array(1, 7, 8);
-        foreach($removeKeys as $key) {
-            unset($fahrzeugdaten[$key]);
-        }
-        return $fahrzeugdaten;
-        // speed_verzoegerung: `id`, `speed`,`verzoegerung`, `dir`, `fzs`, `zugtyp`
-    }
-    */
 }
 
 
