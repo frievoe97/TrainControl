@@ -5,3 +5,12 @@
 .DS_store
 config/.DS_Store
 
+/latex/acronym.log
+/latex/grundlagen.log
+/latex/paper.aux
+/latex/paper.bbl
+/latex/paper.lof
+/latex/paper.log
+/latex/paper.lot
+/latex/paper.synctex.gz
+/latex/paper.toc

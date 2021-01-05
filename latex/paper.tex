@@ -1,0 +1,50 @@
+% loading packages
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[ngerman]{babel}
+\usepackage{graphicx}
+\usepackage{apacite}
+\usepackage[document]{ragged2e}
+\usepackage{enumitem}
+\usepackage{acronym}
+\usepackage{scrpage2}
+\usepackage{array}
+\pagestyle{scrheadings}
+\usepackage{wasysym}
+\clearscrheadfoot
+
+\cfoot{\pagemark}
+
+% set the formation
+\setlength{\parindent}{0mm} % Neuer Absatz nichteingerückt, sonder Abstand von 1mm
+\setlength{\parskip}{1mm} % Neuer Absatz nichteingerückt, sonder Abstand von 1mm
+
+\newenvironment{conditions}
+  {\par\vspace{\abovedisplayskip}\noindent\begin{tabular}{>{$}l<{$} @{${}={}$} l}}
+  {\end{tabular}\par\vspace{\belowdisplayskip}}
+
+% document
+\begin{document}
+\pagenumbering{gobble}  % No Pagenumbers
+\input{titelseite}
+\input{zusammenfassung}
+\pagenumbering{Roman} % roman pagenumbers
+\tableofcontents % set the table of contents
+\newpage % set new page
+\listoffigures % set the table of figures
+\listoftables % set the table of tables
+\newpage
+\input{acronym}
+\newpage
+\pagenumbering{arabic} % arabic pagenumbers
+\input{grundlagen} % implement chapter .tex file from the same folder
+\newpage
+\input{formula}
+\newpage
+\pagenumbering{Roman} % roman pagenumbers
+\setcounter{page}{4}
+\bibliographystyle{apacite} % set the referencepage
+\bibliography{paper}  % implement the name of the bibtex.bib file
+\end{document}
