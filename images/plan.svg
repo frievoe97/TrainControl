@@ -1,0 +1,554 @@
+            <svg class="interlockings-network" width="100%" height="100%" viewBox="0 0 101 72" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.5;">
+                <g id="Gleise">
+                    <path d="M14.4,7.2l1.8,1.8l0,6.3" style="fill:none;stroke:#000;stroke-width:0.2px;"/>
+                    <path d="M16.2,18.9l0,0.9l5.4,5.4l59.4,0l1.8,1.8l0,10.8l-1.8,1.8l-10.8,0.005l-1.8,-1.805l-14.4,0l-1.8,1.8l-10.8,0.005l-1.8,-1.805l-1.8,0l-1.8,1.8l-10.8,0" style="fill:none;stroke:#000;stroke-width:0.2px;"/>
+                    <path d="M7.2,7.2l2.7,0l3.6,-3.6l81,0l2.7,2.7l0,59.4l-2.7,2.672l-43.2,0.028l-5.294,-5.294" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M43.372,61.2l-31.672,0l-2.7,-2.7l0,-37.8l2.7,-2.7l75.6,0l2.7,2.7l0,28.8l-2.7,2.7l-5.4,0l-1.8,-1.8l-18,0l-1.8,1.8l-7.2,0l-16.2,16.2l-30.6,0l-2.7,-2.7l0,-54l2.7,-2.7l6.3,0" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M12.6,1.8l82.8,0l3.6,3.6l0,61.2l-3.6,3.6l-45,0l-5.747,-5.747" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M41.587,63l-3.787,0l-1.8,1.8l-19.8,0l-1.8,-1.8l-3.6,0l-3.6,-3.6l0,-39.6l3.6,-3.6l77.4,0l3.6,3.6l0,30.6l-3.6,3.6l-34.2,0l-16.2,16.2l-32.4,0l-3.6,-3.6l0,-55.8l3.6,-3.6l1.8,0l5.4,-5.4" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <g id="Brücken">
+                        <path d="M14.4,14.4l0.9,0.9l1.8,0l0.9,-0.9" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                        <path d="M39.6,63.746l1.273,0l2.987,-2.973l-0.474,-0.644" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                        <path d="M14.4,19.8l0.9,-0.9l1.8,0l0.9,0.9" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                        <path d="M44.553,65.907l0.09,-1.363l1.454,-1.454l1.363,-0.09" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    </g>
+                </g>
+                <g id="XWF-Walfdorf" serif:id="XWF Walfdorf">
+                    <g>
+                        <path d="M77.4,62.1l-0.9,0.9l0.9,0l0,-0.9Z"/>
+                        <path d="M77.4,62.1l-0.9,0.9l0.9,0l0,-0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M79.2,60.3l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                        <path d="M79.2,60.3l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M77.4,60.3l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                        <path d="M77.4,60.3l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M71.063,63.9l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                        <path d="M71.063,63.9l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M68.4,62.1l-0.9,-0.9l0.9,0l0,0.9Z"/>
+                        <path d="M68.4,62.1l-0.9,-0.9l0.9,0l0,0.9Z"/>
+                    </g>
+                    <path d="M80.1,59.4l-3.6,3.6l-2.7,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M78.3,59.4l-1.8,1.799l-1.8,0.001" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M67.5,61.2l1.8,1.8l0.9,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M62.1,55.8l5.4,5.4l6.3,0" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M81,54l-3.6,-3.6" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M72,52.2l-1.8,-1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M72.9,52.2l-1.8,1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M70.2,54l-3.6,-3.6" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M84.6,54l1.8,-1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M55.8,54l-1.8,-1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M56.7,54l1.8,-1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M54,55.8l35.1,0" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M54.9,53.1l-0.9,-0.9l0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M54.9,53.1l0.9,0.9l-0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M57.6,53.1l0.9,-0.9l-0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M62.1,54.9l0.9,-0.9l-0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M59.4,54.9l-0.9,-0.9l0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M59.4,54.9l0.9,0.9l-0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M62.1,54.9l-0.9,0.9l0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M63,56.7l-0.9,-0.9l0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M64.8,58.5l-0.9,-0.9l0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M66.6,60.3l-0.9,-0.9l0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M67.5,51.3l-0.9,-0.9l0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M71.1,51.3l-0.9,-0.9l0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M69.3,53.1l0.9,0.9l-0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M71.1,51.3l0.9,0.9l-0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M72,53.1l0.9,-0.9l-0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M72,53.1l-0.9,0.9l0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M78.3,51.3l-0.9,-0.9l0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M79.2,54.9l-0.9,-0.9l0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M79.2,54.9l0.9,0.9l-0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M82.8,54.9l-0.9,0.9l0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M82.8,54.9l0.9,-0.9l-0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M81.9,56.7l-0.9,-0.9l0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M81.9,56.7l0.9,0.9l-0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M81,58.5l0.9,-0.9l-0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M78.3,56.7l0.9,-0.9l-0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M76.5,58.5l0.9,-0.9l-0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M74.7,60.3l0.9,-0.9l-0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M76.5,58.5l-0.9,0.9l0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M78.3,56.7l-0.9,0.9l0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M76.95,57.413l0.654,-0.376" style="fill:none;stroke:#c50f1f;stroke-width:0.1px;"/>
+                    <path d="M80.1,53.1l0.9,0.9l-0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M85.5,53.1l0.9,-0.9l-0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M85.5,53.1l-0.9,0.9l0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M58.5,54l1.8,1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M61.2,55.8l1.8,-1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M83.7,54l-1.8,1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M80.1,55.8l-1.8,-1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M79.2,55.8l-1.8,1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M63.9,57.6l12.6,0" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M76.5,57.6l6.3,0" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M65.7,59.4l9,0" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M57.6,53.1l-0.9,0.9l0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M77.4,57.6l-3.6,3.6l3.6,-3.6Z" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M82.8,57.6l8.1,0l4.5,-4.5l0,-6.3" style="fill:none;stroke:#c50f1f;stroke-width:0.1px;"/>
+                    <path d="M89.1,55.8l4.5,-4.5l0,-13.5" style="fill:none;stroke:#000;stroke-width:0.2px;"/>
+                    <path d="M81,55.8l1.8,1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M81.9,57.6l-1.8,1.8l-5.4,0" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M73.8,61.2l-1.8,1.8l-1.601,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M76.5,63l2.7,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M72,63l-1.8,1.8l-2.7,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M67.863,64.198l-0.363,0l0,1.204l0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M54.363,55.198l-0.363,0l0,1.204l0.389,0" style="fill:none;stroke:#c50f1f;stroke-width:0.1px;"/>
+                    <path d="M70.549,51.598l-0.363,0l0,1.204l0.39,0" style="fill:none;stroke:#c50f1f;stroke-width:0.1px;"/>
+                    <path d="M77.037,51.598l0.363,0l0,1.204l-0.389,0" style="fill:none;stroke:#c50f1f;stroke-width:0.1px;"/>
+                    <path d="M96.002,47.163l0,-0.363l-1.204,0l0,0.389" style="fill:none;stroke:#c50f1f;stroke-width:0.1px;"/>
+                    <path d="M77.4,52.2l-7.2,0" style="fill:none;stroke:#c50f1f;stroke-width:0.1px;"/>
+                    <path d="M94.202,38.163l0,-0.363l-1.204,0l0,0.389" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M70.762,62.398l-0.363,0l0,1.204l0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M69.837,62.398l0.363,0l0,1.204l-0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M74.163,62.398l-0.363,0l0,1.204l0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M75.063,60.598l-0.363,0l0,1.204l0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M78.837,62.398l0.363,0l0,1.204l-0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <g>
+                        <rect x="86.4" y="57.018" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="92.7" y="42.618" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="68.4" y="64.294" width="1.184" height="1.013" style="fill:#fff;"/>
+                        <rect x="63.9" y="49.818" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="73.8" y="51.618" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <text x="64.585px" y="50.801px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">1</text>
+                        <rect x="63.9" y="53.418" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="75.182" y="60.618" width="0.782" height="1.164" style="fill:#fff;"/>
+                        <rect x="70.495" y="62.495" width="1.184" height="1.013" style="fill:#fff;"/>
+                        <rect x="74.314" y="62.495" width="1.184" height="1.013" style="fill:#fff;"/>
+                        <rect x="68.902" y="62.495" width="0.791" height="1.013" style="fill:#fff;"/>
+                        <rect x="69.979" y="58.818" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="69.979" y="57.018" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="69.979" y="55.219" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="69.979" y="60.618" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <text x="64.548px" y="54.401px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">2</text>
+                        <text x="70.567px" y="56.201px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">3</text>
+                        <text x="70.498px" y="58.007px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">4</text>
+                        <text x="70.545px" y="59.8px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">5</text>
+                        <text x="70.493px" y="61.6px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">6</text>
+                        <text x="74.234px" y="52.601px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">11</text>
+                        <text x="86.718px" y="58.007px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">14</text>
+                        <text x="92.806px" y="43.6px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">101</text>
+                        <rect x="55.8" y="55.219" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <text x="56.125px" y="56.2px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">23</text>
+                        <text x="69.037px" y="63.395px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">7</text>
+                        <text x="70.534px" y="63.383px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">17</text>
+                        <text x="75.282px" y="61.595px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">9</text>
+                        <text x="74.297px" y="63.395px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">10</text>
+                        <text x="68.554px" y="65.195px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">8</text>
+                    </g>
+                </g>
+                <g id="XBG-Berg" serif:id="XBG Berg">
+                    <g>
+                        <path d="M18.9,6.29l-0.9,-0.9l0.9,0l0,0.9Z"/>
+                        <path d="M18.9,6.29l-0.9,-0.9l0.9,0l0,0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M47.7,6.29l-0.9,-0.9l0.9,0l0,0.9Z"/>
+                        <path d="M47.7,6.29l-0.9,-0.9l0.9,0l0,0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M44.1,6.29l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                        <path d="M44.1,6.29l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M42.3,4.49l-0.9,0.9l0.9,0l0,-0.9Z"/>
+                        <path d="M42.3,4.49l-0.9,0.9l0.9,0l0,-0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M29.7,4.49l0.9,0.9l-0.9,0l0,-0.9Z"/>
+                        <path d="M29.7,4.49l0.9,0.9l-0.9,0l0,-0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M27.9,6.3l0.9,0.9l-0.9,0l0,-0.9Z"/>
+                        <path d="M27.9,6.3l0.9,0.9l-0.9,0l0,-0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M40.5,9.9l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                        <path d="M40.5,9.9l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M42.3,8.1l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                        <path d="M42.3,8.1l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M24.3,6.29l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                        <path d="M24.3,6.29l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M27.9,6.3l-0.9,-0.9l0.9,0l0,0.9Z"/>
+                        <path d="M27.9,6.3l-0.9,-0.9l0.9,0l0,0.9Z"/>
+                    </g>
+                    <path d="M16.2,5.39l36,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M16.563,4.788l-0.363,0l0,1.204l0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M25.2,1.79l1.8,1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M28.8,3.59l1.8,1.8l10.8,0l1.8,-1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M45,3.59l1.8,-1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <g>
+                        <path d="M26.1,2.69l-0.9,-0.9l0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    </g>
+                    <g>
+                        <path d="M29.7,4.49l-0.9,-0.9l0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    </g>
+                    <g>
+                        <path d="M26.1,2.69l0.9,0.9l-0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    </g>
+                    <g>
+                        <path d="M45.836,2.69l-0.9,0.9l0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    </g>
+                    <g>
+                        <path d="M45.9,2.69l0.9,-0.9l-0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    </g>
+                    <g>
+                        <path d="M42.3,4.49l0.9,-0.9l-0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    </g>
+                    <path d="M51.837,4.798l0.363,0l0,1.204l-0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M51.837,6.598l0.363,0l0,1.204l-0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M34.563,8.398l-0.363,0l0,1.204l0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M34.563,10.198l-0.363,0l0,1.204l0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M27,5.4l1.8,1.8" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M25.2,7.2l18,0l1.8,-1.81l-5.4,5.41l-5.4,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M41.4,9l-7.2,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M46.8,5.39l1.8,1.81l3.6,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M25.2,5.4l-1.8,1.8l-3.6,0l-1.8,-1.8" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M25.563,6.598l-0.363,0l0,1.204l0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <g>
+                        <rect x="35.1" y="1.208" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <text x="35.785px" y="2.191px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">1</text>
+                        <rect x="35.1" y="6.608" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="35.1" y="4.808" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="35.1" y="3.008" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <text x="35.718px" y="3.997px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">2</text>
+                        <text x="35.73px" y="5.803px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">3</text>
+                        <text x="35.675px" y="7.597px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">4</text>
+                    </g>
+                </g>
+                <g id="XBS-Berg-Stadt" serif:id="XBS Berg Stadt">
+                    <g>
+                        <path d="M63.9,4.497l-0.9,-0.9l0.9,0l0,0.9Z"/>
+                        <path d="M63.9,4.497l-0.9,-0.9l0.9,0l0,0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M63.9,4.5l0.9,0.9l-0.9,0l0,-0.9Z"/>
+                        <path d="M63.9,4.5l0.9,0.9l-0.9,0l0,-0.9Z"/>
+                    </g>
+                    <path d="M71.637,4.794l0.363,0l0,1.205l-0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M63.363,4.794l-0.363,0l0,1.205l0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M64.8,5.397l-1.8,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M63,3.597l1.8,1.8l7.2,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                </g>
+                <g id="XCE-Cella" serif:id="XCE Cella">
+                    <path d="M77.4,16.2l-1.8,-1.8l-16.2,0l-1.8,1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M57.6,18l1.8,1.8l16.2,0l1.8,-1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <g>
+                        <rect x="66.6" y="13.815" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="66.6" y="15.618" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <text x="67.285px" y="14.798px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">1</text>
+                        <text x="67.218px" y="16.604px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">2</text>
+                        <rect x="66.6" y="19.218" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="66.6" y="17.418" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <text x="67.23px" y="18.41px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">3</text>
+                        <text x="67.175px" y="20.204px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">4</text>
+                    </g>
+                    <g>
+                        <path d="M58.5,15.3l-0.9,0.9l0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    </g>
+                    <g>
+                        <path d="M58.5,18.9l-0.9,-0.9l0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    </g>
+                    <g>
+                        <path d="M76.5,15.3l0.9,0.9l-0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    </g>
+                    <g>
+                        <path d="M76.5,18.9l0.9,-0.9l-0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    </g>
+                </g>
+                <g id="Infrastruktur-eingleisige-Strecke" serif:id="Infrastruktur eingleisige Strecke">
+                    <g>
+                        <path d="M27,29.7l-0.9,0.9l0.9,0l0,-0.9Z"/>
+                        <path d="M27,29.7l-0.9,0.9l0.9,0l0,-0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M23.4,29.7l0.9,0.9l-0.9,0l0,-0.9Z"/>
+                        <path d="M23.4,29.7l0.9,0.9l-0.9,0l0,-0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M71.1,26.1l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                        <path d="M71.1,26.1l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M58.5,26.1l-0.9,-0.9l0.9,0l0,0.9Z"/>
+                        <path d="M58.5,26.1l-0.9,-0.9l0.9,0l0,0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M23.4,29.7l-0.9,-0.9l0.9,0l0,0.9Z"/>
+                        <path d="M23.4,29.7l-0.9,-0.9l0.9,0l0,0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M27,29.7l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                        <path d="M27,29.7l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M35.1,29.7l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                        <path d="M35.1,29.7l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M78.3,38.705l0.9,0.9l-0.9,0l0,-0.9Z"/>
+                        <path d="M78.3,38.705l0.9,0.9l-0.9,0l0,-0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M69.3,38.7l-0.9,-0.9l0.9,0l0,0.9Z"/>
+                        <path d="M69.3,38.7l-0.9,-0.9l0.9,0l0,0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M66.6,38.7l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                        <path d="M66.6,38.7l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M51.3,42.3l-0.9,-0.9l0.9,0l0,0.9Z"/>
+                        <path d="M51.3,42.3l-0.9,-0.9l0.9,0l0,0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M62.1,42.3l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                        <path d="M62.1,42.3l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M49.5,38.7l0.9,0.9l-0.9,0l0,-0.9Z"/>
+                        <path d="M49.5,38.7l0.9,0.9l-0.9,0l0,-0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M40.5,38.7l-0.9,-0.9l0.9,0l0,0.9Z"/>
+                        <path d="M40.5,38.7l-0.9,-0.9l0.9,0l0,0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M34.2,38.7l0.9,0.9l-0.9,0l0,-0.9Z"/>
+                        <path d="M34.2,38.7l0.9,0.9l-0.9,0l0,-0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M42.3,26.1l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                        <path d="M42.3,26.1l0.9,-0.9l-0.9,0l0,0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M42.3,26.1l-0.9,0.9l0.9,0l0,-0.9Z"/>
+                        <path d="M42.3,26.1l-0.9,0.9l0.9,0l0,-0.9Z"/>
+                    </g>
+                    <path d="M30.6,27l2.7,0" style="fill:none;stroke:#000;stroke-width:0.1px;stroke-dasharray:0.1,0.1;"/>
+                    <path d="M57.6,25.2l1.8,1.8l10.8,0l1.8,-1.8" style="fill:none;stroke:#000;stroke-width:0.2px;"/>
+                    <path d="M43.2,25.2l-1.8,1.8l-1.8,0l-1.8,1.8l-1.8,0l-1.8,1.8l-16.2,0" style="fill:none;stroke:#000;stroke-width:0.2px;"/>
+                    <path d="M36,28.8l-5.4,0" style="fill:none;stroke:#000;stroke-width:0.2px;"/>
+                    <path d="M41.4,27l3.6,0" style="fill:none;stroke:#000;stroke-width:0.2px;"/>
+                    <path d="M18,28.8l10.8,-0.018l1.8,-1.782" style="fill:none;stroke:#000;stroke-width:0.2px;"/>
+                    <path d="M26.1,30.6l1.8,-1.818" style="fill:none;stroke:#000;stroke-width:0.2px;"/>
+                    <path d="M24.3,30.6l-1.8,-1.818" style="fill:none;stroke:#000;stroke-width:0.2px;"/>
+                    <path d="M79.2,39.605l-1.8,-1.805l-9,0" style="fill:none;stroke:#000;stroke-width:0.2px;"/>
+                    <path d="M67.5,37.8l-3.6,3.6l-15.3,0" style="fill:none;stroke:#000;stroke-width:0.2px;"/>
+                    <path d="M63,41.4l-1.8,1.8l-9,0l-1.8,-1.8" style="fill:none;stroke:#000;stroke-width:0.2px;"/>
+                    <path d="M50.4,39.605l-1.8,-1.805l-9,0" style="fill:none;stroke:#000;stroke-width:0.2px;"/>
+                    <path d="M35.1,39.58l-1.8,-1.78l-8.1,0" style="fill:none;stroke:#000;stroke-width:0.2px;"/>
+                    <path d="M25.563,37.198l-0.363,0l0,1.204l0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M25.563,38.998l-0.363,0l0,1.204l0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M48.963,40.798l-0.363,0l0,1.204l0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <g>
+                        <rect x="18.9" y="28.218" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="28.736" y="37.218" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="44.061" y="39.023" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="44.061" y="37.218" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="55.761" y="40.818" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="72.9" y="39.018" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="72.9" y="37.218" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="55.8" y="42.618" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="28.736" y="39.018" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <text x="19.006px" y="29.2px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">101</text>
+                        <rect x="63.9" y="26.418" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="31.5" y="30.018" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="18.9" y="30.018" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="31.5" y="28.218" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="63.9" y="24.618" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <text x="18.925px" y="31px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">102</text>
+                        <text x="31.682px" y="29.201px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">111</text>
+                        <text x="31.598px" y="30.953px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">112</text>
+                        <text x="64.546px" y="25.601px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">1</text>
+                        <text x="64.507px" y="27.401px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">3</text>
+                        <text x="72.911px" y="38.2px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">612</text>
+                        <text x="55.751px" y="41.8px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">622</text>
+                        <text x="55.804px" y="43.6px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">621</text>
+                        <text x="44.054px" y="38.2px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">632</text>
+                        <text x="44.136px" y="40.005px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">631</text>
+                        <text x="28.734px" y="38.2px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">642</text>
+                        <text x="28.794px" y="39.981px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">641</text>
+                        <text x="72.956px" y="40.005px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">611</text>
+                    </g>
+                    <path d="M30.963,28.198l-0.363,0l0,1.204l0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M44.637,26.398l0.363,0l0,1.204l-0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M18.363,28.198l-0.363,0l0,1.204l0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M18.363,29.998l-0.363,0l0,1.204l0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                </g>
+                <g id="XLG-Leopoldsgrün" serif:id="XLG Leopoldsgrün">
+                    <path d="M7.2,9l1.8,-1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M10.8,9l1.8,-1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M9,7.2l5.4,0" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M12.237,8.398l0.363,0l0,1.204l-0.389,0" style="fill:none;stroke:#c50f1f;stroke-width:0.1px;"/>
+                    <g>
+                        <path d="M10.8,6.3l-0.9,0.9l0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    </g>
+                    <g>
+                        <path d="M8.1,6.3l-0.9,0.9l0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    </g>
+                    <g>
+                        <path d="M8.1,8.1l-0.9,0.9l0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    </g>
+                    <g>
+                        <path d="M11.7,8.1l0.9,-0.9l-0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    </g>
+                    <g>
+                        <path d="M8.1,8.1l0.9,-0.9l-0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    </g>
+                    <g>
+                        <path d="M11.7,8.1l-0.9,0.9l0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    </g>
+                </g>
+                <g id="XDE-Derau" serif:id="XDE Derau">
+                    <g>
+                        <path d="M19.8,54.908l-0.9,0.9l0.9,0l0,-0.9Z"/>
+                        <path d="M19.8,54.908l-0.9,0.9l0.9,0l0,-0.9Z"/>
+                    </g>
+                    <g>
+                        <path d="M21.6,53.108l-0.9,0.9l0.9,0l0,-0.9Z"/>
+                        <path d="M21.6,53.108l-0.9,0.9l0.9,0l0,-0.9Z"/>
+                    </g>
+                    <path d="M18.9,55.808l3.6,-3.6l15.3,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M16.2,63.008l19.8,0" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M18,64.808l1.8,-1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M20.7,63.008l-1.8,-1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M17.1,61.208l1.8,-1.8l17.1,0l1.8,1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M38.7,61.208l1.8,1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M34.2,64.808l-1.8,-1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M31.5,63.008l1.8,-1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M12.6,63.008l1.8,-1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.2px;"/>
+                    <path d="M18.9,59.408l-4.5,0l-2.7,-2.7" style="fill:none;stroke:#c50f1f;stroke-width:0.1px;"/>
+                    <path d="M15.3,59.408l3.6,-3.6l16.2,0l1.8,1.8l7.2,0" style="fill:none;stroke:#c50f1f;stroke-width:0.1px;"/>
+                    <path d="M44.1,59.408l-2.7,0l-1.8,-1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.1px;"/>
+                    <path d="M36,59.408l0.9,0l1.8,-1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.1px;"/>
+                    <path d="M36.9,57.608l-12.6,0l-1.8,-1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.1px;"/>
+                    <path d="M20.7,54.008l17.1,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M11.7,56.708l-1.8,-1.8" style="fill:none;stroke:#c50f1f;stroke-width:0.1px;stroke-dasharray:0.1,0.1;"/>
+                    <path d="M43.737,58.806l0.363,0l0,1.205l-0.389,0" style="fill:none;stroke:#c50f1f;stroke-width:0.1px;"/>
+                    <path d="M43.737,57.006l0.363,0l0,1.205l-0.389,0" style="fill:none;stroke:#c50f1f;stroke-width:0.1px;"/>
+                    <path d="M37.437,53.406l0.363,0l0,1.205l-0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M37.437,51.61l0.363,0l0,1.204l-0.389,0" style="fill:none;stroke:#000;stroke-width:0.1px;"/>
+                    <path d="M35.637,62.406l0.363,0l0,1.205l-0.389,0" style="fill:none;stroke:#c50f1f;stroke-width:0.1px;"/>
+                    <path d="M16.563,62.406l-0.363,0l0,1.205l0.389,0" style="fill:none;stroke:#c50f1f;stroke-width:0.1px;"/>
+                    <path d="M39.6,62.108l-0.9,-0.9l0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M32.4,62.108l0.9,-0.9l-0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M32.4,62.108l-0.9,0.9l0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M18,60.308l-0.9,0.9l0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M18,60.3l0.9,-0.9l-0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M19.8,62.108l-0.9,-0.9l0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M19.8,62.108l0.9,0.9l-0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M16.2,58.508l-0.9,0.9l0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M23.4,56.708l-0.9,-0.9l0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M18.9,63.908l0.9,-0.9l-0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M18.9,63.908l-0.9,0.9l0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M36.9,60.308l-0.9,-0.9l0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M40.5,58.508l-0.9,-0.9l0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M37.8,58.508l0.9,-0.9l-0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M36.9,60.308l0.9,0.9l-0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M33.3,63.908l0.9,0.9l-0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M39.6,62.108l0.9,0.9l-0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M36,56.708l0.9,0.9l-0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M13.5,62.108l0.9,-0.9l-0.9,0l0,0.9Z" style="fill:#c50f1f;"/>
+                    <path d="M13.5,62.108l-0.9,0.9l0.9,0l0,-0.9Z" style="fill:#c50f1f;"/>
+                    <g>
+                        <rect x="25.2" y="60.607" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="33.3" y="62.426" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="16.775" y="62.426" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="41.4" y="58.826" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="41.4" y="57.014" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <text x="25.846px" y="61.61px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">3</text>
+                        <rect x="28.8" y="57.026" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="28.8" y="53.426" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="28.8" y="55.226" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="28.8" y="51.748" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="25.2" y="58.826" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="25.2" y="62.426" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <rect x="25.2" y="64.226" width="1.8" height="1.164" style="fill:#fff;"/>
+                        <text x="25.885px" y="65.21px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">1</text>
+                        <text x="25.848px" y="63.41px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">2</text>
+                        <text x="29.376px" y="56.216px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">6</text>
+                        <text x="25.826px" y="59.81px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">4</text>
+                        <text x="29.393px" y="58.016px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">5</text>
+                        <text x="29.33px" y="52.604px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">8</text>
+                        <text x="29.402px" y="54.409px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">7</text>
+                        <text x="41.703px" y="58.004px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">24</text>
+                        <text x="41.71px" y="59.816px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">23</text>
+                        <text x="33.624px" y="63.409px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">22</text>
+                        <text x="17.122px" y="63.409px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:1.2px;">21</text>
+                    </g>
+                </g>
+                <g id="Beschriftungen">
+                    <g id="xce" transform="matrix(0.12,0,0,0.12,62.3273,-21.5133)">
+                        <text x="176.866px" y="276.884px" style="font-family:'FiraSans-Bold', 'Fira Sans', sans-serif;font-weight:700;font-size:13.333px;fill:#c50f1f;">elektrifiziert</text>
+                        <text x="159.946px" y="291.551px" style="font-family:'FiraSans-Bold', 'Fira Sans', sans-serif;font-weight:700;font-size:13.333px;fill:#08151f;">nicht elektrifiziert</text>
+                    </g>
+                    <g id="xap" transform="matrix(0.12,0,0,0.12,-12.8502,6.56689)">
+                        <text x="196.353px" y="276.884px" style="font-family:'FiraSans-Bold', 'Fira Sans', sans-serif;font-weight:700;font-size:12px;fill:#08151f;">Bk. Alp</text>
+                        <text x="204.969px" y="290.084px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:12px;fill:#08151f;">XAP</text>
+                    </g>
+                    <g id="xlg" transform="matrix(0.12,0,0,0.12,-15.8562,-22.341)">
+                        <text x="199.323px" y="276.884px" style="font-family:'FiraSans-Bold', 'Fira Sans', sans-serif;font-weight:700;font-size:12px;fill:#08151f;">Abzw.</text>
+                        <text x="177.267px" y="290.084px" style="font-family:'FiraSans-Bold', 'Fira Sans', sans-serif;font-weight:700;font-size:12px;fill:#08151f;">Leopoldsgrün</text>
+                        <text x="205.119px" y="303.284px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:12px;fill:#08151f;">XLG</text>
+                    </g>
+                    <g id="xde" transform="matrix(0.12,0,0,0.12,2.98192,15.5899)">
+                        <text x="190.089px" y="276.884px" style="font-family:'FiraSans-Bold', 'Fira Sans', sans-serif;font-weight:700;font-size:12px;fill:#08151f;">Bf. Derau</text>
+                        <text x="204.819px" y="290.084px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:12px;fill:#08151f;">XDE</text>
+                    </g>
+                    <g id="xwf" transform="matrix(0.12,0,0,0.12,44.2833,14.2515)">
+                        <text x="182.499px" y="276.884px" style="font-family:'FiraSans-Bold', 'Fira Sans', sans-serif;font-weight:700;font-size:12px;fill:#08151f;">Bf. Walfdorf</text>
+                        <text x="203.991px" y="290.084px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:12px;fill:#08151f;">XWF</text>
+                    </g>
+                    <g id="xws" transform="matrix(7.28584e-18,0.12,-0.12,7.28584e-18,128.427,8.24585)">
+                        <text x="137.871px" y="276.884px" style="font-family:'FiraSans-Bold', 'Fira Sans', sans-serif;font-weight:700;font-size:12px;fill:#08151f;">Bft. Walfdorf-Spendenkasse</text>
+                        <text x="203.667px" y="290.084px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:12px;fill:#08151f;">XWS</text>
+                    </g>
+                    <g id="xbs" transform="matrix(0.12,0,0,0.12,53.3164,-27.6433)">
+                        <text x="163.173px" y="276.884px" style="font-family:'FiraSans-Bold', 'Fira Sans', sans-serif;font-weight:700;font-size:12px;fill:#08151f;">Awanst. Berg Stadt</text>
+                        <text x="204.975px" y="290.084px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:12px;fill:#08151f;">XBS</text>
+                    </g>
+                    <g id="xce1" serif:id="xce" transform="matrix(0.12,0,0,0.12,41.6574,-21.7802)">
+                        <text x="192.819px" y="276.884px" style="font-family:'FiraSans-Bold', 'Fira Sans', sans-serif;font-weight:700;font-size:12px;fill:#08151f;">Bf. Cella</text>
+                        <text x="205.323px" y="290.084px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:12px;fill:#08151f;">XCE</text>
+                    </g>
+                    <g id="xsc" transform="matrix(0.12,0,0,0.12,0.183277,-0.627347)">
+                        <text x="159.075px" y="276.884px" style="font-family:'FiraSans-Bold', 'Fira Sans', sans-serif;font-weight:700;font-size:12px;fill:#08151f;">Bf. Schattenbahnhof</text>
+                        <text x="205.263px" y="290.084px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:12px;fill:#08151f;">XSC</text>
+                    </g>
+                    <g id="xpn" transform="matrix(0.12,0,0,0.12,38.9783,-4.17551)">
+                        <text x="184.935px" y="276.884px" style="font-family:'FiraSans-Bold', 'Fira Sans', sans-serif;font-weight:700;font-size:12px;fill:#08151f;">Bf. Pörsten</text>
+                        <text x="204.309px" y="290.084px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:12px;fill:#08151f;">XPN</text>
+                    </g>
+                    <g id="xbl" transform="matrix(0.12,0,0,0.12,30.8783,12.0187)">
+                        <text x="175.245px" y="276.884px" style="font-family:'FiraSans-Bold', 'Fira Sans', sans-serif;font-weight:700;font-size:12px;fill:#08151f;">Bf. Blomeholm</text>
+                        <text x="205.257px" y="290.084px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:12px;fill:#08151f;">XBL</text>
+                    </g>
+                    <g id="xzo" transform="matrix(0.12,0,0,0.12,19.1603,2.06689)">
+                        <text x="196.161px" y="276.884px" style="font-family:'FiraSans-Bold', 'Fira Sans', sans-serif;font-weight:700;font-size:12px;fill:#08151f;">Bf. Zoo</text>
+                        <text x="204.609px" y="290.084px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:12px;fill:#08151f;">XZO</text>
+                    </g>
+                    <g id="xdr" transform="matrix(0.12,0,0,0.12,48.6825,8.38993)">
+                        <text x="185.553px" y="276.884px" style="font-family:'FiraSans-Bold', 'Fira Sans', sans-serif;font-weight:700;font-size:12px;fill:#08151f;">Bf. Drewitz</text>
+                        <text x="204.399px" y="290.084px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:12px;fill:#08151f;">XDR</text>
+                    </g>
+                    <g id="xab" transform="matrix(0.12,0,0,0.12,3.8308,8.44177)">
+                        <text x="183.321px" y="276.884px" style="font-family:'FiraSans-Bold', 'Fira Sans', sans-serif;font-weight:700;font-size:12px;fill:#08151f;">Bf. Ausblick</text>
+                        <text x="204.807px" y="290.084px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:12px;fill:#08151f;">XAB</text>
+                    </g>
+                    <g id="xbg" transform="matrix(0.12,0,0,0.12,19.817,-22.2101)">
+                        <text x="193.707px" y="276.884px" style="font-family:'FiraSans-Bold', 'Fira Sans', sans-serif;font-weight:700;font-size:12px;fill:#08151f;">Bf. Berg</text>
+                        <text x="204.459px" y="290.084px" style="font-family:'FiraSans-Regular', 'Fira Sans', sans-serif;font-size:12px;fill:#08151f;">XBG</text>
+                    </g>
+                </g>
+            </svg>
