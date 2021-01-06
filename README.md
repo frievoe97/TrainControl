@@ -132,4 +132,4 @@ SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 ## Railway network/Schienennetz
 
-<img src="https://github.com/frievoe97/TrainControl/blob/master/plan.svg">
+<img src="https://github.com/frievoe97/TrainControl/blob/master/images/plan.svg">
