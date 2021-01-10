@@ -11,6 +11,7 @@ config/.DS_Store
 /latex/paper.bbl
 /latex/paper.lof
 /latex/paper.log
+/latex/paper.out
 /latex/paper.lot
 /latex/paper.synctex.gz
 /latex/paper.toc
