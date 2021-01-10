@@ -3,7 +3,7 @@ v_1 = 0;        % Zielgeschwindigkeit
 
 t = 2;          % Bremskraftentwicklungszeit (Durschlagzeit im Zug, Aufbauzeit
 
-a = 0.2;        % Bremsverzögerung
+a = 0.2;          % Bremsverzögerung
 
 st = 1;         % Steigung
 
@@ -23,8 +23,8 @@ contourf(X_1,Y_1,Z_1,15)
 
 % Integral
 
-syms x
-expr = x;
+syms t; 
+beschleunigung=sym(a); 
+gescchwinndigkeit=int(beschleunigung,t);
 
-F = int(expr)
-F2 = int(F)
+geschwindigkeit

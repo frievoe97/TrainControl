@@ -6,6 +6,7 @@
 \usepackage[ngerman]{babel}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage{blindtext}
 \usepackage{apacite}
 \usepackage[document]{ragged2e}
 \usepackage{enumitem}
@@ -30,6 +31,8 @@
 \begin{document}
 \pagenumbering{gobble}  % No Pagenumbers
 \input{titelseite}
+\input{aufgabenstellung}
+\newpage
 \input{zusammenfassung}
 \pagenumbering{Roman} % roman pagenumbers
 \tableofcontents % set the table of contents
@@ -45,6 +48,8 @@
 \input{todo}
 \newpage
 \input{formula}
+\newpage
+\input{methodik}
 \newpage
 \pagenumbering{Roman} % roman pagenumbers
 \setcounter{page}{4}
