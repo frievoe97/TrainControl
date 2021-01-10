@@ -14,7 +14,7 @@ In order for the trains to be continuously monitored and thus the position to be
 
 ### Instructions
 
-To use this code, you need to create a file called db_access.php in the config folder and specify the access to the database. The file should look like this:
+To use this code, you need to create a file called db_access.php in the php/config folder and specify the access to the database. The file should look like this:
 
 ```php
 <?php
@@ -80,7 +80,7 @@ Damit die Züge kontinuierlich überwacht werden können und somit die Position 
 
 ### Anleitung
 
-Um diesen Code nutzen zu können, muss in dem config Ordner eine Datei namens db_access.php erstellen und den Zugang zu der Datenbank festlegen. Die Datei müsste so aussehen:
+Um diesen Code nutzen zu können, muss in dem php/config Ordner eine Datei namens db_access.php erstellen und den Zugang zu der Datenbank festlegen. Die Datei müsste so aussehen:
 
 ```php
 <?php
