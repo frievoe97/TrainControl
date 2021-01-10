@@ -14,7 +14,7 @@ In order for the trains to be continuously monitored and thus the position to be
 
 ### Instructions
 
-To use this code, you need to create a file called db_access.php in the config folder and specify the access to the database. The file should look like this:
+To use this code, you need to create a file called db_access.php in the php/config folder and specify the access to the database. The file should look like this:
 
 ```php
 <?php
@@ -64,6 +64,7 @@ SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 * [Systemführung ZBMS - Bestimmung der dynamischen Bremskurven](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjb6Kfj74rtAhXDx4UKHU5oDl8QFjADegQIBBAC&url=https%3A%2F%2Fwww.bav.admin.ch%2Fdam%2Fbav%2Fde%2Fdokumente%2Fthemen%2Fzugbeeinflussung%2Fzbms_dynamische_bremskurven.pdf.download.pdf%2F160707_Bestimmung_der_dynamischen_Bremskurven_V_11_d.pdf&usg=AOvVaw3ipZf7fEzocRlxqQNWxwOO)
 * [Maschek, Ulrich - Zugbeeinflussung](https://link.springer.com/chapter/10.1007/978-3-8348-2654-1_7)
 * [Wende, Dietrich - Fahrdynamik des Schienenverkehrs](https://www.springer.com/de/book/9783519004196)
+* [Friman, B. - An algorithm for braking curve calculations in ERTMS train protection systems](https://www.witpress.com/Secure/elibrary/papers/CR06/CR06042FU1.pdf)
 
 ## Deutsch
 
@@ -79,7 +80,7 @@ Damit die Züge kontinuierlich überwacht werden können und somit die Position 
 
 ### Anleitung
 
-Um diesen Code nutzen zu können, muss in dem config Ordner eine Datei namens db_access.php erstellen und den Zugang zu der Datenbank festlegen. Die Datei müsste so aussehen:
+Um diesen Code nutzen zu können, muss in dem php/config Ordner eine Datei namens db_access.php erstellen und den Zugang zu der Datenbank festlegen. Die Datei müsste so aussehen:
 
 ```php
 <?php
@@ -129,6 +130,7 @@ SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 * [Systemführung ZBMS - Bestimmung der dynamischen Bremskurven](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjb6Kfj74rtAhXDx4UKHU5oDl8QFjADegQIBBAC&url=https%3A%2F%2Fwww.bav.admin.ch%2Fdam%2Fbav%2Fde%2Fdokumente%2Fthemen%2Fzugbeeinflussung%2Fzbms_dynamische_bremskurven.pdf.download.pdf%2F160707_Bestimmung_der_dynamischen_Bremskurven_V_11_d.pdf&usg=AOvVaw3ipZf7fEzocRlxqQNWxwOO)
 * [Maschek, Ulrich - Zugbeeinflussung](https://link.springer.com/chapter/10.1007/978-3-8348-2654-1_7)
 * [Wende, Dietrich - Fahrdynamik des Schienenverkehrs](https://www.springer.com/de/book/9783519004196)
+* [Friman, B. - An algorithm for braking curve calculations in ERTMS train protection systems](https://www.witpress.com/Secure/elibrary/papers/CR06/CR06042FU1.pdf)
 
 ## Railway network/Schienennetz
 
