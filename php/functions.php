@@ -115,6 +115,116 @@ function wandeleUhrzeit(int $inputzeit, String $zielart, $options = array()) {
     }
 }
 
+// ------------------------------------------------------------------------------------
+// Wandele eine Realzeit (vom Server) in eine Simulationszeit oder umgekehrt (als Timestamp)
+function getUhrzeit ($inputzeit = NULL, $zielart = "simulationszeit", $timeshift = NULL, $options = array()) {
+    if (!isset($inputzeit) || is_null($inputzeit)) { $inputzeit = time(); }
+    if (!isset($timeshift) || is_null($timeshift) || !is_numeric($timeshift)) { $timeshift = getTimeshift(); }
+
+    // Wenn als Inputtyp "h:m" übergeben wird, muss die Zeit zunächst umformatiert werden auf einen heutigen Timestamp
+    if (!isset($options["inputtyp"])) { $options["inputtyp"] = "timestamp"; }
+
+    // Ausgabetyp
+    if (!isset($options["outputtyp"])) { $options["outputtyp"] = "timestamp"; }
+
+    if (!defined('FAHRPLAN_SESSION_SIM_IVUTAG')) {
+        define('FAHRPLAN_SESSION_SIM_IVUTAG',date("Y-m-d"));
+    }
+    $sim_datum = explode("-",FAHRPLAN_SESSION_SIM_IVUTAG);
+
+    if (in_array($options["inputtyp"],array("h:i","h:i:s")) && (substr_count($inputzeit,":") == 0)) { $options["inputtyp"] = "timestamp"; }
+
+    switch ($options["inputtyp"]) {
+        default:
+        case "timestamp":
+            {
+                $zeit = $inputzeit;
+            }
+            break;
+
+        case "h:i":
+        case "h:i:s":
+            {
+                $zeitdaten = explode (":",$inputzeit);
+                if (!isset($zeitdaten[2])) { $zeitdaten[2] = 0; } // Wenn es keine Sekunden gibt
+
+                $zeit = mktime($zeitdaten[0],$zeitdaten[1],$zeitdaten[2],$sim_datum[1],$sim_datum[2],$sim_datum[0]);
+            }
+            break;
+    }
+
+    switch ($zielart) {
+        case "simulationszeit":
+            {
+                // Simulationszeit = Realzeit + Timeshift
+                $outputzeit = $zeit + $timeshift;
+            }
+            break;
+
+        case "realzeit":
+            {
+                // Realzeit = Simulationszeit - Timeshift
+                $outputzeit = $zeit - $timeshift;
+            }
+            break;
+    }
+
+    switch ($options["outputtyp"]) {
+        default:
+        case "timestamp":
+            {
+                // $outputzeit = $outputzeit;
+            }
+            break;
+
+        case "h:i:s":
+            {
+                $outputzeit = date("H:i:s",$outputzeit);
+            }
+            break;
+
+        case "H:i":
+            {
+                $outputzeit = date("H:i",$outputzeit);
+            }
+            break;
+
+        case "Y-m-d H:i:s":
+            {
+                $zeit = mktime(date("H",$outputzeit),date("i",$outputzeit),date("s",$outputzeit),$sim_datum[1],$sim_datum[2],$sim_datum[0]);
+                $outputzeit = date("Y-m-d H:i:s",$zeit);
+            }
+            break;
+    }
+
+    return $outputzeit;
+}
+// ------------------------------------------------------------------------------------
+// Liefert die aktuelle Zeitverschiebung
+function getTimeshift() {
+    $DB = new DB_MySQL();
+    $sessionDB = $DB->select("SELECT `timeshift`
+                           FROM `".DB_TABLE_FAHRPLAN_SESSION."`
+                           WHERE `".DB_TABLE_FAHRPLAN_SESSION."`.`status` IN (1,2,5)
+                           ORDER BY `status` DESC LIMIT 0,1
+                          ");
+    unset ($DB);
+
+    if (count($sessionDB) == 0 || !is_numeric($sessionDB[0]->timeshift) || is_null($sessionDB[0]->timeshift)) {
+        return 0;
+    }
+
+    return $sessionDB[0]->timeshift;
+}
+
+
+
+
+
+// ------------------------------------------------
+
+
+
 // Prüfung, ob die Fahrplansession noch aktuell ist, wenn nicht, dann wird das vorerst Skript beendet, damit es von SYSTEMD wieder neugestartet wird
 function checkFahrplansession () {
     //TODO
