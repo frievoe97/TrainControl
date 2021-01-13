@@ -4,14 +4,6 @@
 
 DB_TABLE_FAHRZEUGE_AKTUELL
 
-
- SELECT `".DB_TABLE_SIGNALE_STANDORTE."`.`id`, `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id`
-                                    FROM `".DB_TABLE_SIGNALE_STANDORTE."`
-                                    LEFT JOIN `".DB_TABLE_SIGNALE_WENDEN."`
-                                    ON (`".DB_TABLE_SIGNALE_STANDORTE."`.`id` = `".DB_TABLE_SIGNALE_WENDEN."` .`gegensignal_id`)
-                                    WHERE `".DB_TABLE_SIGNALE_WENDEN."`.`signal_id` = '".$signal_id."'
-
-
 */
 
 function updateFahrzeugeAktuell() {
@@ -25,16 +17,14 @@ function updateFahrzeugeAktuell() {
 
 	for ($i = 0; $i < $countInt; $i++) {
 
-		$test = $DB_update->select("SELECT `".DB_TABLE_FAHRZEUGE_AKTUELL."`.`position`, 
-										`".DB_TABLE_FAHRZEUGE_AKTUELL."`.`speed`, 
-										`".DB_TABLE_FAHRZEUGE_AKTUELL."`.`adresse`, 
+		$test = $DB_update->select("SELECT `".DB_TABLE_FAHRZEUGE_AKTUELL."`.`position`,
+										`".DB_TABLE_FAHRZEUGE_AKTUELL."`.`speed`,
 										`".DB_TABLE_FAHRZEUGE_AKTUELL."`.`timestamp`
 								FROM `".DB_TABLE_FAHRZEUGE_AKTUELL."`
 								WHERE `".DB_TABLE_FAHRZEUGE_AKTUELL."`.`id` = $i
 								");
 
 		$position = (int) ((array) $test[0])['position'];
-		$adresse = (int) ((array) $test[0])['adresse'];
 		$speed = (int) ((array) $test[0])['speed'];
 		$timestamp = strtotime(((array) $test[0])['timestamp']);
 

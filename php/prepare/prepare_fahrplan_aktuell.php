@@ -50,7 +50,7 @@ function insertFahrzeugeAktuell() {
 		1 => 20,
 		2 => 30,
 		3 => 40,
-		4 => 50,
+		4 => 500,
 	];
 
 	$DB_insert = new DB_MySQL();
