@@ -50,11 +50,11 @@ function insertFahrzeugeAktuell() {
 	];
 
 	$speed = [
-		0 => 10,
-		1 => 20,
-		2 => 30,
-		3 => 40,
-		4 => 500,
+		0 => 60,
+		1 => 40,
+		2 => 100,
+		3 => 80,
+		4 => 100,
 	];
 
 	$DB_insert = new DB_MySQL();
@@ -62,7 +62,7 @@ function insertFahrzeugeAktuell() {
 	for ($i = 0; $i <= 4; $i++) {
 
 		$DB_insert->select("INSERT INTO `". DB_TABLE_FAHRZEUGE_AKTUELL."`
-									VALUES ('".$id[$i]."','".$adresse[$i]."','".$verzoegerung[$i]."','".$position[$i]."','".$speed[$i]."',CURRENT_TIMESTAMP,null,null,null)
+									VALUES ('".$id[$i]."','".$adresse[$i]."','".$verzoegerung[$i]."','".$position[$i]."','".$speed[$i]."',CURRENT_TIMESTAMP,null,null,null,null)
                                    ");
 
 	}

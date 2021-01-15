@@ -55,7 +55,7 @@ function calibrateFahrzeugeAktuell() {
 
 }
 
-function nextSpeedPositionFahrzeugeAktuell(int $adresse, int $speed, int $position) {
+function nextSpeedPositionFahrzeugeAktuell(int $adresse, int $speed, int $position, int $timestamp) {
 
 	if ($speed < 0 || $adresse < 0 || $position < 0) {
 		return false;
@@ -74,12 +74,15 @@ function nextSpeedPositionFahrzeugeAktuell(int $adresse, int $speed, int $positi
 
 	$distance = getBrakeDistance($currentSpeed, $speed, 0, $verzoegerung);
 
+	$nextTime = date("Y-m-d H:i:s", $timestamp);
+
 	$changePosition = $position - $distance;
 
 
 	$DB_update->select("UPDATE `". DB_TABLE_FAHRZEUGE_AKTUELL."`
 								SET `".DB_TABLE_FAHRZEUGE_AKTUELL."`.`next_speed` = $speed,
 								`".DB_TABLE_FAHRZEUGE_AKTUELL."`.`next_position` = $position,
+								`".DB_TABLE_FAHRZEUGE_AKTUELL."`.`next_time` = '$nextTime',
 								`".DB_TABLE_FAHRZEUGE_AKTUELL."`.`change_speed_position` = $changePosition
 								WHERE `".DB_TABLE_FAHRZEUGE_AKTUELL."`.`adresse` = $adresse
 								");

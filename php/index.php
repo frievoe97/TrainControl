@@ -17,13 +17,17 @@ $fahrzeugdaten = [
 
 //deleteFahrzeugeAktuell();
 //insertFahrzeugeAktuell();
-//nextSpeedPositionFahrzeugeAktuell(67934, 0, 1000);
 
+nextSpeedPositionFahrzeugeAktuell(67934, 0, 100000, 1610724600);
+nextSpeedPositionFahrzeugeAktuell(89342, 0, 200000, 1610724600);
+nextSpeedPositionFahrzeugeAktuell(92678, 0, 150000, 1610724600);
 
+/*
 while (1) {
 	//checkChangeSpeed();
-	updateFahrzeugeAktuell();
+	//updateFahrzeugeAktuell();
 }
+*/
 
 
 
