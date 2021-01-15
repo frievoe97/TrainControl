@@ -17,7 +17,22 @@ $fahrzeugdaten = [
 
 //deleteFahrzeugeAktuell();
 //insertFahrzeugeAktuell();
-updateFahrzeugeAktuell();
+//nextSpeedPositionFahrzeugeAktuell(67934, 0, 1000);
+
+
+while (1) {
+	//checkChangeSpeed();
+	updateFahrzeugeAktuell();
+}
+
+
+
+
+
+// TODO:
+// Wenn ein Zug seine Geschwindigkeit ändert, muss fahrzeuge_aktuell auch geändert werden und aktuallisiert werden
+
+
 
 
 

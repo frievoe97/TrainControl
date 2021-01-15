@@ -10,6 +10,7 @@ DB_TABLE_FAHRZEUGE_AKTUELL
 
 function insertSessionFahrplan() {
 
+	/*
 	$id = 2;
 	$adresse = 6783;
 	$position = 1000;
@@ -21,27 +22,15 @@ function insertSessionFahrplan() {
 									VALUES ('".$id."','".$adresse."','".$position."','".$speed."')
                                    ");
 
-	$DB_insert->select("INSERT INTO `". DB_TABLE_FAHRZEUGE_AKTUELL."`
-									VALUES (3,2,3,4)
-                                   ");
-
-
 	unset($DB_insert);
+	*/
 
 }
 
 function deleteSessionFahrplan() {
-
 	$DB_insert = new DB_MySQL();
-
 	$DB_insert->select("DELETE FROM`". DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`");
-
 	unset($DB_insert);
-
 }
-
-
-
-
 
 ?>
