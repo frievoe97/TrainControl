@@ -25,6 +25,7 @@ function insertFahrzeugeAktuell() {
 		4 => 4,
 	];
 
+	/*
 	$adresse = [
 		0 => 67934,
 		1 => 12894,
@@ -32,6 +33,7 @@ function insertFahrzeugeAktuell() {
 		3 => 17892,
 		4 => 92678,
 	];
+	*/
 
 	$verzoegerung = [
 		0 => 1,
@@ -62,7 +64,7 @@ function insertFahrzeugeAktuell() {
 	for ($i = 0; $i <= 4; $i++) {
 
 		$DB_insert->select("INSERT INTO `". DB_TABLE_FAHRZEUGE_AKTUELL."`
-									VALUES ('".$id[$i]."','".$adresse[$i]."','".$verzoegerung[$i]."','".$position[$i]."','".$speed[$i]."',CURRENT_TIMESTAMP,null,null,null,null)
+									VALUES ('".$id[$i]."','".$verzoegerung[$i]."','".$position[$i]."','".$speed[$i]."',CURRENT_TIMESTAMP,null,null,null,null)
                                    ");
 
 	}

@@ -15,19 +15,19 @@ $fahrzeugdaten = [
 // var_dump(getFahrzeugdaten($fahrzeugdaten, "id"));
 // var_dump(getFahrzeugimInfraAbschnitt(1186));
 
-//deleteFahrzeugeAktuell();
-//insertFahrzeugeAktuell();
+deleteFahrzeugeAktuell();
+insertFahrzeugeAktuell();
 
-nextSpeedPositionFahrzeugeAktuell(67934, 0, 100000, 1610724600);
-nextSpeedPositionFahrzeugeAktuell(89342, 0, 200000, 1610724600);
-nextSpeedPositionFahrzeugeAktuell(92678, 0, 150000, 1610724600);
+nextSpeedPositionFahrzeugeAktuell(0, 0, 100000, 1610724600);
+nextSpeedPositionFahrzeugeAktuell(2, 0, 200000, 1610724600);
+nextSpeedPositionFahrzeugeAktuell(4, 0, 150000, 1610724600);
 
-/*
+
 while (1) {
 	//checkChangeSpeed();
-	//updateFahrzeugeAktuell();
+	updateFahrzeugeAktuell();
 }
-*/
+
 
 
 

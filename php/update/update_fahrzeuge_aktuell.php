@@ -55,9 +55,9 @@ function calibrateFahrzeugeAktuell() {
 
 }
 
-function nextSpeedPositionFahrzeugeAktuell(int $adresse, int $speed, int $position, int $timestamp) {
+function nextSpeedPositionFahrzeugeAktuell(int $id, int $speed, int $position, int $timestamp) {
 
-	if ($speed < 0 || $adresse < 0 || $position < 0) {
+	if ($speed < 0 || $id < 0 || $position < 0) {
 		return false;
 	}
 
@@ -66,7 +66,7 @@ function nextSpeedPositionFahrzeugeAktuell(int $adresse, int $speed, int $positi
 	$data = ((array) ($DB_update->select("SELECT `".DB_TABLE_FAHRZEUGE_AKTUELL."`.`speed`,
 																`".DB_TABLE_FAHRZEUGE_AKTUELL."`.`verzoegerung`
 																FROM `".DB_TABLE_FAHRZEUGE_AKTUELL."`
-																WHERE `".DB_TABLE_FAHRZEUGE_AKTUELL."`.`adresse` = $adresse
+																WHERE `".DB_TABLE_FAHRZEUGE_AKTUELL."`.`id` = $id
 																"))[0]);
 
 	$currentSpeed = (int) $data['speed'];
@@ -84,7 +84,7 @@ function nextSpeedPositionFahrzeugeAktuell(int $adresse, int $speed, int $positi
 								`".DB_TABLE_FAHRZEUGE_AKTUELL."`.`next_position` = $position,
 								`".DB_TABLE_FAHRZEUGE_AKTUELL."`.`next_time` = '$nextTime',
 								`".DB_TABLE_FAHRZEUGE_AKTUELL."`.`change_speed_position` = $changePosition
-								WHERE `".DB_TABLE_FAHRZEUGE_AKTUELL."`.`adresse` = $adresse
+								WHERE `".DB_TABLE_FAHRZEUGE_AKTUELL."`.`id` = $id
 								");
 
 	unset($DB_update);
