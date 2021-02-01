@@ -1,15 +1,16 @@
 <?php
 
 
-function initFzg (int $id, int $adresse, float $verzoegerung, array $pushArray) {
+function initFzg (int $id, int $adresse, float $verzoegerung, int $speed, int $section, int $position, array $pushArray) {
 
 	$fzgTest = array(
 		"id" => $id,
 		"adresse" => $adresse,
 		"verzoegerung" => $verzoegerung,
-		"section" => "",
-		"speed" => "",
-		"position" => "",
+		"laenge" => "",
+		"section" => $section,
+		"speed" => $speed,
+		"position" => $position,
 		"next_speed" => array(),
 		"next_time" => array(),
 		"next_position" => array(),
@@ -22,6 +23,15 @@ function initFzg (int $id, int $adresse, float $verzoegerung, array $pushArray) 
 		"next_speed_change_time" => ""
 	);
 
+	$DB_insert = new DB_MySQL();
+
+	$DB_insert->select("INSERT INTO `". DB_TABLE_FAHRZEUGE_AKTUELL."`
+							VALUES ('".$id."','".$verzoegerung."','".$section."','".$speed."', '".$position."',
+							CURRENT_TIMESTAMP, null, null, null, null)
+                           	");
+
+	unset($DB_insert);
+
 	array_push($pushArray, $fzgTest);
 
 	return $pushArray;
@@ -29,7 +39,7 @@ function initFzg (int $id, int $adresse, float $verzoegerung, array $pushArray) 
 }
 
 
-function setTestForNextStop (array $allTrains, int $key, array $value) {
+function setCurrentValues (array $allTrains, int $key, array $value) {
 
 	$allTrains[$key]["speed"] = 160;
 	$allTrains[$key]["section"] = 0;
@@ -40,7 +50,7 @@ function setTestForNextStop (array $allTrains, int $key, array $value) {
 }
 
 
-$allTrains = array();
+//$allTrains = array();
 
 
 
