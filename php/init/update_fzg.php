@@ -2,10 +2,15 @@
 
 function setTargetSpeed (array $allTrains, int $key, int $nextSpeed, int $nextSection, int $nextPosition, int $nextTime) {
 
-	$allTrains[$key]["next_speed_change_speed"] = $nextSpeed;
-	$allTrains[$key]["next_speed_change_section"] = $nextSection;
-	$allTrains[$key]["next_speed_change_position"] = $nextPosition;
-	$allTrains[$key]["next_speed_change_time"] = $nextTime;
+	// TODO: Check for timetable, speed sign or maximum speed
+	// 1.
+
+	// Change position to section and position!!!
+
+	$allTrains[$key]["next_timetable_change_speed"] = $nextSpeed;
+	$allTrains[$key]["next_timetable_change_section"] = $nextSection;
+	$allTrains[$key]["next_timetable_change_position"] = $nextPosition;
+	$allTrains[$key]["next_timetable_change_time"] = $nextTime;
 
 	$id = $allTrains[$key]["id"];
 
@@ -24,94 +29,86 @@ function setTargetSpeed (array $allTrains, int $key, int $nextSpeed, int $nextSe
 	return $allTrains[$key];
 }
 
+function updateNextSections (array $allTrains, int $key, array $sections, array $lenghts, array $v_max) {
+
+	$allTrains[$key]["next_sections"] = $sections;
+	$allTrains[$key]["next_lenghts"] = $lenghts;
+	$allTrains[$key]["next_v_max"] = $v_max;
+
+	return $allTrains[$key];
+}
+
+function whatIsTheNextSpped() {
+	return false;
+}
+
 
 function updateNextSpeed (array $allTrains, int $key, array $value) {
 
-	// TODO: These array have to be filled:
-	/*	"next_speed" => array(),
-		"next_time" => array(),
-		"next_position" => array(),
-	 */
+	$next_sections = $value["next_sections"];
+	$next_lengths = $value["next_lengths"];
+	$next_v_max =$value["next_v_max"];
 
 	$verzoegerung = $value["verzoegerung"];
 	$section = $value["section"];
 	$position = $value["position"];
 	$speed = $value["speed"];
 
-	$nextSpeed = $value["next_speed_change_speed"];
-	$nextSection = $value["next_speed_change_section"];
-	$nextPosition = $value["next_speed_change_position"];
-	$nextTime = $value["next_speed_change_time"];
+	$nextSpeed = $value["next_timetable_change_speed"];
+	$nextSection = $value["next_timetable_change_section"];
+	$nextPosition = $value["next_timetable_change_position"];
+	$nextTime = $value["next_timetable_change_time"];
 
-	$v_2 = null;
-	$time_2 = null;
-	$position_2 = null;
-	$section_2 = null;
-
-	// Step 1: Get full distance, time, and length
 	$totalLength = getBrakeDistance($speed, $nextSpeed, $verzoegerung);
-	$totalTime = getBrakeTime($speed, $nextSpeed, $verzoegerung);
-
-	/*
-	var_dump("Verzögerung:", $verzoegerung);
-	var_dump("Strecke:", $totalLength);
-	var_dump("Zeit:", $totalTime);
-	var_dump("Speed:", $speed);
-	var_dump("############################");
-	*/
+	$totalTime = getBrakeTime($totalLength, $verzoegerung);
 
 	$startPosition = $nextPosition - $totalLength;
 	$startTime = $nextTime - $totalTime;
+	$startSpeed = $speed;
 
 	// TODO: What is, when the train has to increase the speed?
-
 	$allNextSpeeds = array();
-	$allNextTimes = arrayU();
+	$allNextTimes = array();
 	$allNextPositions = array();
 
-	var_dump("New Train");
+	array_push($allNextTimes,$startTime);
+	array_push($allNextSpeeds,$startSpeed);
+	array_push($allNextPositions,$startPosition);
+
 	for ($v_1 = $speed; $v_1 >= ($nextSpeed + 2); $v_1 = $v_1 - 2) {
-		var_dump($v_1);
+
+		$distance = getBrakeDistance($v_1, $v_1 - 2, $verzoegerung);
+
+		$startPosition = $startPosition + $distance;
+		$startTime = $startTime + getBrakeTime($distance, $verzoegerung);
+		$startSpeed = $v_1 - 2;
+
+		array_push($allNextSpeeds, $startSpeed);
+		array_push($allNextTimes, $startTime);
+		array_push($allNextPositions, $startPosition);
 	}
 
+	$allTrains[$key]["next_speed"] = $allNextSpeeds;
+	$allTrains[$key]["next_time"] = $allNextTimes;
+	$allTrains[$key]["next_position"] = $allNextPositions;
 
-
-
-	// TODO: bremsweg, aktuelleGeschwindigkeit - nächste Geschwindigkeit / 2 => Anzahl an Werten
-	// Gesamter Bremsweg, Ziel minus gesamter Bremsweg = Start
-	// Beim Start beginnen
-	// For-loop over start und ende in zweier Schritten
-	// Funktion: v_1, v_2, position, Startzeit bzw. nächste Zeit
-	// In Var abschpeichern, was im Schritt davor passiert ist (neue v_1, neue Zeit, neue Position, neuer Abschnitt
-
-	//var_dump($value);
-
+	return $allTrains[$key];
 }
 
 // Anpassen für viele Schritte => $a bleibt konstant?! => Eher nicht anpassen und allgemein halten
 function getBrakeDistance (float $v_0, float $v_1, float $verzoegerung) {
-
-	$mu = 0.1;
-	$g = 9.81;
-
 	// v in km/h
 	// a in m/s^2
 	// return in m
 	// TODO: Wie sieht es mit der Reaktionszeit aus? (Wenn ja, dann nur bei der Ersten 2 km/h_diff Bremsung
-
-	//return $bremsweg = ((($v_0-$v_1)*3.6)*$t_reac)+((pow((($v_0*3.6)), 2)-pow((($v_1*3.6)), 2))/(2*($a+(9.81/1000))));
-	//return $bremnsweg = ((pow(($v_0 * 3.6),2))/(2 * $a)) - ((pow(($v_1 * 3.6),2))/(2 * $a));
-
 	return $bremsweg = 0.5 * $verzoegerung * ((pow($v_0/3.6,2)-pow($v_1/3.6, 2))/(pow($verzoegerung, 2)));
-
-
 }
 
-function getBrakeTime (float $v_0, float $v_1, float $verzoegerung) {
+function getBrakeTime (float $distance, float $verzoegerung) {
+	return sqrt(2 * $distance/$verzoegerung);
+}
 
-	$mu = 0.1;
-	$g = 9.81;
-
-	return $breakTime = ($v_0-$v_1)/($verzoegerung);
-
+// Input: aktuelle Geschwindigkeit, maximale
+function emergencyBreak (float $maxBreakDistance, int $speed) {
+	return (($speed / 3.6))/(2 * $maxBreakDistance);
 }

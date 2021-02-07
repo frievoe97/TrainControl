@@ -14,13 +14,17 @@ function initFzg (int $id, int $adresse, float $verzoegerung, int $speed, int $s
 		"next_speed" => array(),
 		"next_time" => array(),
 		"next_position" => array(),
-		"next_sections" => "",
-		"next_lengths" => "",
-		"next_v_max" => "",
-		"next_speed_change_speed" => "",
-		"next_speed_change_section" => "",
-		"next_speed_change_position" => "",
-		"next_speed_change_time" => ""
+		"next_sections" => array(),
+		"next_lengths" => array(),
+		"next_v_max" => array(),
+		"next_timetable_change_speed" => "",
+		"next_timetable_change_section" => "",
+		"next_timetable_change_position" => "",
+		"next_timetable_change_time" => "",
+		"next_signal_change_speed" => "",
+		"next_signal_change_section" => "",
+		"next_signal_change_position" => "",
+		"next_signal_change_time" => ""
 	);
 
 	$DB_insert = new DB_MySQL();
@@ -31,11 +35,20 @@ function initFzg (int $id, int $adresse, float $verzoegerung, int $speed, int $s
                            	");
 
 	unset($DB_insert);
+	array_push($pushArray, $fzgTest);
+	return $pushArray;
+}
+
+function initAbschnitte (int $id, int $length, int $v_max, array $pushArray) {
+
+	$fzgTest = array(
+		"id" => $id,
+		"length" => $length,
+		"v_max" => $v_max
+	);
 
 	array_push($pushArray, $fzgTest);
-
 	return $pushArray;
-
 }
 
 
@@ -48,12 +61,6 @@ function setCurrentValues (array $allTrains, int $key, array $value) {
 	return $allTrains[$key];
 
 }
-
-
-//$allTrains = array();
-
-
-
 
 // Create a new fzg
 $fzgTest = array(
@@ -69,9 +76,9 @@ $fzgTest = array(
 	"next_sections" => "",
 	"next_lengths" => "",
 	"next_v_max" => "",
-	"next_speed_change_speed" => "",
-	"next_speed_change_section" => "",
-	"next_speed_change_position" => "",
-	"next_speed_change_time" => ""
+	"next_timetable_change_speed" => "",
+	"next_timetable_change_section" => "",
+	"next_timetable_change_position" => "",
+	"next_timetable_change_time" => ""
 );
 
