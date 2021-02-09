@@ -7,6 +7,8 @@ function initFzg (int $id, int $adresse, float $verzoegerung, int $speed, int $s
 		"id" => $id,
 		"adresse" => $adresse,
 		"verzoegerung" => $verzoegerung,
+		"notverzoegerung" => "",
+		"speedConstant" => "", // true or false
 		"laenge" => "",
 		"section" => $section,
 		"speed" => $speed,
@@ -27,14 +29,15 @@ function initFzg (int $id, int $adresse, float $verzoegerung, int $speed, int $s
 		"next_signal_change_time" => ""
 	);
 
+	/*
 	$DB_insert = new DB_MySQL();
-
 	$DB_insert->select("INSERT INTO `". DB_TABLE_FAHRZEUGE_AKTUELL."`
 							VALUES ('".$id."','".$verzoegerung."','".$section."','".$speed."', '".$position."',
 							CURRENT_TIMESTAMP, null, null, null, null)
                            	");
 
 	unset($DB_insert);
+	*/
 	array_push($pushArray, $fzgTest);
 	return $pushArray;
 }

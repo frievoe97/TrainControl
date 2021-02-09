@@ -75,7 +75,7 @@ foreach ($allTrains as $key => $value) {
 
 }
 
-var_dump($allTrains);
+//var_dump($allTrains);
 
 ######################## Nächster palnmäßiger Halt ########################
 
