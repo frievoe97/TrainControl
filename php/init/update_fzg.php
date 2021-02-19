@@ -327,7 +327,7 @@ function getSpeedChange(int $speed, int $speedOnFreeTrack, int $nextSpeed, array
 
 }
 
-function getBrakeTime (float $v_0, float $v_1, float $verzoegerung)  {
+function getBrakeTime (float $v_0, float $v_1, float $verzoegerung) : float  {
 
 	$v_0 = $v_0 / 3.6;
 	$v_1 = $v_1 / 3.6;
@@ -347,7 +347,7 @@ function getBrakeTime (float $v_0, float $v_1, float $verzoegerung)  {
 }
 
 // Anpassen für viele Schritte => $a bleibt konstant?! => Eher nicht anpassen und allgemein halten
-function getBrakeDistance (float $v_0, float $v_1, float $verzoegerung) {
+function getBrakeDistance (float $v_0, float $v_1, float $verzoegerung) : float {
 	// v in km/h
 	// a in m/s^2
 	// return in m
@@ -362,13 +362,11 @@ function getBrakeDistance (float $v_0, float $v_1, float $verzoegerung) {
 
 		return $bremsweg = -0.5 * $verzoegerung * ((pow($v_0/3.6,2)-pow($v_1/3.6, 2))/(pow($verzoegerung, 2)));
 
-	} if ($v_0 = $v_1) {
+	} if ($v_0 == $v_1) {
 
 		return 0;
 
 	}
-
-
 
 }
 
