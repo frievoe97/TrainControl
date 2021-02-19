@@ -623,3 +623,17 @@ return $zugtyp[0]->fzs;
 return false;
 }
 }
+
+
+///// TODO: Zentral speichern!!!
+function debugMessage($message) {
+	global $debug;
+
+	if ($debug) {
+		if (is_array($message)) {
+			echo implode(" # ",$message)."\n";
+		} else {
+			echo $message."\n";
+		}
+	}
+}

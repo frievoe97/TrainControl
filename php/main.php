@@ -17,16 +17,14 @@ $computerTime = microtime(true);
 $fixedTestTime = (float) 1612811700;
 
 // Testabschnitt initialisieren
+
+$naechsteAbschnitteID = array(700, 701, 702, 703, 704, 705, 706, 707);
+$naechsteAbschnitteLENGTH = array(100, 50, 40, 60, 7, 100, 100, 100);
+$naechsteAbschnitteV_MAX = array(60, 60, 60, 60, 40, 60, 60, 60);
+
 if (true) {
 	$alleAbschnitte = array();
-	$alleAbschnitte = initAbschnitte(700, 100, 60, $alleAbschnitte);
-	$alleAbschnitte = initAbschnitte(701, 50, 60, $alleAbschnitte);
-	$alleAbschnitte = initAbschnitte(702, 40, 60, $alleAbschnitte);
-	$alleAbschnitte = initAbschnitte(703, 60, 60, $alleAbschnitte);
-	$alleAbschnitte = initAbschnitte(704, 7, 40, $alleAbschnitte);
-	$alleAbschnitte = initAbschnitte(705, 100, 60, $alleAbschnitte);
-	$alleAbschnitte = initAbschnitte(706, 100, 60, $alleAbschnitte);
-	$alleAbschnitte = initAbschnitte(707, 100, 60, $alleAbschnitte);
+	$alleAbschnitte = initAbschnitte($naechsteAbschnitteID, $naechsteAbschnitteLENGTH, $naechsteAbschnitteV_MAX, $alleAbschnitte);
 }
 
 // Testfahrzeug initialisieren
@@ -34,4 +32,32 @@ if (true) {
 	$allTrains = array();
 	//speed sec pos
 	$allTrains = initFzg(007, 1997, 0.8, 0, 7861, 0, $allTrains);
+}
+
+// Aktuelle Position festlegen
+if (true) {
+	foreach ($allTrains as $key => $value) {
+		$allTrains[$key] = setCurrentValues($allTrains, $key, 0, 700, 0);
+	}
+}
+
+// Nächste Abschnitte für den Zug festlegen
+if (true) {
+	foreach ($allTrains as $key => $value) {
+		$allTrains[$key] = updateNextSections($allTrains, $key, $alleAbschnitte[0]['id'], $alleAbschnitte[0]['length'], $alleAbschnitte[0]['v_max']);
+	}
+}
+
+// Nächsten Halt festlegen
+if (true) {
+	foreach ($allTrains as $key => $value) {
+		$allTrains[$key] = setTargetSpeed($allTrains, $key, 0, 706, 100, $fixedTestTime + 55);
+	}
+}
+
+// Fahrtverlauf berechnen:
+if (true) {
+	foreach ($allTrains as $key => $value) {
+		$allTrains[$key] = updateNextSpeed($allTrains, $key, $value, $fixedTestTime);
+	}
 }

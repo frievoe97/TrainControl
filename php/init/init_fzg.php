@@ -42,12 +42,13 @@ function initFzg (int $id, int $adresse, float $verzoegerung, int $speed, int $s
 	return $pushArray;
 }
 
-function initAbschnitte (int $id, int $length, int $v_max, array $pushArray) {
+// Jeder Eintrag in dem Array sthet für EINEN Zug, deswegen wird auch eine ID für den Zug übergeben
+function initAbschnitte (array $ID, array $LENGTH, array $VMAX, array $pushArray) {
 
 	$fzgTest = array(
-		"id" => $id,
-		"length" => $length,
-		"v_max" => $v_max
+		"id" => $ID,
+		"length" => $LENGTH,
+		"v_max" => $VMAX
 	);
 
 	array_push($pushArray, $fzgTest);
@@ -55,11 +56,11 @@ function initAbschnitte (int $id, int $length, int $v_max, array $pushArray) {
 }
 
 
-function setCurrentValues (array $allTrains, int $key, array $value) {
+function setCurrentValues (array $allTrains, int $key, int $speed, int $section, int $position) {
 
-	$allTrains[$key]["speed"] = 160;
-	$allTrains[$key]["section"] = 0;
-	$allTrains[$key]["position"] = 0;
+	$allTrains[$key]["speed"] = $speed;
+	$allTrains[$key]["section"] = $section;
+	$allTrains[$key]["position"] = $position;
 
 	return $allTrains[$key];
 
