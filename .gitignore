@@ -16,3 +16,4 @@ config/.DS_Store
 /latex/paper.synctex.gz
 /latex/paper.toc
 /latex/paper.blg
+.Rproj.user
