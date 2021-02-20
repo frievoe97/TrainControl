@@ -51,7 +51,7 @@ if (true) {
 // Nächsten Halt festlegen
 if (true) {
 	foreach ($allTrains as $key => $value) {
-		$allTrains[$key] = setTargetSpeed($allTrains, $key, 0, 706, 100, $fixedTestTime + 55);
+		$allTrains[$key] = setTargetSpeed($allTrains, $key, 0, 706, 100, $fixedTestTime + 80);
 	}
 }
 

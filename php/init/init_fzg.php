@@ -7,7 +7,7 @@ function initFzg (int $id, int $adresse, float $verzoegerung, int $speed, int $s
 		"id" => $id,
 		"adresse" => $adresse,
 		"verzoegerung" => $verzoegerung,
-		"notverzoegerung" => "",
+		"notverzoegerung" => 2,
 		"speedConstant" => "", // true or false
 		"laenge" => "",
 		"section" => $section,

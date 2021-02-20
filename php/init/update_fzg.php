@@ -45,7 +45,6 @@ function whatIsTheNextSpped() {
 	return false;
 }
 
-
 function updateNextSpeed (array $allTrains, int $key, array $value, float $currentTime) {
 
 	$next_sections = $value["next_sections"];
@@ -57,6 +56,8 @@ function updateNextSpeed (array $allTrains, int $key, array $value, float $curre
 
 
 	$verzoegerung = $value["verzoegerung"];
+	$notverzoegerung = $value["notverzoegerung"];
+	//var_dump($notverzoegerung);
 	$section = $value["section"];
 	$position = $value["position"];
 	$speed = $value["speed"];
@@ -69,9 +70,17 @@ function updateNextSpeed (array $allTrains, int $key, array $value, float $curre
 	// abrunden (durch int eh automatisch)
 	$distanceToTheNextScheduledStop = getCompleteDistancToTheNextScheduledStop($next_sections, $next_lengths, $section, $position, $nextSection, $nextPosition);
 
-	$speedOnFreeTrack = getMinimumSpeedToArriveOnTime($distanceToTheNextScheduledStop, $currentTime, $nextTime, $speed, $nextSpeed, $verzoegerung);
+	$speedOnFreeTrack = getMinimumSpeedToArriveOnTime($distanceToTheNextScheduledStop, $currentTime, $nextTime, $speed, $nextSpeed, $verzoegerung, $notverzoegerung, $section);
 
-	getSpeedChange($speed, $speedOnFreeTrack, $nextSpeed, $next_sections, $next_lengths, $position, $nextPosition, $distanceToTheNextScheduledStop, $verzoegerung, $currentTime, $section, $nextSection, $nextTime);
+	// TODO: Check if emergency brake is needed
+
+	if (getBrakeDistance($speed, $nextSpeed, $verzoegerung) <= $distanceToTheNextScheduledStop) {
+		getSpeedChange($speed, $speedOnFreeTrack, $nextSpeed, $next_sections, $next_lengths, $position, $nextPosition, $distanceToTheNextScheduledStop, $verzoegerung, $currentTime, $section, $nextSection, $nextTime);
+	} else {
+		echo "Notbremsung!\n";
+	}
+
+
 
 
 
@@ -118,8 +127,6 @@ function updateNextSpeed (array $allTrains, int $key, array $value, float $curre
 
 }
 
-
-
 function getCompleteDistancToTheNextScheduledStop(array $next_sections, array $next_lenghts, int $section, int $position, int $nextSection, int $nextPosition) : int {
 
 	$startKey = null;
@@ -158,7 +165,7 @@ function getCompleteDistancToTheNextScheduledStop(array $next_sections, array $n
 
 }
 
-function getMinimumSpeedToArriveOnTime(int $distanceToTheNextScheduledStop, float $currentTime, float $nextTime, int $currentSpeed, int $targetSpeed, float $verzoegerung): int {
+function getMinimumSpeedToArriveOnTime(int $distanceToTheNextScheduledStop, float $currentTime, float $nextTime, int $currentSpeed, int $targetSpeed, float $verzoegerung, float $notverzoegerung, int $currentSection): int {
 
 	$availableTime = $nextTime - $currentTime;
 	$possibleSpeed = null;
@@ -186,6 +193,11 @@ function getMinimumSpeedToArriveOnTime(int $distanceToTheNextScheduledStop, floa
 	if (!$foundSpeed) {
 		$possibleSpeed = end($allPossibleSpeeds);
 	}
+
+	// Wenn Notbremse, dann possibleSpped = 0
+	//var_dump($allPossibleSpeeds);
+	//var_dump($possibleSpeed);
+
 	return $possibleSpeed;
 }
 
@@ -201,6 +213,20 @@ function getSpeedChange(int $speed, int $speedOnFreeTrack, int $nextSpeed, array
 	$brakeTime = getBrakeTime($speedOnFreeTrack, $nextSpeed, $verzoegerung);
 
 	$cumulativeSections = array();
+
+
+	/*
+	var_dump($accelerationDistance);
+	var_dump($brakeDistance);
+	var_dump($accelerationTime);
+	var_dump($brakeTime);
+	var_dump($speed);
+	var_dump($speedOnFreeTrack);
+	var_dump($nextSpeed);
+	*/
+
+
+
 
 	foreach ($nextSection as $key => $value) {
 		if ($value == $currentSection) {
@@ -219,6 +245,8 @@ function getSpeedChange(int $speed, int $speedOnFreeTrack, int $nextSpeed, array
 		}
 	}
 
+	//var_dump(end($cumulativeSections));
+
 	/*
 	if ($targetKey < $startKey) {
 		debugMessage("Der Zeilabschnitt wurde schon durchfahren");
@@ -230,6 +258,9 @@ function getSpeedChange(int $speed, int $speedOnFreeTrack, int $nextSpeed, array
 		return false;
 	}
 	*/
+
+	//var_dump(getBrakeDistance(100,0,0.8));
+	//var_dump(end($cumulativeSections));
 
 
 
@@ -247,6 +278,16 @@ function getSpeedChange(int $speed, int $speedOnFreeTrack, int $nextSpeed, array
 
 	// Time and Speed for Start
 	if ($speed < $speedOnFreeTrack) {
+		if ($speed % 2 != 0) {
+			$tempDistance = getBrakeDistance($speed, ($speed + 1), $verzoegerung);
+			$tempTime = getBrakeTime($speed, ($speed + 1), $verzoegerung);
+
+			array_push($allTimes, (end($allTimes) + $tempTime));
+			array_push($allSpeeds, ($speed + 1));
+			array_push($allPositionsChange, end($allPositionsChange) + $tempDistance);
+
+			$speed = $speed + 1;
+		}
 		for ($i = $speed; $i <= ($speedOnFreeTrack - 2); $i = $i + 2) {
 			$tempDistance = getBrakeDistance($i, ($i + 2), $verzoegerung);
 			$tempTime = getBrakeTime($i, ($i + 2), $verzoegerung);
@@ -255,19 +296,34 @@ function getSpeedChange(int $speed, int $speedOnFreeTrack, int $nextSpeed, array
 			array_push($allSpeeds, ($i + 2));
 			array_push($allPositionsChange, end($allPositionsChange) + $tempDistance);
 		}
-	} if ($speed > $speedOnFreeTrack) {
+	} elseif ($speed > $speedOnFreeTrack) {
+		if ($speed % 2 != 0) {
+			$tempDistance = getBrakeDistance($speed, ($speed - 1), $verzoegerung);
+			$tempTime = getBrakeTime($speed, ($speed - 1), $verzoegerung);
+
+			array_push($allTimes, (end($allTimes) + $tempTime));
+			array_push($allSpeeds, ($speed - 1));
+			array_push($allPositionsChange, end($allPositionsChange) + $tempDistance);
+
+			$speed = $speed - 1;
+		}
 		for ($i = $speed; $i >= ($speedOnFreeTrack + 2); $i = $i - 2) {
 			$tempDistance = getBrakeDistance($i, ($i - 2), $verzoegerung);
 			$tempTime = getBrakeTime($i, ($i - 2), $verzoegerung);
 
 			array_push($allTimes, (end($allTimes) + $tempTime));
 			array_push($allSpeeds, ($i - 2));
+			array_push($allPositionsChange, end($allPositionsChange) + $tempDistance);
 		}
 	}
 
 	//var_dump($allTimes);
 
-	array_push($allTimes, ($nextTime - $brakeTime));
+
+
+
+
+	array_push($allTimes, (end($allTimes) + (end($cumulativeSections) - $accelerationDistance - $brakeDistance)/($speedOnFreeTrack/3.6)));
 	array_push($allSpeeds, $speedOnFreeTrack);
 	array_push($allPositionsChange, end($cumulativeSections) - $brakeDistance);
 	array_push($allSectionsChange, $currentSection);
@@ -276,14 +332,13 @@ function getSpeedChange(int $speed, int $speedOnFreeTrack, int $nextSpeed, array
 
 	// Time and Speed for End
 	if ($nextSpeed > $speedOnFreeTrack) {
-		for ($i = $nextSpeed; $i <= ($speedOnFreeTrack - 2); $i = $i + 2) {
-			$tempDistance = getBrakeDistance($nextSpeed, ($nextSpeed + 2), $verzoegerung);
-			$tempTime = getBrakeTime($nextSpeed, ($nextSpeed + 2), $verzoegerung);
+		for ($i = $speedOnFreeTrack; $i <= ($nextSpeed - 2); $i = $i + 2) {
+			$tempDistance = getBrakeDistance($i, ($i + 2), $verzoegerung);
+			$tempTime = getBrakeTime($i, ($i + 2), $verzoegerung);
 
 			array_push($allTimes, (end($allTimes) + $tempTime));
 			array_push($allSpeeds, ($i + 2));
-
-
+			array_push($allPositionsChange, end($allPositionsChange) + $tempDistance);
 		}
 	} if ($nextSpeed < $speedOnFreeTrack) {
 		for ($i = $speedOnFreeTrack; $i >= ($nextSpeed + 2); $i = $i - 2) {
@@ -298,7 +353,7 @@ function getSpeedChange(int $speed, int $speedOnFreeTrack, int $nextSpeed, array
 	}
 
 
-	var_dump($allPositionsChange);
+	//var_dump($allPositionsChange);
 
 	$allSpeedsJSon = json_encode($allSpeeds);
 	$allTimesJSon = json_encode($allTimes);
@@ -323,6 +378,16 @@ function getSpeedChange(int $speed, int $speedOnFreeTrack, int $nextSpeed, array
 	fwrite($fp, $speedOverPosition);
 	fclose($fp);
 
+	$positionsJSon = json_encode($cumulativeSections);
+
+	$fp = fopen('../json/cumulativeSections.json', 'w');
+	fwrite($fp, $positionsJSon);
+	fclose($fp);
+
+	//var_dump($allTimes);
+	//var_dump($allPositionsChange);
+	//var_dump($allSpeeds);
+
 
 
 }
@@ -340,6 +405,9 @@ function getBrakeTime (float $v_0, float $v_1, float $verzoegerung) : float  {
 		return ($v_0/$verzoegerung) - ($v_1/$verzoegerung);
 	}
 
+	if ($v_0 == $v_1) {
+		return 0;
+	}
 
 
 
@@ -371,6 +439,53 @@ function getBrakeDistance (float $v_0, float $v_1, float $verzoegerung) : float 
 }
 
 // Input: aktuelle Geschwindigkeit, maximale
-function emergencyBreak (float $maxBreakDistance, int $speed) {
-	return (($speed / 3.6))/(2 * $maxBreakDistance);
+function emergencyBreak (float $currentTime, int $currentSpeed, int $currentSection, float $notverzoegerung, int $nextSpeed) {
+
+	$allTimes = array();
+	$allSpeeds = array();
+	$allSectionsChange = array();
+	$allPositionsChange = array();
+
+	// 0 km/h und aktuelle Zeit
+	array_push($allTimes, $currentTime);
+	array_push($allSpeeds, $currentSpeed);
+	array_push($allPositionsChange, 0);
+	array_push($allSectionsChange, $currentSection);
+
+	for ($i = $currentSpeed; $i >= ($nextSpeed + 2); $i = $i - 2) {
+		$tempDistance = getBrakeDistance($i, ($i - 2), $notverzoegerung);
+		$tempTime = getBrakeTime($i, ($i - 2), $notverzoegerung);
+
+		array_push($allTimes, (end($allTimes) + $tempTime));
+		array_push($allSpeeds, ($i - 2));
+		array_push($allPositionsChange, end($allPositionsChange) + $tempDistance);
+
+	}
+
+	function toArr(){
+		return func_get_args();
+	}
+
+	$speedOverTime = array_map('toArr', $allTimes, $allSpeeds);
+
+	$speedOverTime = json_encode($speedOverTime);
+
+	$fp = fopen('../json/speedOverTime.json', 'w');
+	fwrite($fp, $speedOverTime);
+	fclose($fp);
+
+	$speedOverPosition = array_map('toArr', $allPositionsChange, $allSpeeds);
+
+	$speedOverPosition = json_encode($speedOverPosition);
+
+	$fp = fopen('../json/speedOverPosition.json', 'w');
+	fwrite($fp, $speedOverPosition);
+	fclose($fp);
+
+	//$positionsJSon = json_encode($cumulativeSections);
+
+	//$fp = fopen('../json/cumulativeSections.json', 'w');
+	//fwrite($fp, $positionsJSon);
+	//fclose($fp);
+
 }
