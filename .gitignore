@@ -17,3 +17,5 @@ config/.DS_Store
 /latex/paper.toc
 /latex/paper.blg
 .Rproj.user
+
+/matlab/*.asv
