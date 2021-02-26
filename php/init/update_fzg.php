@@ -72,13 +72,34 @@ function updateNextSpeed (array $allTrains, int $key, array $value, float $curre
 
 	$speedOnFreeTrack = getMinimumSpeedToArriveOnTime($distanceToTheNextScheduledStop, $currentTime, $nextTime, $speed, $nextSpeed, $verzoegerung, $notverzoegerung, $section);
 
+	//newAlgorithm($speed, $speedOnFreeTrack, $nextSpeed, $next_sections, $next_lengths, $next_v_max, $position, $nextPosition, $distanceToTheNextScheduledStop, $verzoegerung, $currentTime, $section, $nextSection, $nextTime);
+
+	// array_push($keyPoints, array("position_0" => $position, "speed_0" => $speed, "position_1" => $tempCumulativeSections[$firstSection + 1], "speed_1" => $tempNext_v_max[$firstSection]));
+
 	// TODO: Check if emergency brake is needed
 
+
 	if (getBrakeDistance($speed, $nextSpeed, $verzoegerung) <= $distanceToTheNextScheduledStop) {
-		getSpeedChange($speed, $speedOnFreeTrack, $nextSpeed, $next_sections, $next_lengths, $position, $nextPosition, $distanceToTheNextScheduledStop, $verzoegerung, $currentTime, $section, $nextSection, $nextTime);
+		$tempAllChanges = getSpeedChange($speed, $speedOnFreeTrack, $nextSpeed, $next_sections, $next_lengths, $next_v_max, $position, $nextPosition, $distanceToTheNextScheduledStop, $verzoegerung, $currentTime, $section, $nextSection, $nextTime);
 	} else {
 		echo "Notbremsung!\n";
 	}
+
+
+	$tempTimesChanges = $tempAllChanges[0];
+	$tempSpeedChanges = $tempAllChanges[1];
+	$tempPositionChanges = $tempAllChanges[2];
+	$tempCumulativeSections = $tempAllChanges[3];
+	$tempNext_v_max = $tempAllChanges[4];
+	$tempKeyPoints = $tempAllChanges[5];
+
+	//var_dump($tempKeyPoints);
+
+
+
+	checkIfTrainIsToFastInSection($tempTimesChanges, $tempSpeedChanges, $tempPositionChanges, $tempCumulativeSections, $tempNext_v_max, $position, $nextPosition, $speed, $nextSpeed, $tempKeyPoints, $next_lengths, $next_v_max, $next_sections, $section, $nextSection, $position, $nextPosition, $verzoegerung);
+
+
 
 
 
@@ -125,6 +146,87 @@ function updateNextSpeed (array $allTrains, int $key, array $value, float $curre
 
 
 
+}
+
+function newAlgorithm(int $speed, int $speedOnFreeTrack, int $nextSpeed, array $nextSection, array $next_lengths, array $next_v_max, int $position, int $nextPosition, int $distanceToTheNextScheduledStop, float $verzoegerung, float $currentTime, int $currentSection, int $targetSection, float $nextTime) {
+
+	$cumulativeSections = array();
+	array_push($cumulativeSections, 0);
+
+	$startKey = null;
+	$targetKey = null;
+
+	$keyPoints = array();
+	// positionn_0; speed_0; position_1; speed_1;
+
+
+	//array("position_0" => $position, "speed_0" => $speed, "position_1" => $tempCumulativeSections[$firstSection + 1], "speed_1" => $tempNext_v_max[$firstSection]));
+
+	foreach ($nextSection as $key => $value) {
+		if ($value == $currentSection) {
+			$startKey = $key;
+		}
+		if ($value == $targetSection) {
+			$targetKey = $key;
+		}
+	}
+
+	for ($i = $startKey; $i <= $targetKey; $i++) {
+		if (count($cumulativeSections) == 1) {
+			array_push($cumulativeSections, $next_lengths[$i] - $position);
+		} else {
+			array_push($cumulativeSections, end($cumulativeSections) + $next_lengths[$i]);
+		}
+	}
+
+
+	/*
+	var_dump($startKey);
+	var_dump($targetKey);
+	var_dump($cumulativeSections);
+	var_dump($next_v_max);
+	var_dump($nextSection);
+	*/
+
+	if ($startKey != $targetKey) {
+		for ($i = $startKey; $i <= $targetKey; $i++) {
+			if ($i == $startKey) {
+				$keyPoints = sectionCalculator($position, $next_lengths[$i], $speed, $next_v_max[$i + 1], $verzoegerung, $keyPoints);
+			} elseif ($i == $targetKey) {
+				$keyPoints = sectionCalculator(0, $nextPosition, $next_v_max[$i], $nextSpeed, $verzoegerung, $keyPoints);
+			} elseif ($i != $startKey && $i != $targetKey) {
+				$keyPoints = sectionCalculator(0, $next_lengths[$i], $next_v_max[$i], $next_v_max[$i + 1], $verzoegerung, $keyPoints);
+			}
+		}
+	} elseif ($startKey == $targetKey) {
+
+	} else {
+		debugMessage("Error with the start and target key from the upcoming sections");
+	}
+	//var_dump($keyPoints);
+}
+
+function sectionCalculator(int $startPosition, int $endPosition, int $startSpeed, int $endSpeed, float $verzoegerung, array $keyPoints) {
+	//var_dump($startPosition, $endPosition, $startSpeed, $endSpeed, "########");
+	echo "##########\n";
+	echo $startPosition, "  ", $endPosition, "  ", $startSpeed, "  ", $endSpeed;
+	echo "\n##########\n";
+	if ($startSpeed == $endSpeed) {
+		array_push($keyPoints, array("position_0" => $startPosition, "speed_0" => $startSpeed, "position_1" => $endPosition, "speed_1" => $endSpeed));
+	} else {
+		array_push($keyPoints, calculateKeyPoints($startPosition, $endPosition, $startSpeed, $endSpeed, $verzoegerung));
+	}
+	return $keyPoints;
+}
+
+function calculateKeyPoints(int $startPosition, int $endPosition, int $startSpeed, int $endSpeed, float $verzoegerung) : array {
+	$length = $endPosition - $startPosition;
+	$time = getBrakeTime($startSpeed, $endSpeed, $verzoegerung);
+
+
+
+
+	return array("test");
 }
 
 function getCompleteDistancToTheNextScheduledStop(array $next_sections, array $next_lenghts, int $section, int $position, int $nextSection, int $nextPosition) : int {
@@ -201,10 +303,12 @@ function getMinimumSpeedToArriveOnTime(int $distanceToTheNextScheduledStop, floa
 	return $possibleSpeed;
 }
 
-function getSpeedChange(int $speed, int $speedOnFreeTrack, int $nextSpeed, array $nextSection, array $next_lengths, int $position, int $nextPosition, int $distanceToTheNextScheduledStop, float $verzoegerung, float $currentTime, int $currentSection, int $targetSection, float $nextTime) {
+function getSpeedChange(int $speed, int $speedOnFreeTrack, int $nextSpeed, array $nextSection, array $next_lengths, array $next_v_max, int $position, int $nextPosition, int $distanceToTheNextScheduledStop, float $verzoegerung, float $currentTime, int $currentSection, int $targetSection, float $nextTime) {
 
 	$startKey = null;
 	$targetKey = null;
+
+	$keyPoints = array();
 
 	$accelerationDistance = getBrakeDistance($speed, $speedOnFreeTrack, $verzoegerung);
 	$brakeDistance = getBrakeDistance($speedOnFreeTrack, $nextSpeed, $verzoegerung);
@@ -213,7 +317,7 @@ function getSpeedChange(int $speed, int $speedOnFreeTrack, int $nextSpeed, array
 	$brakeTime = getBrakeTime($speedOnFreeTrack, $nextSpeed, $verzoegerung);
 
 	$cumulativeSections = array();
-
+	array_push($cumulativeSections, 0);
 
 	/*
 	var_dump($accelerationDistance);
@@ -225,9 +329,6 @@ function getSpeedChange(int $speed, int $speedOnFreeTrack, int $nextSpeed, array
 	var_dump($nextSpeed);
 	*/
 
-
-
-
 	foreach ($nextSection as $key => $value) {
 		if ($value == $currentSection) {
 			$startKey = $key;
@@ -238,8 +339,8 @@ function getSpeedChange(int $speed, int $speedOnFreeTrack, int $nextSpeed, array
 	}
 
 	for ($i = $startKey; $i <= $targetKey; $i++) {
-		if (!end($cumulativeSections)) {
-			array_push($cumulativeSections, $next_lengths[$i]);
+		if (count($cumulativeSections) == 1) {
+			array_push($cumulativeSections, $next_lengths[$i] - $position);
 		} else {
 			array_push($cumulativeSections, end($cumulativeSections) + $next_lengths[$i]);
 		}
@@ -320,6 +421,8 @@ function getSpeedChange(int $speed, int $speedOnFreeTrack, int $nextSpeed, array
 	//var_dump($allTimes);
 
 
+	array_push($keyPoints, array("position_0" => $allPositionsChange[0], "position_1" => end($allPositionsChange), "speed_0" => $allSpeeds[0], "speed_1" => end($allSpeeds), "time_0" => $allTimes[0], "time_1" => end($allTimes)));
+	array_push($keyPoints, array("position_0" => end($allPositionsChange), "position_1" => ($distanceToTheNextScheduledStop - $brakeDistance), "speed_0" => end($allSpeeds), "speed_1" => $speedOnFreeTrack, "time_0" =>  end($allTimes), "time_1" => (($distanceToTheNextScheduledStop - $brakeDistance - $accelerationDistance)/$speedOnFreeTrack)));
 
 
 
@@ -327,6 +430,8 @@ function getSpeedChange(int $speed, int $speedOnFreeTrack, int $nextSpeed, array
 	array_push($allSpeeds, $speedOnFreeTrack);
 	array_push($allPositionsChange, end($cumulativeSections) - $brakeDistance);
 	array_push($allSectionsChange, $currentSection);
+
+
 
 	//var_dump($allTimes);
 
@@ -351,6 +456,8 @@ function getSpeedChange(int $speed, int $speedOnFreeTrack, int $nextSpeed, array
 
 		}
 	}
+
+	array_push($keyPoints, array("position_0" => ($distanceToTheNextScheduledStop - $accelerationDistance - $brakeDistance), "position_1" => end($allPositionsChange), "speed_0" => $speedOnFreeTrack, "speed_1" => end($allSpeeds), "time_0" =>  (($distanceToTheNextScheduledStop - $brakeDistance - $accelerationDistance)/$speedOnFreeTrack), "time_1" => end($allTimes)));
 
 
 	//var_dump($allPositionsChange);
@@ -378,15 +485,19 @@ function getSpeedChange(int $speed, int $speedOnFreeTrack, int $nextSpeed, array
 	fwrite($fp, $speedOverPosition);
 	fclose($fp);
 
-	$positionsJSon = json_encode($cumulativeSections);
+	$VMaxOverCumulativeSections = array_map('toArr', $cumulativeSections, $next_v_max);
 
-	$fp = fopen('../json/cumulativeSections.json', 'w');
-	fwrite($fp, $positionsJSon);
+	$VMaxOverPositionsJSon = json_encode($VMaxOverCumulativeSections);
+
+	$fp = fopen('../json/VMaxOverCumulativeSections.json', 'w');
+	fwrite($fp, $VMaxOverPositionsJSon);
 	fclose($fp);
 
 	//var_dump($allTimes);
 	//var_dump($allPositionsChange);
 	//var_dump($allSpeeds);
+
+	return [$allTimes, $allSpeeds, $allPositionsChange, $cumulativeSections, $next_v_max, $keyPoints];
 
 
 
@@ -446,6 +557,8 @@ function emergencyBreak (float $currentTime, int $currentSpeed, int $currentSect
 	$allSectionsChange = array();
 	$allPositionsChange = array();
 
+
+
 	// 0 km/h und aktuelle Zeit
 	array_push($allTimes, $currentTime);
 	array_push($allSpeeds, $currentSpeed);
@@ -489,3 +602,413 @@ function emergencyBreak (float $currentTime, int $currentSpeed, int $currentSect
 	//fclose($fp);
 
 }
+
+function checkIfTrainIsToFastInSection(array $tempTimesChanges, array $tempSpeedChanges, array $tempPositionChanges, array $tempCumulativeSections, array $tempNext_v_max, int $position, int $nextPosition, int $currentSpeed, int $nextSpeed, array $keyPoints, array $next_lengths, array $next_v_max, array $next_sections, int $currentSection, int $targetSection, int $startPosition, int $targetPosition, float $verzoegerung) {
+
+
+
+	$faildSections = array();
+	$firstSection = null;
+	$lastSection = null;
+
+	$currentSectionKey = array_search($currentSection, $next_sections);
+	$nextSectionKey = array_search($targetSection, $next_sections);
+
+
+	$keyPointsReturn = array();
+
+	$newSpeedChange = array();
+	$newPositionChange = array();
+	$newTimeChange = array();
+
+	// TODO: Funktion die testet, ob es so aktuell Probleme gibt
+
+	foreach ($tempPositionChanges as $positionIndex => $positionLoop) {
+		// TODO: Was ist, wenn position == 0?
+		foreach ($tempCumulativeSections as $cumPositionIndex => $cumPosition) {
+			if ($positionLoop < $cumPosition && $positionLoop != 0) {
+				if ($tempSpeedChanges[$positionIndex] > $tempNext_v_max[$cumPositionIndex - 1]) {
+					array_push($faildSections, $cumPositionIndex - 1);
+				}
+				break;
+			}
+		}
+		// TODO: Was, wenn nur eine falsch ist?
+		if (sizeof($faildSections) >= 2) {
+			$firstSection = $faildSections[0];
+			$lastSection = end($faildSections);
+		}
+	}
+
+	//var_dump($keyPoints);
+
+	//var_dump($tempNext_v_max);
+
+	foreach ($keyPoints as $keyPointIndex => $keyPointValue) {
+		if ($keyPointValue["speed_0"] == $keyPointValue["speed_1"]) {
+			$startPosition = $keyPointValue["position_0"];
+			$endPosition = $keyPointValue["position_1"];
+			$speed = $keyPointValue["speed_0"];
+
+			//var_dump($startPosition, $endPosition);
+
+			$startSection = null;
+			$endSection = null;
+
+
+
+			foreach ($tempCumulativeSections as $cumPositionIndex => $cumPosition) {
+
+
+				//var_dump($endPosition, $cumPosition);
+
+				if ($startPosition < $cumPosition && $startSection == null) {
+					$startSection = $cumPositionIndex;
+				}
+
+				if ($endPosition < $cumPosition && $endSection == null) {
+					$endSection = $cumPositionIndex;
+					//var_dump($endSection);
+				}
+
+
+
+
+
+			}
+
+			for ($i = $startSection; $i <= $endSection; $i++) {
+				if ($tempNext_v_max[$i] < $speed) {
+					array_push($faildSections, $i);
+				}
+			}
+
+
+		}
+	}
+
+
+	/*
+	var_dump("##############");
+	var_dump($next_lengths);
+	var_dump($next_sections);
+	var_dump($next_v_max);
+	var_dump("##############");
+	*/
+
+
+
+
+
+
+
+	$splitSections = $next_sections;
+
+	//var_dump($splitSections);
+
+	/*
+	foreach ($splitSections as $sectionKey => $sectionValue) {
+		if ($section < $startSection) {
+			unset($splitSections[])
+		}
+	}
+	*/
+
+	foreach ($splitSections as $splitSectionsKey => $splitSectionsValue) {
+		if ($splitSectionsValue == $currentSection) {
+			for ($i = array_key_first($splitSections); $i < $splitSectionsKey; $i++) {
+				unset($splitSections[$i]);
+			}
+		}
+		if ($splitSectionsValue == $targetSection) {
+			for ($i = ($splitSectionsKey + 1); $i <= array_key_last($splitSections); $i++) {
+				unset($splitSections[$i]);
+			}
+		}
+	}
+
+
+
+
+
+
+
+
+
+	$splitSections = array_keys($splitSections);
+
+
+
+	$faildSections = array_unique($faildSections);
+	sort($faildSections);
+
+
+
+	$pushArray = array();
+
+
+	foreach ($faildSections as $fails) {
+		array_push($pushArray, $splitSections[$fails]);
+		unset($splitSections[$fails]);
+	}
+
+
+
+	//var_dump($faildSections);
+	//var_dump($splitSections);
+
+
+	$i=0;
+	$groupedSections=array();
+	$previous=NULL;
+	foreach($splitSections as $key => $value)
+	{
+		if($value>$previous+1) {
+			$i++;
+		}
+		$groupedSections[$i][]=$value;
+		$previous=$value;
+	}
+
+	foreach ($pushArray as $fails) {
+		array_push($groupedSections, array($fails));
+	}
+
+	//array_multisort($groupedSections);
+
+	function sortKeyPoints($a, $b) {
+		return $a[0] - $b[0];
+	}
+
+	usort($groupedSections, 'sortKeyPoints');
+
+	//var_dump($groupedSections);
+
+	foreach ($groupedSections as $groupKey => $groupValue) {
+		$distance = 0;
+		$v_max = null;
+		$v_0 = null;
+		$v_1 = null;
+		$absolutPositionStart = $tempCumulativeSections[$groupValue[0]] - $position;
+		$absolutPositionEnd = $tempCumulativeSections[end($groupValue)] - $position + $next_lengths[end($groupValue)];
+		//var_dump($groupValue);
+		for ($i = $groupValue[0]; $i <= end($groupValue); $i++) {
+			$distance = $distance + $next_lengths[$i];
+			if ($v_max == null) {
+				$v_max = $next_v_max[$i];
+			} else {
+				if ($v_max > $next_v_max[$i]) {
+					$v_max = $next_v_max[$i];
+				}
+			}
+
+		}
+
+		if (in_array($currentSectionKey, $groupValue)) {
+			$distance = $distance - $position;
+		}
+
+		if (in_array($nextSectionKey, $groupValue)) {
+			$distance = $distance + $targetPosition - $next_lengths[$nextSectionKey];
+		}
+
+
+		if ($groupKey == 0) {
+			$v_0 = $currentSpeed;
+		} else {
+			if ($next_v_max[$groupValue[0] - 1] < $next_v_max[$groupValue[0]]) {
+				$v_0 = $next_v_max[$groupValue[0] - 1];
+			} else {
+				$v_0 = $next_v_max[$groupValue[0]];
+			}
+		}
+
+
+
+		if ($groupKey == sizeof($groupedSections) - 1) {
+			$v_1 = $nextSpeed;
+		} else {
+			if ($next_v_max[end($groupValue) + 1] < $next_v_max[end($groupValue)]) {
+				$v_1 = $next_v_max[end($groupValue) + 1];
+			} else {
+				$v_1 = $next_v_max[end($groupValue)];
+			}
+		}
+
+		/*
+		$newSpeedChange = array();
+		$newPositionChange = array();
+		 */
+
+		/*
+		if ($v_0 < $v_1) {
+			$v_max = $v_0;
+		} else {
+			$v_max = $v_1;
+		}
+		*/
+
+		$new_v_max = null;
+
+		for ($i = 0; $i <= $v_max; $i = $i + 10) {
+			if ((getBrakeDistance($v_0, $i, $verzoegerung) + getBrakeDistance($i, $v_0, $verzoegerung)) < $distance) {
+				$new_v_max = $i;
+			}
+		}
+
+		$v_max = $new_v_max;
+
+
+
+
+
+		//var_dump($v_max);
+
+
+		array_push($newSpeedChange, $v_0);
+		array_push($newPositionChange, $absolutPositionStart);
+
+
+		if ($v_0 < $v_max) {
+			if ($v_0 % 2 != 0) {
+				$tempDistance = getBrakeDistance($v_0, ($v_0 + 1), $verzoegerung);
+				array_push($newSpeedChange, ($v_0 + 1));
+				array_push($newPositionChange, end($newPositionChange) + $tempDistance);
+
+				$v_0 = $v_0 + 1;
+			}
+			for ($i = $v_0; $i <= ($v_max - 2); $i = $i + 2) {
+				$tempDistance = getBrakeDistance($i, ($i + 2), $verzoegerung);
+				array_push($newSpeedChange, ($i + 2));
+				array_push($newPositionChange, end($newPositionChange) + $tempDistance);
+			}
+		} elseif ($v_0 > $v_max) {
+			if ($v_0 % 2 != 0) {
+				$tempDistance = getBrakeDistance($v_0, ($v_0 - 1), $verzoegerung);
+				array_push($newSpeedChange, ($v_0 - 1));
+				array_push($newPositionChange, end($newPositionChange) + $tempDistance);
+				$v_0 = $v_0 - 1;
+			}
+			for ($i = $v_0; $i >= ($v_max + 2); $i = $i - 2) {
+				$tempDistance = getBrakeDistance($i, ($i - 2), $verzoegerung);
+				array_push($newSpeedChange, ($i - 2));
+				array_push($newPositionChange, end($newPositionChange) + $tempDistance);
+			}
+		}
+
+
+		array_push($newSpeedChange, $v_max);
+		array_push($newPositionChange, $absolutPositionEnd - getBrakeDistance($v_max, $v_1, $verzoegerung));
+
+
+
+
+		if ($v_1 > $v_max) {
+			for ($i = $v_max; $i <= ($v_1 - 2); $i = $i + 2) {
+				$tempDistance = getBrakeDistance($i, ($i + 2), $verzoegerung);
+				array_push($newSpeedChange, ($i + 2));
+				array_push($newPositionChange, end($newPositionChange) + $tempDistance);
+			}
+		} if ($v_1 < $v_max) {
+			for ($i = $v_max; $i >= ($v_1 + 2); $i = $i - 2) {
+				$tempDistance = getBrakeDistance($i, ($i - 2), $verzoegerung);
+				array_push($newSpeedChange, ($i - 2));
+				array_push($newPositionChange, end($newPositionChange) + $tempDistance);
+
+			}
+		}
+
+
+
+		//var_dump($newPositionChange);
+		//var_dump($newSpeedChange);
+
+
+		/*
+		function toArr(){
+			return func_get_args();
+		}
+		*/
+
+		$speedOverPosition = array_map('toArr', $newPositionChange, $newSpeedChange);
+
+		$speedOverPosition = json_encode($speedOverPosition);
+
+		$fp = fopen('../json/speedOverPosition_v1.json', 'w');
+		fwrite($fp, $speedOverPosition);
+		fclose($fp);
+
+
+
+
+
+
+
+
+
+
+		//var_dump($v_1);
+		//var_dump($absolutPositionEnd);
+
+
+	}
+
+
+
+
+
+	foreach ($faildSections as $faildSectionsKey => $faildSectionsValue) {
+
+		$startSpeed = null;
+		$endSpeed = null;
+		$startPosition = null;
+		$endPosition = null;
+		$startTime = null;
+		$endTime = null;
+
+
+
+	}
+
+
+	/*
+
+	if (!($firstSection == null && $lastSection == null)) {
+		//renewSpeedChange($firstSection, $lastSection, $position, $tempNext_v_max);
+	} else {
+		// TODO
+	}
+	*/
+
+	//var_dump($tempCumulativeSections);
+	//var_dump($tempNext_v_max);
+
+	//var_dump($faildSections);
+
+	//array_push($keyPoints, array("position_0" => $position, "speed_0" => $speed, "position_1" => $tempCumulativeSections[$firstSection + 1], "speed_1" => $tempNext_v_max[$firstSection]));
+	//array_push($keyPoints, array("position_0" => $tempCumulativeSections[$lastSection], "speed_0" => $tempNext_v_max[$lastSection], "position_1" => $nextPosition, "speed_1" => $nextSpeed));
+
+	//var_dump($keyPoints);
+
+	//var_dump($faildSections);
+
+
+
+
+
+}
+
+/*
+function renewSpeedChange(int $firstSection, int $lastSection, int $position, array $tempNext_v_max) {
+
+	// 1. increase Spped from position to firstSection with maxSpeed from first
+	increaseSpeedWithMax();
+
+	// 2. normal speed calculation
+
+
+	// 3. decrease Spped
+	decreaseSpeedWithMax();
+
+}
+*/

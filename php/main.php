@@ -18,9 +18,9 @@ $fixedTestTime = (float) 1612811700;
 
 // Testabschnitt initialisieren
 
-$naechsteAbschnitteID = array(700, 701, 702, 703, 704, 705, 706, 707);
-$naechsteAbschnitteLENGTH = array(100, 50, 40, 60, 7, 100, 100, 100);
-$naechsteAbschnitteV_MAX = array(60, 60, 60, 60, 40, 60, 60, 60);
+$naechsteAbschnitteID = array(700, 701, 702, 703, 704, 705, 706, 707, 708);
+$naechsteAbschnitteLENGTH = array(50, 100, 40, 60, 7, 180, 20, 100, 120);
+$naechsteAbschnitteV_MAX = array(20, 60, 20, 60, 40, 60, 20, 60, 70);
 
 if (true) {
 	$alleAbschnitte = array();
@@ -51,7 +51,7 @@ if (true) {
 // Nächsten Halt festlegen
 if (true) {
 	foreach ($allTrains as $key => $value) {
-		$allTrains[$key] = setTargetSpeed($allTrains, $key, 0, 706, 100, $fixedTestTime + 80);
+		$allTrains[$key] = setTargetSpeed($allTrains, $key, 0, 707, 10, $fixedTestTime + 80);
 	}
 }
 
