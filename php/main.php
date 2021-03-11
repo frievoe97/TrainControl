@@ -8,6 +8,7 @@ require 'prepare/prepare_fahrplan_aktuell.php';
 require 'update/update_fahrzeuge_aktuell.php';
 require 'init/init_fzg.php';
 require 'init/update_fzg.php';
+require 'init/update_fzg_2.php';
 
 // Zeit (Die Berechnung findet in Millisekunden als Nachkommastellen statt)
 $DB = new DB_MySQL();
@@ -19,8 +20,8 @@ $fixedTestTime = (float) 1612811700;
 // Testabschnitt initialisieren
 
 $naechsteAbschnitteID = array(700, 701, 702, 703, 704, 705, 706, 707, 708);
-$naechsteAbschnitteLENGTH = array(50, 100, 40, 60, 7, 180, 20, 100, 120);
-$naechsteAbschnitteV_MAX = array(20, 60, 20, 60, 40, 60, 20, 60, 70);
+$naechsteAbschnitteLENGTH = array(50, 100, 40, 240, 7, 100, 20, 140, 360);
+$naechsteAbschnitteV_MAX = array(20, 60, 20, 60, 20, 60, 20, 60, 70);
 
 if (true) {
 	$alleAbschnitte = array();
