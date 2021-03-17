@@ -71,7 +71,7 @@ if (isset($optional["naechstessignal"]) && $optional["naechstessignal"]) {
 debugMessage ("Nächstes Signal gefunden!");
 $weitermachen = false;
 } else {
-debugMessage("Ermittele Signalbegriff an Signalstandort ".$cacheSignaldaten["freimeldeabschnitte"][$cacheInfranachbarn[$naechster_id["id"]]["infra_id"]][$fahrtrichtung]["signalstandort_id"]);
+debugMessage("Ermittele Signalbegriff an Signalstandort ".$signalstandort_id);
 $signalbegriff = getSignalbegriff($signalstandort_id);
 
 if ($signalbegriff && $signalbegriff[0]["geschwindigkeit"] == 0 && $signalbegriff[0]["id"] != 548) {
