@@ -2,120 +2,120 @@
 
 // ------------------------------------------------------------------------------------------------
 // Ermittele die nächsten Freimeldeabschnitte
-function getNaechsteAbschnitte($start_infra_id, $fahrtrichtung, $optional = array()) {
+function getNaechsteAbschnitte($start_infra_id, $fahrtrichtung, $zugtyp = "pz", $optional = array()) {
 
-// optional["naechstessignal"] = true liefert den Abschnitt des nächsten Signals in Fahrtrichtung
-global $cacheInfradaten, $cacheInfranachbarn, $cacheSignaldaten;
+	// optional["naechstessignal"] = true liefert den Abschnitt des nächsten Signals in Fahrtrichtung
+	global $cacheInfradaten, $cacheInfranachbarn, $cacheSignaldaten;
 
-$weitermachen = true;
-$abschnitte = array();
+	$weitermachen = true;
+	$abschnitte = array();
 
-if (!isset($cacheSignaldaten) || !isset( $cacheInfradaten) || !isset($cacheInfranachbarn) ) {
-die("cacheSignaldaten, cacheInfradaten und cacheInfranachbarn müssen gefüllt sein.");
-}
-if (!isset($cacheInfradaten[$start_infra_id]["nachbarn"])) {
-die("Unbekannte Infra-ID ".$start_infra_id);
-}
+	if (!isset($cacheSignaldaten) || !isset( $cacheInfradaten) || !isset($cacheInfranachbarn) ) {
+		die("cacheSignaldaten, cacheInfradaten und cacheInfranachbarn müssen gefüllt sein.");
+	}
+	if (!isset($cacheInfradaten[$start_infra_id]["nachbarn"])) {
+		die("Unbekannte Infra-ID ".$start_infra_id);
+	}
 
-debugMessage("Ermittele nächste Abschnitte ausgehend von Infra-ID ".$start_infra_id." in Richtung ".$fahrtrichtung);
-$nachbarn = $cacheInfradaten[$start_infra_id]["nachbarn"];
+	debugMessage("Ermittele nächste Abschnitte ausgehend von Infra-ID ".$start_infra_id." in Richtung ".$fahrtrichtung);
+	$nachbarn = $cacheInfradaten[$start_infra_id]["nachbarn"];
 
-// Wenn es mehrere Abschnitte gibt, dann sollte in Fahrtrichtung der letzte genommen (zur sicheren Seite) werden
-if (count($nachbarn) > 1) {
-$aktuell = $nachbarn[0];
-debugMessage("Es gibt mehrere Abschnitte zu dieser Infra-ID.");
-} else {
-$aktuell = $nachbarn[0];
-}
+	// Wenn es mehrere Abschnitte gibt, dann sollte in Fahrtrichtung der letzte genommen (zur sicheren Seite) werden
+	if (count($nachbarn) > 1) {
+		$aktuell = $nachbarn[0];
+		debugMessage("Es gibt mehrere Abschnitte zu dieser Infra-ID.");
+	} else {
+		$aktuell = $nachbarn[0];
+	}
 
-// Wenn nach Gegensignalen gesucht wird, wird diese Prüfung hier ausgeführt, da das Signal am selben Abschnitt stehen könnte
-if (isset($optional["naechstessignal"]) && $optional["naechstessignal"]) {
-if (isset($cacheSignaldaten["freimeldeabschnitte"][$start_infra_id][$fahrtrichtung]["signalstandort_id"])) {
-$signalstandort_id = $cacheSignaldaten["freimeldeabschnitte"][$start_infra_id][$fahrtrichtung]["signalstandort_id"];
-debugMessage("Am Startabschnitt ".$start_infra_id." steht in Fahrtrichtung ".$fahrtrichtung." das Signal ".$signalstandort_id.".");
-$weitermachen = false;
+	// Wenn nach Gegensignalen gesucht wird, wird diese Prüfung hier ausgeführt, da das Signal am selben Abschnitt stehen könnte
+	if (isset($optional["naechstessignal"]) && $optional["naechstessignal"]) {
+		if (isset($cacheSignaldaten["freimeldeabschnitte"][$start_infra_id][$fahrtrichtung]["signalstandort_id"])) {
+			$signalstandort_id = $cacheSignaldaten["freimeldeabschnitte"][$start_infra_id][$fahrtrichtung]["signalstandort_id"];
+			debugMessage("Am Startabschnitt ".$start_infra_id." steht in Fahrtrichtung ".$fahrtrichtung." das Signal ".$signalstandort_id.".");
+			$weitermachen = false;
 
-//Der Abschnitt wird im Array gesammelt
-$abschnitte[] = array ("nachbar_id" => null,
-"infra_id" => $start_infra_id,
-"laenge" => 0,
-"signal_id" => $signalstandort_id);
-}
-}
+			//Der Abschnitt wird im Array gesammelt
+			$abschnitte[] = array ("nachbar_id" => null,
+				"infra_id" => $start_infra_id,
+				"laenge" => 0,
+				"signal_id" => $signalstandort_id);
+		}
+	}
 
-if ($weitermachen) {
-do {
-$signalstandort_id = null;
+	if ($weitermachen) {
+		do {
+			$signalstandort_id = null;
 
-// Ermittele die Nachbarn bis zum nächsten Zielpunkt
-// Wenn Weiche vorhanden, muss deren Stellung ermittelt werden, sonst gilt 0
-if (isset($aktuell["weiche_id"]) && !is_null($aktuell["weiche_id"])) {
-$dir = getDir($aktuell["weiche_id"]);
-debugMessage("Weiche ".$aktuell["weiche_id"]." steht in Stellung ".$dir.".");
-} else {
-$dir = 0;
-}
+			// Ermittele die Nachbarn bis zum nächsten Zielpunkt
+			// Wenn Weiche vorhanden, muss deren Stellung ermittelt werden, sonst gilt 0
+			if (isset($aktuell["weiche_id"]) && !is_null($aktuell["weiche_id"])) {
+				$dir = getDir($aktuell["weiche_id"]);
+				debugMessage("Weiche ".$aktuell["weiche_id"]." steht in Stellung ".$dir.".");
+			} else {
+				$dir = 0;
+			}
 
-// Dann nachbar$fahrtrichtung_$dir nehmen und für den weitersuchen
-if (!is_null($cacheInfranachbarn[$aktuell["id"]]["nachbar".$fahrtrichtung."_".$dir]) && $weitermachen) {
+			// Dann nachbar$fahrtrichtung_$dir nehmen und für den weitersuchen
+			if (!is_null($cacheInfranachbarn[$aktuell["id"]]["nachbar".$fahrtrichtung."_".$dir]) && $weitermachen) {
 
-$naechster_id = $cacheInfranachbarn[$aktuell["id"]]["nachbar".$fahrtrichtung."_".$dir];
-debugMessage ("Es gibt einen Nachbarabschnitt ".$naechster_id." (Infra-ID ".$cacheInfranachbarn[$naechster_id]["infra_id"].")");
-// Wenn am neuen letzten Abschnitt ein Halt zeigendes Signal steht oder dieser belegt ist,
-// wird abgebrochen
-if (isset($cacheSignaldaten["freimeldeabschnitte"][$cacheInfranachbarn[$naechster_id]["infra_id"]][$fahrtrichtung]["signalstandort_id"])) {
-$signalstandort_id = $cacheSignaldaten["freimeldeabschnitte"][$cacheInfranachbarn[$naechster_id]["infra_id"]][$fahrtrichtung]["signalstandort_id"];
+				$naechster_id = $cacheInfranachbarn[$aktuell["id"]]["nachbar".$fahrtrichtung."_".$dir];
+				debugMessage ("Es gibt einen Nachbarabschnitt ".$naechster_id." (Infra-ID ".$cacheInfranachbarn[$naechster_id]["infra_id"].")");
+				// Wenn am neuen letzten Abschnitt ein Halt zeigendes Signal steht oder dieser belegt ist,
+				// wird abgebrochen
+				if (isset($cacheSignaldaten["freimeldeabschnitte"][$cacheInfranachbarn[$naechster_id]["infra_id"]][$fahrtrichtung]["signalstandort_id"])) {
+					$signalstandort_id = $cacheSignaldaten["freimeldeabschnitte"][$cacheInfranachbarn[$naechster_id]["infra_id"]][$fahrtrichtung]["signalstandort_id"];
 
-// Wenn das nächste Signal gesucht ist, spielt der Begriff keine Rolle
-if (isset($optional["naechstessignal"]) && $optional["naechstessignal"]) {
-debugMessage ("Nächstes Signal gefunden!");
-$weitermachen = false;
-} else {
-debugMessage("Ermittele Signalbegriff an Signalstandort ".$signalstandort_id);
-$signalbegriff = getSignalbegriff($signalstandort_id);
+					// Wenn das nächste Signal gesucht ist, spielt der Begriff keine Rolle
+					if (isset($optional["naechstessignal"]) && $optional["naechstessignal"]) {
+						debugMessage ("Nächstes Signal gefunden!");
+						$weitermachen = false;
+					} else {
+						debugMessage("Ermittele Signalbegriff an Signalstandort ".$signalstandort_id);
+						$signalbegriff = getSignalbegriff($signalstandort_id);
 
-if ($signalbegriff && $signalbegriff[0]["geschwindigkeit"] == 0 && $signalbegriff[0]["id"] != 548) {
-debugMessage("Signalbegriff ist ".$signalbegriff[0]["begriff"].".");
-$weitermachen = false;
-} else {
-debugMessage ("Signal zeigt keinen Haltbegriff");
-}
-}
-}
+						if ($signalbegriff && $signalbegriff[0]["geschwindigkeit"] == 0 && $signalbegriff[0]["id"] != 548) {
+							debugMessage("Signalbegriff ist ".$signalbegriff[0]["begriff"].".");
+							$weitermachen = false;
+						} else {
+							debugMessage ("Signal zeigt keinen Haltbegriff");
+						}
+					}
+				}
 
-//Der Abschnitt wird im Array gesammelt
-$abschnitte[] = array ("nachbar_id" => $naechster_id,
-"infra_id" => $cacheInfranachbarn[$naechster_id]["infra_id"],
-"laenge" =>$cacheInfranachbarn[$naechster_id]["laenge"],
-"signal_id" => $signalstandort_id);
+				//Der Abschnitt wird im Array gesammelt
+				$abschnitte[] = array ("nachbar_id" => $naechster_id,
+					"infra_id" => $cacheInfranachbarn[$naechster_id]["infra_id"],
+					"laenge" => $cacheInfradaten[$cacheInfranachbarn[$naechster_id]["infra_id"]]["laenge"],
+					"signal_id" => $signalstandort_id);
 
-$aktuell = $cacheInfranachbarn[$naechster_id];
-} else {
-// Wenn es keinen Nachbarn dort gibt (oder wenn vorher schon abgebrochen wurde) => abbruch
+				$aktuell = $cacheInfranachbarn[$naechster_id];
+			} else {
+				// Wenn es keinen Nachbarn dort gibt (oder wenn vorher schon abgebrochen wurde) => abbruch
 
-if ($weitermachen) {
-debugMessage("Es gibt keinen weiteren Nachbarn. Offenbar ist hier ein Gleisende.");
-$weitermachen = false;
-} else {
-// Es wurde vorher schon abgebrochen
-}
-}
-} while ($weitermachen);
-}
-// Die gesammelten Abschnitte werden aufbereitet (alle Teilabschnitte einer Infra-ID zusammengefasst)
-$anzahl_abschnitte = count($abschnitte);
-if ($anzahl_abschnitte > 0) {
-$vorgaenger = 0;
-for ($a = 1; $a < $anzahl_abschnitte; $a++) {
-if ($abschnitte[$vorgaenger]["infra_id"] == $abschnitte[$a]["infra_id"]) {
-$abschnitte[$vorgaenger]["laenge"] = $abschnitte[$vorgaenger]["laenge"]+$abschnitte[$a]["laenge"];
-unset($abschnitte[$a]);
-} else {
-$vorgaenger = $a;
-}
-}
-}
-return $abschnitte;
+				if ($weitermachen) {
+					debugMessage("Es gibt keinen weiteren Nachbarn. Offenbar ist hier ein Gleisende.");
+					$weitermachen = false;
+				} else {
+					// Es wurde vorher schon abgebrochen
+				}
+			}
+		} while ($weitermachen);
+	}
+	// Die gesammelten Abschnitte werden aufbereitet (alle Teilabschnitte einer Infra-ID zusammengefasst)
+	$anzahl_abschnitte = count($abschnitte);
+	if ($anzahl_abschnitte > 0) {
+		$vorgaenger = 0;
+		for ($a = 1; $a < $anzahl_abschnitte; $a++) {
+			if ($abschnitte[$vorgaenger]["infra_id"] == $abschnitte[$a]["infra_id"]) {
+				$abschnitte[$vorgaenger]["laenge"] = $abschnitte[$vorgaenger]["laenge"]+$abschnitte[$a]["laenge"];
+				unset($abschnitte[$a]);
+			} else {
+				$vorgaenger = $a;
+			}
+		}
+	}
+	return $abschnitte;
 }
 // ------------------------------------------------
 // Ermittelt in der anderen Fahrtrichtung das nächste Signal
@@ -241,7 +241,7 @@ foreach ($infraliste as $element) {
 $cacheInfradaten[$element->id] = array("address" => $element->address,
 "betriebsstelle" => $element->betriebsstelle,
 "freimeldeabschnitt_id" => $element->freimeldeabschnitt_id,
-"type" => $element->type
+"type" => $element->type, "laenge" => $element->laenge
 );
 
 // Gleisabschnitte haben weitere Eigenschaften

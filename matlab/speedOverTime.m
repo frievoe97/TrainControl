@@ -15,7 +15,7 @@ vmaxOverPosition_v_max = vmaxOverPosition(:,2);
 
 fname = '../json/cumulativeSections.json'; 
 fid = fopen(fname); 
-raw = fread(fid,inf); 
+raw = fread(fid,inf);
 str = char(raw'); 
 fclose(fid); 
 cum = jsondecode(str);
