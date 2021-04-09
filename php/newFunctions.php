@@ -41,7 +41,14 @@ var_dump(getNextBetriebsstellen(20513));
 // Get first Betriebsstelle
 foreach ($allTrains as $trainIndex => $trainValue) {
 	$zug_id = 20513;//intval($allTrains[$trainIndex]["zug_id"]);
-	$allTrains[$trainIndex]["next_betriebsstellen"] = getNextBetriebsstellen($zug_id);
+	$nextBetriebsstellen = getNextBetriebsstellen($zug_id);
+
+	for ($i = 0; $i < sizeof($nextBetriebsstellen); $i++) {
+		$allTrains[$trainIndex]["next_betriebsstellen"][$i]["betriebstelle"] = $nextBetriebsstellen[$i];
+		$allTrains[$trainIndex]["next_betriebsstellen"][$i]["zeiten"] = getFahrplanzeiten($nextBetriebsstellen[$i], $zug_id);
+	}
+
+
 
 	/*
 	foreach ($allTrains[$trainIndex]["next_betriebsstellen"] as $betriebsstelleIndex => $betriebsstelleValue) {
