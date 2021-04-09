@@ -2,42 +2,40 @@
 
 | name        | content     | 
 | -------------: |:-------------|
-| id      | bb |
-| adresse      | bb |
-| timestamp      | bb |
-| speed      | bb |
-| dir      | bb |
-| zugtyp      | bb |
-| zuglaenge      | bb |
-| prev_speed      | bb |
+| id      | ID |
+| adresse      | Adresse |
+| timestamp      | Zeitstempel |
+| speed      | Geschwindigkeit |
+| dir      | Zugrichtung |
+| zugtyp      | Zugtyp |
+| zuglaenge      | Zuglänge |
+| prev_speed      | vorherige Geschwindigkeit |
 | fzs      | bb |
-| verzoegerung      | bb |
-| zusatnd      | bb |
-| bezeichnung      | bb |
-| vmax      | bb |
-| next_betriebsstellen      | bb |
+| verzoegerung      | Bremsverzögerung |
+| zusatnd      | Zustand |
+| bezeichnung      | Bezeichnung |
+| vmax      | maximal zulässige Geschwindigkeit |
+| next_betriebsstellen      | Nächste Betriebsstellen |
+| next_sections      | Nächste Abschnitte |
+| next_lenghts      | Längen der nächsten Abschnitte |
+| next_v_max      | Zulässige Höchstgeschwindigkeit auf den nächsten Abschnitten |
+| section      | Aktueller Abschnitt |
+| position      | Aktuelle Position (absolut im Abschnitt) |
+| next_timetable_change_speed      | Zielgewschwindigkeit |
+| next_timetable_change_section      | Zielabschnitt |
+| next_timetable_change_position      | Zielposition im Zielabschnitt |
+| next_timetable_change_time      | Ankunftszeit |
 
 ## KeyPoints
 
 | name        | content     | 
 | -------------: |:-------------|
-| speed_0      | bb |
-| speed_1      | bb |
-| position_0      | bb |
-| position_1      | bb |
-| time_0      | bb |
-| time_1      | bb |
-| max_speed      | bb |
+| speed_0      | Startgeschwindigkeit |
+| speed_1      | Zielgeschwindigkeit |
+| position_0      | Startposition |
+| position_1      | Zielposition |
+| time_0      | Startzeit |
+| time_1      | Zielzeit |
+| max_speed      | maximale Geschwindigkeit |
 
-## KeyPoints
-
-| name        | content     | 
-| -------------: |:-------------|
-| speed_0      | bb |
-| speed_1      | bb |
-| position_0      | bb |
-| position_1      | bb |
-| time_0      | bb |
-| time_1      | bb |
-| max_speed      | bb |
 
