@@ -4,18 +4,11 @@ require 'vorbelegung.php';
 require 'funktionen_abschnitte.php';
 require 'init/init_abschnitte.php';
 require 'init/init_fzg.php';
-require 'fahrplan_functions.php';
+require 'functions.php';
 
 $cacheInfranachbarn = createCacheInfranachbarn();
 $cacheInfradaten = createCacheInfradaten();
 $cacheSignaldaten = createCacheSignaldaten();
-
-// ERROR
-//var_dump(getNaechsteAbschnitte(153, 1));
-//var_dump(getNaechsteAbschnitte(354, 1));
-
-//var_dump(getSignalbegriff(89));
-//var_dump(getSignalbegriff(91));
 
 // Zeit:
 $DB = new DB_MySQL();
@@ -25,21 +18,36 @@ $simulationTime = (float) getUhrzeit();
 $timeDifference = $databaseTime - $simulationTime;
 
 
-// Step 1: Initilize all trains (verzoegerung, laenge etc.)
 
+// Step 1: Initilize all trains (verzoegerung, laenge etc.)
 $allTrains = getAllTrains();
 
+// delete trains with no v_max
+$newAllTrains = array();
+foreach ($allTrains as $train) {
+		if ($train["vmax"] != null) {
+			array_push($newAllTrains, $train);
+		}
+	}
+$allTrains = $newAllTrains;
 
+// Get all Zug IDs
 foreach ($allTrains as $trainIndex => $trainValue) {
-	$allTrains[$trainIndex]["nextBetriebsstellen"] = getNextBetriebsstellen($trainValue["id"]);
+	$allTrains[$trainIndex]["zug_id"] = getFahrzeugZugIds(array($allTrains[$trainIndex]["id"]));
 }
 
-// v_max, Bezeichnung, Baureihe, evu
+var_dump(getNextBetriebsstellen(20513));
 
-// Steop 2: Next stop and the sections between the current position and the next stop
+// Get first Betriebsstelle
 foreach ($allTrains as $trainIndex => $trainValue) {
-	$allTrains[$trainIndex]["nextBetriebsstellen"] = getNextBetriebsstellen($trainValue["id"]);
-	//$allTrains[$trainIndex]["nextSections"] = getNaechsteAbschnitte($trainValue["id"], $trainValue["dir"]);
+	$zug_id = 20513;//intval($allTrains[$trainIndex]["zug_id"]);
+	$allTrains[$trainIndex]["next_betriebsstellen"] = getNextBetriebsstellen($zug_id);
+
+	/*
+	foreach ($allTrains[$trainIndex]["next_betriebsstellen"] as $betriebsstelleIndex => $betriebsstelleValue) {
+		$allTrains[$trainIndex]["next_betriebsstellen"][$betriebsstelleIndex]["zeiten"] = getFahrplanzeiten($betriebsstelleValue["betriebsstelle"], $zug_id);
+	}
+	*/
 }
 
 var_dump($allTrains);
@@ -49,3 +57,4 @@ var_dump($allTrains);
 	// Step 3: Loop to send the current speed to the train
 
 	// Step 4: Check if the v_max of the next sections has changed
+

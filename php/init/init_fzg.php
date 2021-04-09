@@ -86,6 +86,45 @@ $fzgTest = array(
 	"next_timetable_change_time" => ""
 );
 
+function updateVMax (array $allTrains) {
+
+	$returnTrains = array();
+
+	$DB = new DB_MySQL();
+
+	foreach ($allTrains as $train) {
+		$adresse = $train["adresse"];
+		$v_max = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`vmax`      
+                            FROM `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`
+                            WHERE `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`nummer` = $adresse
+                           ");
+
+
+		if (sizeof($v_max) != 0) {
+			$train["v_max"] = get_object_vars($v_max[0])["vmax"];
+			array_push($returnTrains, $train);
+		}
+
+
+	}
+
+
+
+
+
+
+	return $returnTrains;
+}
+
+function getAllTrainsFromSessionFahrplan() {
+
+	$DB = new DB_MySQL();
+	$allTrains = array();
+
+
+
+
+}
 
 
 
