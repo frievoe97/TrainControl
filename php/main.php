@@ -1,64 +1,67 @@
 <?php
 
 require 'vorbelegung.php';
-require 'functions.php';
 require 'funktionen_abschnitte.php';
-require 'prepare/prepare_fahrplan_session.php';
-require 'prepare/prepare_fahrplan_aktuell.php';
-require 'update/update_fahrzeuge_aktuell.php';
+require 'init/init_abschnitte.php';
 require 'init/init_fzg.php';
-require 'init/update_fzg.php';
-require 'init/update_fzg_2.php';
+require 'functions.php';
 
-// Zeit (Die Berechnung findet in Millisekunden als Nachkommastellen statt)
+$cacheInfranachbarn = createCacheInfranachbarn();
+$cacheInfradaten = createCacheInfradaten();
+$cacheSignaldaten = createCacheSignaldaten();
+
+// Zeit:
 $DB = new DB_MySQL();
 $databaseTime = (float) strtotime($DB->select("SELECT CURRENT_TIMESTAMP")[0]->CURRENT_TIMESTAMP);
 unset($DB);
-$computerTime = microtime(true);
-$fixedTestTime = (float) 1612811700;
+$simulationTime = (float) getUhrzeit();
+$timeDifference = $databaseTime - $simulationTime;
 
-// Testabschnitt initialisieren
 
-$naechsteAbschnitteID = array(700, 701, 702, 703, 704, 705, 706, 707, 708);
-$naechsteAbschnitteLENGTH = array(50, 100, 40, 240, 7, 100, 20, 140, 360);
-$naechsteAbschnitteV_MAX = array(20, 20, 60, 50, 10, 40, 60, 60, 70);
 
-if (true) {
-	$alleAbschnitte = array();
-	$alleAbschnitte = initAbschnitte($naechsteAbschnitteID, $naechsteAbschnitteLENGTH, $naechsteAbschnitteV_MAX, $alleAbschnitte);
-}
+// Step 1: Initilize all trains (verzoegerung, laenge etc.)
+$allTrains = getAllTrains();
 
-// Testfahrzeug initialisieren
-if (true) {
-	$allTrains = array();
-	//speed sec pos
-	$allTrains = initFzg(007, 1997, 0.8, 0, 7861, 0, $allTrains);
-}
-
-// Aktuelle Position festlegen
-if (true) {
-	foreach ($allTrains as $key => $value) {
-		$allTrains[$key] = setCurrentValues($allTrains, $key, 0, 700, 0);
+// delete trains with no v_max
+$newAllTrains = array();
+foreach ($allTrains as $train) {
+		if ($train["vmax"] != null) {
+			array_push($newAllTrains, $train);
+		}
 	}
+$allTrains = $newAllTrains;
+
+// Get all Zug IDs
+foreach ($allTrains as $trainIndex => $trainValue) {
+	$allTrains[$trainIndex]["zug_id"] = getFahrzeugZugIds(array($allTrains[$trainIndex]["id"]));
 }
 
-// Nächste Abschnitte für den Zug festlegen
-if (true) {
-	foreach ($allTrains as $key => $value) {
-		$allTrains[$key] = updateNextSections($allTrains, $key, $alleAbschnitte[0]['id'], $alleAbschnitte[0]['length'], $alleAbschnitte[0]['v_max']);
+var_dump(getNextBetriebsstellen(20513));
+
+// Get first Betriebsstelle
+foreach ($allTrains as $trainIndex => $trainValue) {
+	$zug_id = 20513;//intval($allTrains[$trainIndex]["zug_id"]);
+	$nextBetriebsstellen = getNextBetriebsstellen($zug_id);
+
+	for ($i = 0; $i < sizeof($nextBetriebsstellen); $i++) {
+		$allTrains[$trainIndex]["next_betriebsstellen"][$i]["betriebstelle"] = $nextBetriebsstellen[$i];
+		$allTrains[$trainIndex]["next_betriebsstellen"][$i]["zeiten"] = getFahrplanzeiten($nextBetriebsstellen[$i], $zug_id);
 	}
+
+
+
+	/*
+	foreach ($allTrains[$trainIndex]["next_betriebsstellen"] as $betriebsstelleIndex => $betriebsstelleValue) {
+		$allTrains[$trainIndex]["next_betriebsstellen"][$betriebsstelleIndex]["zeiten"] = getFahrplanzeiten($betriebsstelleValue["betriebsstelle"], $zug_id);
+	}
+	*/
 }
 
-// Nächsten Halt festlegen
-if (true) {
-	foreach ($allTrains as $key => $value) {
-		$allTrains[$key] = setTargetSpeed($allTrains, $key, 0, 707, 10, $fixedTestTime + 85);
-	}
-}
+var_dump($allTrains);
 
-// Fahrtverlauf berechnen:
-if (true) {
-	foreach ($allTrains as $key => $value) {
-		$allTrains[$key] = updateNextSpeed($allTrains, $key, $value, $fixedTestTime);
-	}
-}
+// BIG LOOP
+
+	// Step 3: Loop to send the current speed to the train
+
+	// Step 4: Check if the v_max of the next sections has changed
+
