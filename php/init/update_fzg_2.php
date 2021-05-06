@@ -58,7 +58,7 @@ function whatIsTheNextSpped() {
 	return false;
 }
 
-function updateNextSpeed (array $allTrains, int $key, array $value, float $currentTime) {
+function updateNextSpeed (array $train, float $currentTime) : array{
 
 	global $next_sections;
 	global $next_lengths;
@@ -89,20 +89,24 @@ function updateNextSpeed (array $allTrains, int $key, array $value, float $curre
 
 	global $keyPoints;
 
-	$next_sections = $value["next_sections"];
-	$next_lengths = $value["next_lenghts"];
-	$next_v_max = $value["next_v_max"];
+	$emptyArray = array();
 
-	$verzoegerung = $value["verzoegerung"];
-	$notverzoegerung = $value["notverzoegerung"];
-	$currentSection = $value["section"];
-	$currentPosition = $value["position"];
-	$currentSpeed = $value["speed"];
+	$keyPoints = $emptyArray;
 
-	$targetSpeed = $value["next_timetable_change_speed"];
-	$targetSection = $value["next_timetable_change_section"];
-	$targetPosition = $value["next_timetable_change_position"];
-	$targetTime = $value["next_timetable_change_time"];
+	$next_sections = $train["next_sections"];
+	$next_lengths = $train["next_lenghts"];
+	$next_v_max = $train["next_v_max"];
+
+	$verzoegerung = $train["verzoegerung"];
+	$notverzoegerung = $train["notverzoegerung"];
+	$currentSection = $train["current_infra_section"];
+	$currentPosition = $train["current_position"];
+	$currentSpeed = $train["current_speed"];
+
+	$targetSpeed = $train["next_timetable_change_speed"];
+	$targetSection = $train["next_timetable_change_section"];
+	$targetPosition = $train["next_timetable_change_position"];
+	$targetTime = $train["next_timetable_change_time"];
 
 	$indexCurrentSection = null;
 	$indexTargetSection = null;
@@ -112,14 +116,16 @@ function updateNextSpeed (array $allTrains, int $key, array $value, float $curre
 
 	$maxSpeedNextSections = null;
 
-	foreach ($next_sections as $key => $value) {
-		if ($value == $currentSection) {
+	foreach ($next_sections as $key => $train) {
+		if ($train == $currentSection) {
 			$indexCurrentSection = $key;
 		}
-		if ($value == $targetSection) {
+		if ($train == $targetSection) {
 			$indexTargetSection = $key;
 		}
 	}
+
+
 
 	// TODO: verbessern, was ist, wenn start und end section die selbe sind?
 	$cumulativeSectionLengthSum = - $currentPosition;
@@ -141,6 +147,8 @@ function updateNextSpeed (array $allTrains, int $key, array $value, float $curre
 	}
 
 	$distanceToNextStop = $distanceToNextStop - $currentPosition - $next_lengths[$indexTargetSection] + $targetPosition;
+
+
 
 	//maximale geschwindigkeit zwischen zwei punkten...
 	// TODO: Was ist, wenn die aktuelle Geschwindigkeit nicht ohne Rest durch 10 teilbar ist?
@@ -190,94 +198,30 @@ function updateNextSpeed (array $allTrains, int $key, array $value, float $curre
 	if (checkIfTrainIsToFastInCertainSections()["failed"]) {
 		while (checkIfTrainIsToFastInCertainSections()["failed"]) {
 
-			$failedSections = checkIfTrainIsToFastInCertainSections()["failed_sections"];
-
-			$failedSections = array_unique(array_merge($failedSections, $previousFailedSections));
-			asort($failedSections);
-
-			$groupedSections = createGroupedSections($failedSections);
-
-
-			// create new keyPoints
-			$keyPointsReturn = createKeyPointFromFailedSections($groupedSections, $failedSections);
-
-			var_dump($keyPointsReturn);
-
-			$keyPoints = tuneKeyPoints($keyPointsReturn);
-
-
-
-
-			// check if there is a KeyPoint Problem (Übverschneidung)
-			//checkDoubleKeyPoints();
-			checkKeyPointsOverlap();
-
+			$tempKeyPoints = $keyPoints;
 			$trainChange = createTrainChanges($currentTime);
-
 			$trainPositionChange = $trainChange[0];
 			$trainSpeedChange = $trainChange[1];
 			$trainTimeChange = $trainChange[2];
-
-
-
-			// return array($returnTrainPositionChange, $returnTrainSpeedChange, $returnTrainTimeChange);
-
-
+			$keyPoints = recalculateKeyPoints($tempKeyPoints);
+			$trainChange = createTrainChanges($currentTime);
+			$trainPositionChange = $trainChange[0];
+			$trainSpeedChange = $trainChange[1];
+			$trainTimeChange = $trainChange[2];
 			checkTrainChangeOverlap();
 			safeTrainChangeToJSONFile();
-
-			sleep(5);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-			if (false) {
-				$failedSections = checkIfTrainIsToFastInCertainSections()["failed_sections"];
-
-
-				$test = array_unique(array_merge($failedSections, $previousFailedSections));
-
-				$failedSections = $test;
-
-				asort($failedSections);
-
-
-
-				$groupedSections = createGroupedSections($failedSections);
-
-				//var_dump($groupedSections);
-
-				// create new keyPoints
-				$keyPointsReturn = createKeyPointsFromGroupedSections($groupedSections, $failedSections);
-				$trainPositionChange = $keyPointsReturn[0];
-				$trainSpeedChange = $keyPointsReturn[1];
-				$keyPoints = $keyPointsReturn[2];
-				$previousFailedSections = $keyPointsReturn[3];
-
-				// check if there is a KeyPoint Problem (Übverschneidung)
-				checkKeyPointsOverlap();
-				checkTrainChangeOverlap();
-				safeTrainChangeToJSONFile();
-			}
 		}
 	}
-
 	//Adding time to first KeyPoint
 	$keyPoints[0]["time_0"] = $currentTime;
+
 	//Zeit berechnen
+	//var_dump($keyPoints);
+
 	$trainTimeChange = calculateTrainTimeChange();
+
 	// TODO: Evtl. $timeToNextStop über $trainChangeTime errechnen und nicht über eine eigene Funktion
+
 	$timeToNextStop = calculateTimeFromKeyPoints();
 
 	if ($timeToNextStop > $maxTimeToNextStop) {
@@ -368,6 +312,127 @@ function updateNextSpeed (array $allTrains, int $key, array $value, float $curre
 
 		echo "\nDurch die Anpassung der Geschwindigkeit benötigt der Zug jetzt ", $timeToNextStop, ",\nda er ", $maxTimeToNextStop, " Sekunden zur Verfügung hat\n";
 	}
+
+	return array($trainPositionChange, $trainSpeedChange, $trainTimeChange);
+
+}
+
+function checkBetweenTwoKeyPoints(array $temKeyPoints, int $index) {
+
+	global $trainPositionChange;
+	global $trainSpeedChange;
+	global $cumulativeSectionLengthStart;
+	global $cumulativeSectionLengthEnd;
+	global $next_v_max;
+	global $verzoegerung;
+
+	$failedSections = array();
+	$groupedFailedSections = array();
+	$returnKeyPoints = array();
+	$failedPositions = array();
+
+	foreach ($trainPositionChange as $trainPositionChangeKey => $trainPositionChangeValue) {
+		if ($trainPositionChangeValue >= $temKeyPoints[$index]["position_0"] && $trainPositionChangeValue <= $temKeyPoints[$index + 1]["position_1"]) {
+			foreach ($cumulativeSectionLengthStart as $cumulativeSectionLengthStartKey => $cumulativeSectionLengthStartValue) {
+				if ($trainPositionChangeValue < $cumulativeSectionLengthStartValue) {
+					// jetzt den davor überprüfen
+					if ($trainSpeedChange[$trainPositionChangeKey] > $next_v_max[$cumulativeSectionLengthStartKey - 1]) {
+						array_push($failedSections, ($cumulativeSectionLengthStartKey - 1));
+						array_push($failedPositions, $trainPositionChangeValue);
+					}
+					break;
+				}
+			}
+		}
+	}
+
+
+	$failedSections = array_unique($failedSections);
+
+	if (sizeof($failedSections) == 0) {
+		return array($temKeyPoints[$index],$temKeyPoints[$index + 1]);
+	} else {
+		$returnKeyPoints[0]["speed_0"] = $temKeyPoints[$index]["speed_0"];
+		$returnKeyPoints[0]["position_0"] = $temKeyPoints[$index]["position_0"];
+	}
+
+
+
+	$previous = NULL;
+	foreach($failedSections as $key => $value) {
+		if($value > $previous + 1) {
+			$index++;
+		}
+		$groupedFailedSections[$index][] = $value;
+		$previous = $value;
+	}
+
+
+
+	foreach ($groupedFailedSections as $groupSectionsIndex => $groupSectionsValue) {
+		$lastElement = array_key_last($returnKeyPoints);
+		if (sizeof($groupSectionsValue) == 1) {
+			if ($failedPositions[0] > $cumulativeSectionLengthStart[$groupSectionsValue[0]]) {
+				$returnKeyPoints[$lastElement + 1]["position_1"] = $failedPositions[0];
+			} else {
+				$returnKeyPoints[$lastElement + 1]["position_1"] = $cumulativeSectionLengthStart[$groupSectionsValue[0]];
+			}
+			$returnKeyPoints[$lastElement + 1]["speed_1"] = $next_v_max[$groupSectionsValue[0]];
+			$returnKeyPoints[$lastElement + 2]["position_0"] = $cumulativeSectionLengthEnd[$groupSectionsValue[0]];
+			$returnKeyPoints[$lastElement + 2]["speed_0"] = $next_v_max[$groupSectionsValue[0]];
+		} else {
+			$slowestSection = null;
+			$slowestSpeed = 200;
+			for ($i = 0; $i < (sizeof($groupSectionsValue) - 1); $i++) {
+				if ($next_v_max[$groupSectionsValue[$i]] < $slowestSpeed) {
+					$slowestSpeed = $next_v_max[$groupSectionsValue[$i]];
+					$slowestSection = $groupSectionsValue[$i];
+				}
+			}
+			if ($failedPositions[0] > $cumulativeSectionLengthStart[$slowestSection]) {
+				$returnKeyPoints[$lastElement + 1]["position_1"] = $failedPositions[0];
+			} else {
+				$returnKeyPoints[$lastElement + 1]["position_1"] = $cumulativeSectionLengthStart[$slowestSection];
+			}
+			$returnKeyPoints[$lastElement + 1]["speed_1"] = $next_v_max[$slowestSection];
+			$returnKeyPoints[$lastElement + 2]["position_0"] = $cumulativeSectionLengthEnd[$slowestSection];
+			$returnKeyPoints[$lastElement + 2]["speed_0"] = $next_v_max[$slowestSection];
+		}
+	}
+
+	$returnKeyPoints[array_key_last($returnKeyPoints) + 1]["position_1"] = $temKeyPoints[$index]["position_1"];
+	$returnKeyPoints[array_key_last($returnKeyPoints)]["speed_1"] = $temKeyPoints[$index]["speed_1"];
+	$numberOfPairs = (sizeof($returnKeyPoints) - ((sizeof($returnKeyPoints)) % 2)) / 2;
+	for($j = 0; $j < $numberOfPairs; $j++) {
+		$i = $j * 2;
+		$distance = $returnKeyPoints[$i + 1]["position_1"] - $returnKeyPoints[$i]["position_0"];
+		$vMax = getVMaxBetweenTwoPoints($distance, $returnKeyPoints[$i]["speed_0"], $returnKeyPoints[$i + 1]["speed_1"]);
+		if ($vMax == -10) {
+			$returnKeyPoints[$i]["position_0"] = $returnKeyPoints[$i + 1]["position_1"] - (getBrakeDistance($returnKeyPoints[$i]["speed_0"], $returnKeyPoints[$i + 1]["speed_1"], $verzoegerung));
+			$distance = $returnKeyPoints[$i + 1]["position_1"] - $returnKeyPoints[$i]["position_0"];
+			$vMax = getVMaxBetweenTwoPoints($distance, $returnKeyPoints[$i]["speed_0"], $returnKeyPoints[$i + 1]["speed_1"]);
+		}
+		$returnKeyPoints[$i]["speed_1"] = $vMax;
+		$returnKeyPoints[$i]["position_1"] = $returnKeyPoints[$i]["position_0"] + getBrakeDistance($returnKeyPoints[$i]["speed_0"], $vMax, $verzoegerung);
+		$returnKeyPoints[$i + 1]["speed_0"] = $vMax;
+		$returnKeyPoints[$i + 1]["position_0"] = $returnKeyPoints[$i + 1]["position_1"] - getBrakeDistance($vMax, $returnKeyPoints[$i + 1]["speed_1"], $verzoegerung);
+	}
+
+	return $returnKeyPoints;
+}
+
+function recalculateKeyPoints(array $tempKeyPoints) {
+	$returnKeyPoints = array();
+	$numberOfPairs = (sizeof($tempKeyPoints) - ((sizeof($tempKeyPoints)) % 2)) / 2;
+
+	for($j = 0; $j < $numberOfPairs; $j++) {
+		$i = $j * 2;
+		$return = checkBetweenTwoKeyPoints($tempKeyPoints, $i);
+		foreach ($return as $keyPoint) {
+			array_push($returnKeyPoints, $keyPoint);
+		}
+	}
+	return $returnKeyPoints;
 }
 
 function tuneKeyPoints(array $keyPoints) : array {
@@ -524,8 +589,6 @@ function createKeyPointFromFailedSections (array $groupedSections, array $failed
 	return $returnKeyPoints;
 }
 
-
-
 function splitGroupedSections(array $groupedSections) : array {
 	foreach ($groupedSections as $groupedSectionsKey => $groupedSectionsValue) {
 		//var_dump($groupedSectionsValue);
@@ -556,6 +619,7 @@ function speedFineTuning(float $timeDiff, int $index) {
 }
 
 function calculateDistanceforSpeedFineTuning(int $v_0, int $v_1, float $distance, float $time) : float {
+
 
 	$firstSecondsPerMeter = distanceWithSpeedToTime($v_0, 1);
 	$secondSecondsPerMeter = distanceWithSpeedToTime($v_1, 1);
@@ -593,15 +657,18 @@ function createTrainChanges(float $currentTime) : array {
 	global $keyPoints;
 	global $verzoegerung;
 
+
 	$returnTrainSpeedChange = array();
 	$returnTrainTimeChange = array();
 	$returnTrainPositionChange = array();
 
-	array_push($returnTrainTimeChange, $currentTime);
-	array_push($returnTrainSpeedChange, $keyPoints[0]["speed_0"]);
-	array_push($returnTrainPositionChange, 0);
+
 
 	for ($i = 0; $i < (sizeof($keyPoints) - 1); $i++) {
+
+		array_push($returnTrainTimeChange, $currentTime);
+		array_push($returnTrainSpeedChange, $keyPoints[$i]["speed_0"]);
+		array_push($returnTrainPositionChange, $keyPoints[$i]["position_0"]);
 
 		if ($keyPoints[$i]["speed_0"] < $keyPoints[$i]["speed_1"]) {
 
@@ -611,9 +678,11 @@ function createTrainChanges(float $currentTime) : array {
 				array_push($returnTrainTimeChange, (end($returnTrainTimeChange) + (getBrakeTime(($j - 2), $j, $verzoegerung))));
 			}
 
+
+
 			array_push($returnTrainPositionChange, $keyPoints[$i + 1]["position_0"]);
 			array_push($returnTrainSpeedChange, $keyPoints[$i + 1]["speed_0"]);
-			array_push($returnTrainTimeChange, (end($returnTrainPositionChange) + distanceWithSpeedToTime($keyPoints[$i]["speed_1"], ($keyPoints[$i + 1]["position_0"] - $keyPoints[$i]["position_1"]))));
+			array_push($returnTrainTimeChange, (end($returnTrainTimeChange) + distanceWithSpeedToTime($keyPoints[$i]["speed_1"], ($keyPoints[$i + 1]["position_0"] - $keyPoints[$i]["position_1"]))));
 
 		} else {
 
@@ -623,18 +692,14 @@ function createTrainChanges(float $currentTime) : array {
 			array_push($returnTrainPositionChange, $keyPoints[$i]["position_1"] - getBrakeDistance($keyPoints[$i]["speed_0"],$keyPoints[$i]["speed_1"],$verzoegerung));
 			array_push($returnTrainSpeedChange, $keyPoints[$i]["speed_0"]);
 			array_push($returnTrainTimeChange, (end($returnTrainPositionChange) + distanceWithSpeedToTime($keyPoints[$i]["speed_0"], ($keyPoints[$i]["position_1"] - $keyPoints[$i]["position_0"] - getBrakeDistance($keyPoints[$i]["speed_0"], $keyPoints[$i]["speed_1"], $verzoegerung)))));
-
 			for ($j = ($keyPoints[$i]["speed_0"] - 2); $j >= $keyPoints[$i]["speed_1"]; $j = $j - 2) {
 				array_push($returnTrainPositionChange, (end($returnTrainPositionChange) + getBrakeDistance(($j + 2), $j, $verzoegerung)));
 				array_push($returnTrainSpeedChange, $j);
 				array_push($returnTrainTimeChange, (end($returnTrainTimeChange) + (getBrakeTime(($j + 2), $j, $verzoegerung))));
 			}
-
-
-
-
 		}
 	}
+
 
 	if ($keyPoints[array_key_last($keyPoints)]["speed_0"] < $keyPoints[array_key_last($keyPoints)]["speed_1"]) {
 		for ($j = ($keyPoints[array_key_last($keyPoints)]["speed_0"] + 2); $j <= $keyPoints[array_key_last($keyPoints)]["speed_1"]; $j = $j + 2) {
@@ -643,15 +708,19 @@ function createTrainChanges(float $currentTime) : array {
 			array_push($returnTrainTimeChange, (end($returnTrainTimeChange) + (getBrakeTime(($j - 2), $j, $verzoegerung))));
 		}
 	} else {
-		array_push($returnTrainPositionChange, $keyPoints[array_key_last($keyPoints)]["position_1"] - getBrakeDistance($keyPoints[array_key_last($keyPoints)]["speed_0"],$keyPoints[array_key_last($keyPoints)]["speed_1"],$verzoegerung));
-		array_push($returnTrainSpeedChange, $keyPoints[array_key_last($keyPoints)]["speed_0"]);
-		array_push($returnTrainTimeChange, (end($returnTrainPositionChange) + distanceWithSpeedToTime($keyPoints[array_key_last($keyPoints)]["speed_0"], ($keyPoints[array_key_last($keyPoints)]["position_1"] - $keyPoints[array_key_last($keyPoints)]["position_0"] - getBrakeDistance($keyPoints[array_key_last($keyPoints)]["speed_0"], $keyPoints[array_key_last($keyPoints)]["speed_1"], $verzoegerung)))));
+		//TODO: KANN DAS WEG?
+		//array_push($returnTrainPositionChange, $keyPoints[array_key_last($keyPoints)]["position_1"] - getBrakeDistance($keyPoints[array_key_last($keyPoints)]["speed_0"],$keyPoints[array_key_last($keyPoints)]["speed_1"],$verzoegerung));
+		//array_push($returnTrainSpeedChange, $keyPoints[array_key_last($keyPoints)]["speed_0"]);
+		//array_push($returnTrainTimeChange, (end($returnTrainPositionChange) + distanceWithSpeedToTime($keyPoints[array_key_last($keyPoints)]["speed_0"], ($keyPoints[array_key_last($keyPoints)]["position_1"] - $keyPoints[array_key_last($keyPoints)]["position_0"] - getBrakeDistance($keyPoints[array_key_last($keyPoints)]["speed_0"], $keyPoints[array_key_last($keyPoints)]["speed_1"], $verzoegerung)))));
 		for ($j = ($keyPoints[array_key_last($keyPoints)]["speed_0"] - 2); $j >= $keyPoints[array_key_last($keyPoints)]["speed_1"]; $j = $j - 2) {
 			array_push($returnTrainPositionChange, (end($returnTrainPositionChange) + getBrakeDistance(($j + 2), $j, $verzoegerung)));
 			array_push($returnTrainSpeedChange, $j);
 			array_push($returnTrainTimeChange, (end($returnTrainTimeChange) + (getBrakeTime(($j + 2), $j, $verzoegerung))));
 		}
 	}
+
+
+	//var_dump($returnTrainTimeChange);
 
 	return array($returnTrainPositionChange, $returnTrainSpeedChange, $returnTrainTimeChange);
 }
@@ -690,29 +759,41 @@ function calculateTrainTimeChange() : array {
 	global $keyPoints;
 	global $verzoegerung;
 
+
+
+
 	$returnAllTimes = array();
 	$returnAllTimes[0] = $keyPoints[0]["time_0"];
 
+
+
+
 	// TODO: Was ist , wenn die Startgeschwindigkeit ungerade ist?
 	for ($i = 0; $i < (sizeof($keyPoints) - 1); $i++) {
+
 		if ($keyPoints[$i]["speed_0"] < $keyPoints[$i]["speed_1"]) {
 			for ($j = $keyPoints[$i]["speed_0"] + 2; $j <= $keyPoints[$i]["speed_1"]; $j = $j + 2) {
 				array_push($returnAllTimes, (end($returnAllTimes) + (getBrakeTime($j - 2, $j, $verzoegerung))));
+
 			}
 			array_push($returnAllTimes, (end($returnAllTimes) + distanceWithSpeedToTime($keyPoints[$i]["speed_1"], ($keyPoints[$i + 1]["position_0"] - $keyPoints[$i]["position_1"]))));
-		} else {
+
+		} else if ($keyPoints[$i]["speed_0"] > $keyPoints[$i]["speed_1"]) {
 			for ($j = $keyPoints[$i]["speed_0"] - 2; $j >= $keyPoints[$i]["speed_1"]; $j = $j - 2) {
 				array_push($returnAllTimes, (end($returnAllTimes) + (getBrakeTime($j + 2, $j, $verzoegerung))));
+
 			}
 			array_push($returnAllTimes, (end($returnAllTimes) + distanceWithSpeedToTime($keyPoints[$i]["speed_1"], ($keyPoints[$i + 1]["position_0"] - $keyPoints[$i]["position_1"]))));
 		}
 	}
 
+
+
 	if ($keyPoints[array_key_last($keyPoints)]["speed_0"] < $keyPoints[array_key_last($keyPoints)]["speed_1"]) {
 		for ($i = ($keyPoints[array_key_last($keyPoints)]["speed_0"] + 2); $i <= $keyPoints[array_key_last($keyPoints)]["speed_1"]; $i = $i + 2) {
 			array_push($returnAllTimes, (end($returnAllTimes) + (getBrakeTime($i - 2, $i, $verzoegerung))));
 		}
-	} else {
+	} else if ($keyPoints[array_key_last($keyPoints)]["speed_0"] > $keyPoints[array_key_last($keyPoints)]["speed_1"]) {
 		for ($i = ($keyPoints[array_key_last($keyPoints)]["speed_0"] - 2); $i >= $keyPoints[array_key_last($keyPoints)]["speed_1"]; $i = $i - 2) {
 			array_push($returnAllTimes, (end($returnAllTimes) + (getBrakeTime($i + 2, $i, $verzoegerung))));
 		}
@@ -776,10 +857,15 @@ function calculateTimeFromKeyPoints($inputKeyPoints = null) {
 	$localKeyPoints[array_key_last($localKeyPoints)]["time_1"] = getBrakeTime($localKeyPoints[array_key_last($localKeyPoints)]["speed_0"], $localKeyPoints[array_key_last($localKeyPoints)]["speed_1"], $verzoegerung) + $localKeyPoints[array_key_last($localKeyPoints)]["time_0"];
 	$keyPoints = $localKeyPoints;
 
+
+
 	return end($keyPoints)["time_1"] - $keyPoints[0]["time_0"];
 }
 
 function distanceWithSpeedToTime (int $v, float $distance) : float {
+	if ($distance == 0) {
+		return 0;
+	}
 	return (($distance)/($v / 3.6));
 }
 
@@ -804,8 +890,6 @@ function checkTrainChangeOverlap() {
 function getVMaxBetweenTwoPoints(float $distance, int $v_0, int $v_1) : int {
 	global $verzoegerung;
 
-
-
 	$v_max = null;
 
 	for ($i = 0; $i <= 120; $i = $i + 10) {
@@ -813,6 +897,9 @@ function getVMaxBetweenTwoPoints(float $distance, int $v_0, int $v_1) : int {
 			$v_max = $i - 10;
 			break;
 		}
+	}
+	if ($v_0 == $v_1 && $v_max < $v_0) {
+		return $v_0;
 	}
 	return $v_max;
 }
@@ -1085,7 +1172,6 @@ function checkIfTrainIsToFastInCertainSections() : array {
 	global $cumulativeSectionLengthStart;
 	global $next_v_max;
 
-
 	$faildSections = array();
 
 	foreach ($trainPositionChange as $trainPositionChangeKey => $trainPositionChangeValue) {
@@ -1102,9 +1188,6 @@ function checkIfTrainIsToFastInCertainSections() : array {
 			}
 		}
 	}
-
-
-
 
 	if (sizeof($faildSections) == 0) {
 		return array("failed" => false);
@@ -1209,6 +1292,3 @@ function getBrakeTime (float $v_0, float $v_1, float $verzoegerung) : float  {
 		return false;
 	}
 }
-
-/*   Probecode für weitere files   */
-

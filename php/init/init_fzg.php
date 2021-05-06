@@ -58,9 +58,9 @@ function initAbschnitte (array $ID, array $LENGTH, array $VMAX, array $pushArray
 
 function setCurrentValues (array $allTrains, int $key, int $speed, int $section, int $position) {
 
-	$allTrains[$key]["speed"] = $speed;
-	$allTrains[$key]["section"] = $section;
-	$allTrains[$key]["position"] = $position;
+	$allTrains[$key]["current_speed"] = $speed;
+	$allTrains[$key]["current_infra_section"] = $section;
+	$allTrains[$key]["current_position"] = $position;
 
 	return $allTrains[$key];
 
@@ -131,6 +131,7 @@ function getAllTrainsFromSessionFahrplan() {
 function getAllTrains () : array {
 
 	$allAdresses = getAllAdresses();
+	//var_dump($allAdresses);
 	$DB = new DB_MySQL();
 	$allTrains = array();
 
@@ -178,19 +179,23 @@ function getAllTrains () : array {
 
 function getAllAdresses () : array {
 
+	// zugelassene Zustaände -> im Betrieb dann 0 und 1!
+	$zustand = array("0", "1", "2");
 	$returnAdresses = array();
 	$DB = new DB_MySQL();
 
-	$adresses = $DB->select("SELECT DISTINCT `".DB_TABLE_FAHRZEUGE."`.`adresse`
+	$adresses = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE."`.`adresse`,
+										`".DB_TABLE_FAHRZEUGE."`.`zustand`
                             FROM `".DB_TABLE_FAHRZEUGE."`
                            ");
 
 	unset($DB);
 
 	foreach ($adresses as $adressIndex => $adressValue) {
-		array_push($returnAdresses, (int) $adressValue->adresse);
+		if (in_array($adressValue->zustand, $zustand)) {
+			array_push($returnAdresses, (int) $adressValue->adresse);
+		}
 	}
-
 	return $returnAdresses;
 }
 

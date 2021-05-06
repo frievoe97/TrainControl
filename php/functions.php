@@ -362,6 +362,8 @@ function getFahrplanzeiten (string $betriebsstelle, int $zug_id, array $options 
         return false;
     }
 
+    $fahrplandaten = array();
+
     $DB = new DB_MySQL();
     $fahrplandaten_temp = $DB->select("SELECT `".DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`.`ankunft_soll`,
                         `".DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`.`abfahrt_soll`,
@@ -373,16 +375,45 @@ function getFahrplanzeiten (string $betriebsstelle, int $zug_id, array $options 
                         ");
     unset($DB);
 
+    /*
     if(!isset($fahrplandaten_temp[0]->abfahrt_soll, $fahrplandaten_temp[0]->ankunft_soll, $fahrplandaten_temp[0]->fahrtrichtung, $fahrplandaten_temp[0]->ist_durchfahrt)) {
         return false;
     }
+    */
 
+    if(!isset($fahrplandaten_temp[0]->abfahrt_soll) && !isset($fahrplandaten_temp[0]->ankunft_soll) && !isset($fahrplandaten_temp[0]->fahrtrichtung) && !isset($fahrplandaten_temp[0]->ist_durchfahrt)) {
+        return false;
+    } else {
+        if(isset($fahrplandaten_temp[0]->abfahrt_soll)) {
+            $fahrplandaten["abfahrt_soll"] = $fahrplandaten_temp[0]->abfahrt_soll;
+        } else {
+            $fahrplandaten["abfahrt_soll"] = null;
+        }
+        if(isset($fahrplandaten_temp[0]->ankunft_soll)) {
+            $fahrplandaten["ankunft_soll"] = $fahrplandaten_temp[0]->ankunft_soll;
+        } else {
+            $fahrplandaten["ankunft_soll"] = null;
+        }
+        if(isset($fahrplandaten_temp[0]->fahrtrichtung)) {
+            $fahrplandaten["fahrtrichtung"] = $fahrplandaten_temp[0]->fahrtrichtung;
+        } else {
+            $fahrplandaten["fahrtrichtung"] = null;
+        }
+        if(isset($fahrplandaten_temp[0]->ist_durchfahrt)) {
+            $fahrplandaten["ist_durchfahrt"] = $fahrplandaten_temp[0]->ist_durchfahrt;
+        } else {
+            $fahrplandaten["ist_durchfahrt"] = null;
+        }
+    }
+
+    /*
     $fahrplandaten = [
         "abfahrt_soll" => $fahrplandaten_temp[0]->abfahrt_soll,
         "ankunft_soll" => $fahrplandaten_temp[0]->ankunft_soll,
         "fahrtrichtung" => $fahrplandaten_temp[0]->fahrtrichtung,
         "ist_durchfahrt" => $fahrplandaten_temp[0]->ist_durchfahrt,
     ];
+    */
 
     return $fahrplandaten /*(array: abfahrt_soll, ankunft_soll, fahrtrichtung, ist_durchfahrt, uebergang_fahrtrichtung)*/;
 
@@ -514,6 +545,384 @@ function getFahrzeugZugIds ($fahrzeug_ids = array())  {
 
     debugMessage ("Es wurden ".count($zug_ids)." Zuordnungen von Zug-IDs zu Fahrzeugen gefunden.");
     return $zug_ids;
+}
+
+function getPosition(int $adresse) {
+
+    $returnPosition = array();
+
+    $DB = new DB_MySQL();
+    $position = $DB->select("SELECT `".DB_TABLE_FMA."`.`fma_id`
+                                            FROM `".DB_TABLE_FMA."`
+                                            WHERE `".DB_TABLE_FMA."`.`decoder_adresse` = $adresse
+                                            ");
+    unset($DB);
+
+    if (sizeof($position) != 0) {
+        for ($i = 0; $i < sizeof($position); $i++) {
+            array_push($returnPosition, intval(get_object_vars($position[$i])["fma_id"]));
+        }
+
+    }
+
+
+
+    return $returnPosition;
+
+}
+
+function createcacheInfraLaenge() {
+    $DB = new DB_MySQL();
+    $returnArray = array();
+
+    $infralaenge = $DB->select("SELECT `".DB_TABLE_INFRAZUSTAND."`.`id`,
+                                `".DB_TABLE_INFRAZUSTAND."`.`laenge`
+                                FROM `".DB_TABLE_INFRAZUSTAND."`
+                                WHERE `".DB_TABLE_INFRAZUSTAND."`.`type` = '"."gleis"."'
+                                ");
+    unset($DB);
+
+    foreach ($infralaenge as $data) {
+        if ($data->laenge != null) {
+            $returnArray[$data->id] = intval($data->laenge);
+        }
+    }
+    return $returnArray;
+}
+
+function createFmaToInfraData() {
+
+    $DB = new DB_MySQL();
+    $returnArray = array();
+
+    $fmaToInfra = $DB->select("SELECT `".DB_TABLE_FMA_GBT."`.`infra_id`,
+                                `".DB_TABLE_FMA_GBT."`.`fma_id`
+                                FROM `".DB_TABLE_FMA_GBT."`
+                                WHERE `".DB_TABLE_FMA_GBT."`.`fma_id` IS NOT NULL
+                                ");
+    unset($DB);
+
+    //var_dump( $fmaToInfra);
+
+    foreach ($fmaToInfra as $value) {
+        $returnArray[intval($value->fma_id)] = intval($value->infra_id);
+    }
+
+    return $returnArray;
+}
+
+function getFahruegId(int $adresse) {
+
+    $DB = new DB_MySQL();
+    $id = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE."`.`id`
+                                FROM `".DB_TABLE_FAHRZEUGE."`
+                                WHERE `".DB_TABLE_FAHRZEUGE."`.`adresse` = $adresse
+                                ");
+    unset($DB);
+    return intval($id[0]->id);
+}
+
+function convertSignalIdToBetriebsstelle (int $signalId) : string {
+    $DB = new DB_MySQL();
+    $betriebsstellen = get_object_vars($DB->select("SELECT `".DB_TABLE_SIGNALE_STANDORTE."`.`betriebsstelle`
+                                FROM `".DB_TABLE_SIGNALE_STANDORTE."`
+                                WHERE `".DB_TABLE_SIGNALE_STANDORTE."`.`id` = $signalId
+                                ")[0]);
+    unset($DB);
+    return $betriebsstellen["betriebsstelle"];
+}
+
+function getFrontPosition(array $infra, int $dir) : int {
+
+    foreach ($infra as $section) {
+        $nextSections = array();
+        $test = getNaechsteAbschnitte($section, $dir);
+
+        foreach ($test as $value) {
+            array_push($nextSections, $value["infra_id"]);
+        }
+
+        if (sizeof(array_intersect($infra, $nextSections)) == 0) {
+            return $section;
+        }
+    }
+    return false;
+}
+
+function in_array_any($needles, $haystack) {
+    return !empty(array_intersect($needles, $haystack));
+}
+
+function convertFmaToInfra (array $fma) {
+
+    $returnFma = array();
+    $DB = new DB_MySQL();
+
+    foreach ($fma as $fma_section) {
+        $infra = $DB->select("SELECT `".DB_TABLE_FMA_GBT."`.`infra_id`
+                                            FROM `".DB_TABLE_FMA_GBT."`
+                                            WHERE `".DB_TABLE_FMA_GBT."`.`fma_id` = $fma_section
+                                            ");
+        unset($DB);
+        array_push($returnFma, intval($infra[0]->infra_id));
+    }
+    return $returnFma;
+}
+
+
+
+
+// ------------------------------------------------------------------------------------
+// Funktion zur Ermittlung von Daten eines Zuges
+function getZugdaten ($zugnummer, $options = array()) {
+    // Vorbelegungen
+
+    if (!isset($options["betriebsstelle"])) $options["betriebsstelle"] = "";
+    if (!isset($options["betriebsstelle_aktuell"])) $options["betriebsstelle_aktuell"] = "";
+    if (!isset($options["zeitformat"]))     $options["zeitformat"] = "hh:mm:ss";
+    if (!isset($options["betriebsstellenfilter"])) { $options["betriebsstellenfilter"] = array(); }
+    if (!isset($options["errorhandling"]))  { $options["errorhandling"] = "hide"; }
+    if (!isset($options["action"]))         { $options["action"] = ""; }
+    if (!isset($options["sortierzeit"]))    { $options["sortierzeit"] = ""; }
+    if (!isset($options["rueckgabestyle"])) { $options["rueckgabestyle"] = ""; }
+
+    $where_zusatz = "";
+    $where_version = "";
+    $where_zusatzarray = array();
+    $feld_zusatzarray = array();
+    $istfelder = "";
+    $leftjoin_betriebsstellendaten = "";
+    $leftjoin_uebergangsdaten = "";
+    $limit = "";
+    $sortierzeit_order = "ASC";
+
+    switch ($options["id"])
+    {
+        default:
+        case "zugnummer":
+            {
+                $idfeld = "zugnummer";
+            }
+            break;
+
+        case "zug_id":
+            {
+                $idfeld = "id";
+            }
+            break;
+    }
+
+    $feld_zusatzarray[] = "`".$options["zugquelle"]."`.`vmax_ist`";
+    $feld_zusatzarray[] = "`".$options["zugquelle"]."`.`triebfahrzeug_ist`";
+    $feld_zusatzarray[] = "`".$options["fzmquelle"]."`.`abfahrt_soll`";
+    $feld_zusatzarray[] = "`".$options["fzmquelle"]."`.`gleis_soll` ";
+
+    $felder_anab = getDBFieldsAnAb ($options["fzmquelle"], array("zeitformat" => $options["zeitformat"]));
+
+    if (!empty($options["betriebsstellenfilter"]) && count($options["betriebsstellenfilter"]) > 0) {
+        $where_zusatzarray[] = "`".DB_TABLE_BETRIEBSSTELLEN_DATEN."`.`art` IN ('".implode("','",$options["betriebsstellenfilter"])."')";
+        $leftjoin_betriebsstellendaten = "LEFT JOIN `".DB_TABLE_BETRIEBSSTELLEN_DATEN."` ON (".$options["fzmquelle"].".`betriebsstelle` = `".DB_TABLE_BETRIEBSSTELLEN_DATEN."`.`kuerzel`)";
+    }
+
+    if (isset($options["zuggattung"]) && !empty($options["zuggattung"])) {
+        $where_zuggattung = "AND `".$options["zugquelle"]."`.`zuggattung` = '".$options["zuggattung"]."' ";
+    } else {
+        $where_zuggattung = "";
+    }
+
+    if (empty($zugnummer)) {
+        //print ("Keine Zugnummer angegeben!");
+        return false;
+    } else {
+        $DB = new DB_MySQL();
+
+        // Ist eine Sortierzeit übergeben, wird diese verwendet
+        if (!empty($options["sortierzeit"])) {
+            $where_zusatz_vorher = "(`sortierzeit` < '".$options["sortierzeit"]."')";
+            $where_zusatz_nachher = "(`sortierzeit` >= '".$options["sortierzeit"]."')";
+        }
+
+        // Ist eine aktuelle Betriebsstelle angegeben, wird zunächst die relevante Zeile im Zuglauf ermittelt, ab der der Zuglauf dann ausgegeben wird (wird ignoriert, wenn Sortierzeit übergeben wird!)
+        if (!empty($options["betriebsstelle_aktuell"]) && empty($options["sortierzeit"])) {
+            $aktbetriebsstelle = $DB->select("SELECT `sortierzeit`, `".$options["fzmquelle"]."`.`id` FROM `".$options["fzmquelle"]."`
+                                    LEFT JOIN `".$options["zugquelle"]."`
+                                     ON (`".$options["fzmquelle"]."`.`zug_id` = `".$options["zugquelle"]."`.`id`)
+                                    WHERE `".$options["zugquelle"]."`.`".$idfeld."` = '".$zugnummer."' AND
+                                          `betriebsstelle` = '".$options["betriebsstelle_aktuell"]."' 
+                                          ".$where_version." ".$where_zuggattung."
+                                    ORDER BY `sortierzeit` DESC LIMIT 0,1  
+                                   ");
+            if (count($aktbetriebsstelle) > 0) {
+                $where_zusatz_vorher = "(`sortierzeit` < '".$aktbetriebsstelle[0]->sortierzeit."')";
+                //$where_zusatz_nachher = "(`sortierzeit` >= '".$aktbetriebsstelle[0]->sortierzeit."' AND `".$options["fzmquelle"]."`.`id` > '".$aktbetriebsstelle[0]->id."')";
+                $where_zusatz_nachher = "(`sortierzeit` >= '".$aktbetriebsstelle[0]->sortierzeit."')";
+            }
+        }
+
+        switch ($options["action"]) {
+            case "vorherige":
+                {
+                    $limit = "DESC LIMIT 1,1";
+                    if (isset($where_zusatz_vorher)) {
+                        $where_zusatzarray[] = $where_zusatz_vorher;
+                    }
+
+                    $options["rueckgabestyle"] = "single";
+                }
+                break;
+
+            case "nächste":
+                {
+                    $limit = "ASC LIMIT 1,1";
+                    if (isset($where_zusatz_vorher)) {
+                        $where_zusatzarray[] = $where_zusatz_nachher;
+                    }
+                }
+                break;
+
+            case "uebernaechste":
+                {
+                    $limit = "ASC LIMIT 2,1";
+                    if (isset($where_zusatz_vorher)) {
+                        $where_zusatzarray[] = $where_zusatz_nachher;
+                    }
+                }
+                break;
+
+            case "erster":
+                {
+                    $limit = "LIMIT 0,1";
+                    $sortierzeit_order = "ASC";
+                }
+                break;
+
+            case "letzter":
+                {
+                    $limit = "LIMIT 0,1";
+                    $sortierzeit_order = "DESC";
+                }
+                break;
+
+            case "restlauf":
+            default:
+                {
+                    if (isset ($where_zusatz_nachher)) {
+                        $where_zusatzarray[] = $where_zusatz_nachher;
+                    }
+                }
+                break;
+        }
+
+        // Ermitteln der Daten
+        // Zuginfos für eine Betriebsstelle
+        if (!empty($betriebsstelle)) {
+            $where_zusatzarray[] = "(`betriebsstelle` = '".$options["betriebsstelle"]."')";
+        }
+
+        // Diverse Where-Zusätze werden ausgerollt
+        if (count($where_zusatzarray) > 0) {
+            $where_zusatz = implode(" AND ",$where_zusatzarray)." AND ";
+        }
+
+        // Diverse Feld-Zusätze werden ausgerollt
+        if (count($feld_zusatzarray) > 0) {
+            $feld_zusatz = ", ".implode(", ",$feld_zusatzarray);
+        } else {
+            $feld_zusatz = "";
+        }
+
+        $zugdaten  = $DB->select("SELECT `".$options["zugquelle"]."`.`id` AS `zug_id`,`".$options["zugquelle"]."`.`zugnummer`, `".$options["zugquelle"]."`.`zuggattung_id`, 
+                                  CONCAT(`".DB_TABLE_ZUEGE_ZUGGATTUNGEN."`.`zuggattung`, ' ',`".$options["zugquelle"]."`.`zugnummer`) AS `zug`, 
+                                  `".$options["zugquelle"]."`.`verkehrstage`, `".$options["zugquelle"]."`.`verkehrstage_bin`, `".$options["fzmquelle"]."`.`bemerkungen`, 
+                                  `".DB_TABLE_ZUEGE_ZUGGATTUNGEN."`.`zuggattung`, 
+                                  `".$options["zugquelle"]."`.`vmax`, `".$options["zugquelle"]."`.`triebfahrzeug`, `".$options["zugquelle"]."`.`bremssystem`, `".$options["zugquelle"]."`.`mbr`,
+                                  `".$options["zugquelle"]."`.`wendezug`, `".$options["zugquelle"]."`.`uebergang_von_zug_id`, `".$options["zugquelle"]."`.`uebergang_nach_zug_id`,
+                                   ".$felder_anab." `".$options["fzmquelle"]."`.`betriebsstelle`, 
+                                  `".$options["fzmquelle"]."`.`ins_gegengleis`, `".$options["fzmquelle"]."`.`ist_durchfahrt`, `".$options["fzmquelle"]."`.`ist_kurzeinfahrt`, 
+                                  `".$options["fzmquelle"]."`.`gleis_plan` as `gleis`, `".$options["fzmquelle"]."`.`gleis_plan`, `".$options["fzmquelle"]."`.`fahrtrichtung`,
+                                   `".$options["fzmquelle"]."`.`id` AS `fzm_id`
+                                  ".$feld_zusatz."
+                           FROM `".$options["fzmquelle"]."`
+                           ".$leftjoin_betriebsstellendaten."
+                           LEFT JOIN `".$options["zugquelle"]."`
+                            ON (`".$options["fzmquelle"]."`.`zug_id` = `".$options["zugquelle"]."`.`id`)
+                           ".$leftjoin_uebergangsdaten."
+                           LEFT JOIN `".DB_TABLE_ZUEGE_ZUGGATTUNGEN."`
+                            ON (`".$options["zugquelle"]."`.`zuggattung_id` = `".DB_TABLE_ZUEGE_ZUGGATTUNGEN."`.`id`)
+                           WHERE ".$where_zusatz." `".$options["zugquelle"]."`.`".$idfeld."` = '".$zugnummer."' ".$where_version." ".$where_zuggattung."
+                           ORDER BY `".$options["fzmquelle"]."`.`sortierzeit` ".$sortierzeit_order.", `".$options["fzmquelle"]."`.`id` ".$limit);
+        $zugcount = count($zugdaten);
+
+        if ($zugcount == 0) {
+            if ($options["errorhandling"] == "show") {
+                print ("Die Zugnummer ".$zugnummer." konnte nicht gefunden werden.");
+            }
+        } else {
+            switch ($options["rueckgabestyle"])
+            {
+                default:
+                case "single":
+                    {
+                        $rueckgabewert = $zugdaten[0];
+                    }
+                    break;
+
+                case "array":
+                    {
+                        $rueckgabewert = $zugdaten;
+                    }
+                    break;
+            }
+        }
+    }
+
+    unset($DB);
+
+    if (isset($rueckgabewert)) {
+        return $rueckgabewert;
+    } else {
+        return false;
+    }
+}
+
+
+function getDBFieldsAnAb ($quelle, $options = array()) {
+    if (!isset($options["zeitformat"])) { $options["zeitformat"] = "hh:mm:ss" ; }
+
+    switch ($options["zeitformat"]) {
+        default:
+        case "hh:mm:ss":
+            {
+                $zeitformat = "%H:%i:%s";
+            }
+            break;
+        case "hh:mm":
+            {
+                $zeitformat = "%H:%i";
+            }
+            break;
+    }
+    $felder_anab = "DATE_FORMAT(`".$quelle."`.`abfahrt_plan`,'%H:%i') AS `abfahrt`,
+                 DATE_FORMAT(`".$quelle."`.`ankunft_plan`,'%H:%i') AS `ankunft`,
+                 DATE_FORMAT(`".$quelle."`.`ankunft_plan`,'".$zeitformat."') AS `ankunft_plan`,
+                 DATE_FORMAT(`".$quelle."`.`abfahrt_plan`,'".$zeitformat."') AS `abfahrt_plan`,
+                 `".$quelle."`.`abfahrt_plan` AS `abfahrt_exakt`,
+                 `".$quelle."`.`ankunft_plan` AS `ankunft_exakt`,";
+    $felder_anab .= "`".$quelle."`.`gleis_plan`, ";
+
+    if ($quelle == DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN) {
+        $felder_anab .= "`".$quelle."`.`abfahrt_soll`, 
+                   `".$quelle."`.`ankunft_soll`, ";
+        $felder_anab .= "DATE_FORMAT(`".$quelle."`.`abfahrt_ist`,'%H:%i') AS `abfahrt_ist`,
+                   DATE_FORMAT(`".$quelle."`.`ankunft_ist`,'%H:%i') AS `ankunft_ist`,";
+        $felder_anab .= "DATE_FORMAT(`".$quelle."`.`abfahrt_soll`,'%H:%i') AS `abfahrt_soll`,
+                   DATE_FORMAT(`".$quelle."`.`ankunft_soll`,'%H:%i') AS `ankunft_soll`,";
+        $felder_anab .= "DATE_FORMAT(`".$quelle."`.`abfahrt_prognose`,'%H:%i') AS `abfahrt_prognose`,
+                   DATE_FORMAT(`".$quelle."`.`ankunft_prognose`,'%H:%i') AS `ankunft_prognose`,";
+        $felder_anab .= "`".$quelle."`.`gleis_soll`, `".$quelle."`.`gleis_ist`, ";
+    }
+
+    return $felder_anab;
 }
 
 
