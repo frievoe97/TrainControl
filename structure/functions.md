@@ -1,8 +1,8 @@
-## AllTrains (Alle Züge)
+## Functions
 
 | name        | content     | 
 | -------------: |:-------------|
-| id      | ID |
+| getZugdaten      | zugnummer &rarr;   |
 | adresse      | Adresse |
 | timestamp      | ~~Zeitstempel~~ |
 | speed      | Geschwindigkeit |
@@ -16,12 +16,17 @@
 | zusatnd      | Zustand |
 | bezeichnung      | Bezeichnung |
 | vmax      | maximal zulässige Geschwindigkeit |
-| next_betriebsstellen      | Nächste Betriebsstellen |
+| next_betriebsstellen_data      | Nächste Betriebsstellen (Daten)|
+| next_betriebsstellen_name      | Nächste Betriebsstellen (Namen) |
+| current_fahrstrasse_data      | Aktuelle Fahrstraße (Daten) |
+| current_fahrstrasse_name      | Aktuelle Fahrstraße (Betriebsstellen) |
+| richtige_fahrstraße      | Die eingestellte Fahrstraße stimmt mit dem Fahrplan überein (1 &rarr; ja, 0 &rarr; nein) |
 | next_sections      | Nächste Abschnitte |
 | next_lenghts      | Längen der nächsten Abschnitte |
 | next_v_max      | Zulässige Höchstgeschwindigkeit auf den nächsten Abschnitten |
-| section      | Aktueller Abschnitt |
-| position      | Aktuelle Position (absolut im Abschnitt) |
+| current_infra_section      | Aktueller Infra-Abschnitt |
+| current_fma_section      | Aktueller Fma-Abschnitt |
+| current_position      | Aktuelle Position (absolut im Abschnitt) |
 | next_timetable_change_speed      | Zielgewschwindigkeit |
 | next_timetable_change_section      | Zielabschnitt |
 | next_timetable_change_position      | Zielposition im Zielabschnitt |
