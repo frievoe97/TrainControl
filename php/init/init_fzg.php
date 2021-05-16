@@ -140,6 +140,7 @@ function getFahrplanAndPosition () {
 	// Get all Zug IDs
 	foreach ($allTrains as $trainIndex => $trainValue) {
 		$allTrains[$trainIndex]["error"] = array();
+		/*
 		$allTrains[$trainIndex]["live_position"] = array();
 		$allTrains[$trainIndex]["live_speed"] = array();
 		$allTrains[$trainIndex]["live_time"] = array();
@@ -148,6 +149,7 @@ function getFahrplanAndPosition () {
 		$allTrains[$trainIndex]["live_is_speed_change"] = array();
 		$allTrains[$trainIndex]["live_target_reached"] = array();
 		$allTrains[$trainIndex]["error"] = array();
+		*/
 		$allTrains[$trainIndex]["next_sections"] = array();
 		$allTrains[$trainIndex]["next_lenghts"] = array();
 		$allTrains[$trainIndex]["next_v_max"] = array();
@@ -175,8 +177,6 @@ function getFahrplanAndPosition () {
 					if (sizeof(explode("_", $nextBetriebsstellen[$i])) != 2) {
 						$allTrains[$trainIndex]["next_betriebsstellen_data"][$i]["betriebstelle"] = $nextBetriebsstellen[$i];
 						$allTrains[$trainIndex]["next_betriebsstellen_data"][$i]["zeiten"] = getFahrplanzeiten($nextBetriebsstellen[$i], $zug_id);
-
-
 					}
 				}
 				//$allTrains[$trainIndex]["next_betriebsstellen_name"] = $nextBetriebsstellen;
@@ -188,6 +188,7 @@ function getFahrplanAndPosition () {
 			$allTrains[$trainIndex]["next_betriebsstellen_data"] = array();
 
 		}
+		$allTrains[$trainIndex]["next_betriebsstellen_data"] = array_values($allTrains[$trainIndex]["next_betriebsstellen_data"]);
 	}
 
 
@@ -291,9 +292,16 @@ function getFahrplanAndPosition () {
 		foreach ($trainValue["next_betriebsstellen_data"] as $betriebsstelleIndex => $betriebsstelleValue) {
 			if ($betriebsstelleValue["zeiten"]["abfahrt_soll_timestamp"] != null && $betriebsstelleValue["zeiten"]["ankunft_soll_timestamp"] != null) {
 				$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["haltezeit"] = $betriebsstelleValue["zeiten"]["abfahrt_soll_timestamp"] - $betriebsstelleValue["zeiten"]["ankunft_soll_timestamp"];
+				if (($betriebsstelleValue["zeiten"]["abfahrt_soll_timestamp"] - $betriebsstelleValue["zeiten"]["ankunft_soll_timestamp"]) > 0) {
+					$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["is_halt"] = true;
+				} else {
+					$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["is_halt"] = false;
+				}
 			} else {
 				$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["haltezeit"] = 0;
+				$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["is_halt"] = true;
 			}
+			$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["verspaetung"] = 0;
 		}
 
 	}
@@ -357,6 +365,7 @@ function calculateNextSections() {
 			}
 
 			$return = getNaechsteAbschnitte($currentSection, $dir);
+			$allTrains[$trainIndex]["last_get_naechste_abschnitte"] = $return;
 			$currentVMax = 120;
 
 			array_push($nextSections, $currentSection);

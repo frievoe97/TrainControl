@@ -115,7 +115,7 @@ function emergencyBrake (float $distanceToNextStop, float $startTime) {
 
 }
 
-function updateNextSpeed (array $train, float $startTime, float $endTime, int $targetSectionPara, int $targetSpeedPara, int $targetPositionPara, bool $reachedBetriebsstelle) {
+function updateNextSpeed (array $train, float $startTime, float $endTime, int $currentSectionPara, int $currentSpeedPara, int $currentPositionPara, int $targetSectionPara, int $targetSpeedPara, int $targetPositionPara, bool $reachedBetriebsstelle, int $indexReachedBetriebsstelle, bool $wendet) {
 
 	global $next_sections;
 	global $next_lengths;
@@ -163,9 +163,13 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $t
 	$verzoegerung = $train["verzoegerung"];
 	$notverzoegerung = $train["notverzoegerung"];
 	$train_v_max = $train["vmax"];
-	$currentSection = $train["current_infra_section"];
-	$currentPosition = $train["current_position"];
-	$currentSpeed = $train["speed"];
+	//$currentSection = $train["current_infra_section"];
+	//$currentPosition = $train["current_position"];
+	//$currentSpeed = $train["speed"];
+
+	$currentSection = $currentSectionPara;
+	$currentPosition = $currentPositionPara;
+	$currentSpeed = $currentSpeedPara;
 
 	$targetSpeed = $targetSpeedPara;
 	$targetSection = $targetSectionPara;
@@ -181,13 +185,18 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $t
 
 	$maxSpeedNextSections = null;
 
+	//var_dump($currentSection, $targetSection, $currentPosition, $targetPosition);
+
 
 	if ($targetSection == $currentSection && $targetPosition == $currentPosition) {
+
 		$adress = $train["adresse"];
-		$return = array(array("live_position" => $targetPosition, "live_speed" => $targetSpeed, "live_time" => $endTime, "live_relative_position" => $targetPosition, "live_section" => $targetSection, "live_is_speed_change" => false, "live_target_reached" => $reachedBetriebsstelle));
+		$return = array(array("live_position" => $targetPosition, "live_speed" => $targetSpeed, "live_time" => $endTime, "live_relative_position" => $targetPosition, "live_section" => $targetSection, "live_is_speed_change" => false, "live_target_reached" => $reachedBetriebsstelle, "wendet" => $wendet, "id" => $train["id"], "betriebsstelle_index" => $indexReachedBetriebsstelle));
 		$allTimes[$adress] = array_merge($allTimes[$adress], $return);
-		return true;
+		return 0;
 	}
+
+
 
 	if ($train_v_max != null) {
 		foreach ($next_sections as $sectionKey => $sectionValue) {
@@ -381,20 +390,41 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $t
 		$trainIsSpeedChange = $returnTrainChanges[5];
 
 		$trainTargetReached = array();
+		$trainBetriebsstelleIndex = array();
+		$trainWendet = array();
 
 		if ($reachedBetriebsstelle) {
 			foreach ($trainPositionChange as $key => $value) {
 				if (array_key_last($trainPositionChange) != $key) {
 					$trainTargetReached[$key] = false;
+					$trainBetriebsstelleIndex[$key] = false;
 				} else {
 					$trainTargetReached[$key] = true;
+					$trainBetriebsstelleIndex[$key] = $indexReachedBetriebsstelle;
 				}
 			}
 		} else {
 			foreach ($trainPositionChange as $key => $value) {
 				$trainTargetReached[$key] = false;
+				$trainBetriebsstelleIndex[$key] = false;
 			}
 		}
+
+		if ($wendet) {
+			foreach ($trainPositionChange as $key => $value) {
+				if (array_key_last($trainPositionChange) != $key) {
+					$trainWendet[$key] = false;
+				} else {
+					$trainWendet[$key] = true;
+				}
+			}
+		} else {
+			foreach ($trainPositionChange as $key => $value) {
+				$trainWendet[$key] = false;
+			}
+		}
+
+		//betriebsstelle_index
 
 		safeTrainChangeToJSONFile();
 
@@ -498,20 +528,37 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $t
 		safeTrainChangeToJSONFile();
 
 		$trainTargetReached = array();
+		$trainBetriebsstelleIndex = array();
+		$trainWendet = array();
 
-		$trainTargetReached = array();
+		if ($wendet) {
+			foreach ($trainPositionChange as $key => $value) {
+				if (array_key_last($trainPositionChange) != $key) {
+					$trainWendet[$key] = false;
+				} else {
+					$trainWendet[$key] = true;
+				}
+			}
+		} else {
+			foreach ($trainPositionChange as $key => $value) {
+				$trainWendet[$key] = false;
+			}
+		}
 
 		if ($reachedBetriebsstelle) {
 			foreach ($trainPositionChange as $key => $value) {
 				if (array_key_last($trainPositionChange) != $key) {
 					$trainTargetReached[$key] = false;
+					$trainBetriebsstelleIndex[$key] = false;
 				} else {
 					$trainTargetReached[$key] = true;
+					$trainBetriebsstelleIndex[$key] = $indexReachedBetriebsstelle;
 				}
 			}
 		} else {
 			foreach ($trainPositionChange as $key => $value) {
 				$trainTargetReached[$key] = false;
+				$trainBetriebsstelleIndex[$key] = false;
 			}
 		}
 
@@ -521,17 +568,19 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $t
 	$returnArray = array();
 	$adress = $train["adresse"];
 
-	//var_dump($trainPositionChange);
-	//var_dump($trainRelativePosition); //
-	//var_dump($trainSection); //
-	//sleep(5);
+	$trainID = array();
+	$id = $train["id"];
+
+	foreach ($trainPositionChange as $key => $value) {
+		$trainID[$key] = $id;
+	}
 
 	foreach ($trainPositionChange as $trainPositionChangeIndex => $trainPositionChangeValue) {
-		array_push($returnArray, array("live_position" => $trainPositionChangeValue, "live_speed" => $trainSpeedChange[$trainPositionChangeIndex], "live_time" => $trainTimeChange[$trainPositionChangeIndex], "live_relative_position" => $trainRelativePosition[$trainPositionChangeIndex], "live_section" => $trainSection[$trainPositionChangeIndex], "live_is_speed_change" => $trainIsSpeedChange[$trainPositionChangeIndex], "live_target_reached" => $trainTargetReached[$trainPositionChangeIndex]));
+		array_push($returnArray, array("live_position" => $trainPositionChangeValue, "live_speed" => $trainSpeedChange[$trainPositionChangeIndex], "live_time" => $trainTimeChange[$trainPositionChangeIndex], "live_relative_position" => $trainRelativePosition[$trainPositionChangeIndex], "live_section" => $trainSection[$trainPositionChangeIndex], "live_is_speed_change" => $trainIsSpeedChange[$trainPositionChangeIndex], "live_target_reached" => $trainTargetReached[$trainPositionChangeIndex], "id" => $trainID[$trainPositionChangeIndex], "wendet" => $trainWendet[$trainPositionChangeIndex], "betriebsstelle_index" => $trainBetriebsstelleIndex[$trainPositionChangeIndex]));
 	}
 	$allTimes[$adress] = array_merge($allTimes[$adress], $returnArray);
 
-	return true;
+	return (end($trainTimeChange) - $trainTimeChange[0]) - ($endTime - $startTime);
 
 }
 
@@ -980,10 +1029,7 @@ function createTrainChanges(float $currentTime) : array {
 				array_push($returnTrainTimeChange, (end($returnTrainTimeChange) + (getBrakeTime(($j - 2), $j, $verzoegerung))));
 				array_push($returnIsSpeedChange, true);
 			}
-			array_push($returnTrainPositionChange, $keyPoints[$i + 1]["position_0"]);
-			array_push($returnTrainSpeedChange, $keyPoints[$i + 1]["speed_0"]);
-			array_push($returnTrainTimeChange, (end($returnTrainTimeChange) + distanceWithSpeedToTime($keyPoints[$i]["speed_1"], ($keyPoints[$i + 1]["position_0"] - $keyPoints[$i]["position_1"]))));
-			array_push($returnIsSpeedChange, true);
+
 
 		} else {
 
@@ -1011,9 +1057,17 @@ function createTrainChanges(float $currentTime) : array {
 			$relativePosition = $position - $startPosition;
 			array_push($returnTrainPositionChange, $position);
 			array_push($returnTrainSpeedChange, $speedToNextKeyPoint);
-			array_push($returnTrainTimeChange, $relativePosition / ($speedToNextKeyPoint / 3.6));
+			array_push($returnTrainTimeChange, end($returnTrainTimeChange) + ($relativePosition / ($speedToNextKeyPoint / 3.6)));
 			array_push($returnIsSpeedChange, false);
 		}
+
+
+		array_push($returnTrainPositionChange, $keyPoints[$i + 1]["position_0"]);
+		array_push($returnTrainSpeedChange, $keyPoints[$i + 1]["speed_0"]);
+		array_push($returnTrainTimeChange, (end($returnTrainTimeChange) + distanceWithSpeedToTime($keyPoints[$i]["speed_1"], ($keyPoints[$i + 1]["position_0"] - $keyPoints[$i]["position_1"]))));
+		array_push($returnIsSpeedChange, true);
+
+
 	}
 
 	if ($keyPoints[array_key_last($keyPoints)]["speed_0"] < $keyPoints[array_key_last($keyPoints)]["speed_1"]) {
@@ -1028,10 +1082,10 @@ function createTrainChanges(float $currentTime) : array {
 
 
 		//TODO: KANN DAS WEG?
-		array_push($returnTrainPositionChange, $keyPoints[array_key_last($keyPoints)]["position_1"] - getBrakeDistance($keyPoints[array_key_last($keyPoints)]["speed_0"],$keyPoints[array_key_last($keyPoints)]["speed_1"],$verzoegerung));
-		array_push($returnTrainSpeedChange, $keyPoints[array_key_last($keyPoints)]["speed_0"]);
-		array_push($returnTrainTimeChange, (end($returnTrainTimeChange) + distanceWithSpeedToTime($keyPoints[array_key_last($keyPoints)]["speed_0"], ($keyPoints[array_key_last($keyPoints)]["position_0"] - $keyPoints[array_key_last($keyPoints) - 1]["position_1"]))));
-		array_push($returnIsSpeedChange, true);
+		//array_push($returnTrainPositionChange, $keyPoints[array_key_last($keyPoints)]["position_1"] - getBrakeDistance($keyPoints[array_key_last($keyPoints)]["speed_0"],$keyPoints[array_key_last($keyPoints)]["speed_1"],$verzoegerung));
+		//array_push($returnTrainSpeedChange, $keyPoints[array_key_last($keyPoints)]["speed_0"]);
+		//array_push($returnTrainTimeChange, (end($returnTrainTimeChange) + distanceWithSpeedToTime($keyPoints[array_key_last($keyPoints)]["speed_0"], ($keyPoints[array_key_last($keyPoints)]["position_0"] - $keyPoints[array_key_last($keyPoints) - 1]["position_1"]))));
+		//array_push($returnIsSpeedChange, true);
 		for ($j = ($keyPoints[array_key_last($keyPoints)]["speed_0"] - 2); $j >= $keyPoints[array_key_last($keyPoints)]["speed_1"]; $j = $j - 2) {
 
 			array_push($returnTrainPositionChange, (end($returnTrainPositionChange) + getBrakeDistance(($j + 2), $j, $verzoegerung)));
