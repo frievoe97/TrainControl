@@ -117,6 +117,10 @@ function emergencyBrake (float $distanceToNextStop, float $startTime) {
 
 function updateNextSpeed (array $train, float $startTime, float $endTime, int $currentSectionPara, int $currentSpeedPara, int $currentPositionPara, int $targetSectionPara, int $targetSpeedPara, int $targetPositionPara, bool $reachedBetriebsstelle, int $indexReachedBetriebsstelle, bool $wendet) {
 
+
+	//var_dump( $train,  $startTime,  $endTime,  $currentSectionPara,  $currentSpeedPara,  $currentPositionPara,  $targetSectionPara,  $targetSpeedPara,  $targetPositionPara,  $reachedBetriebsstelle,  $indexReachedBetriebsstelle,  $wendet);
+	//sleep(3);
+
 	global $next_sections;
 	global $next_lengths;
 	global $next_v_max;
@@ -185,14 +189,24 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $c
 
 	$maxSpeedNextSections = null;
 
+
+
+
+
+
+
+
+
 	//var_dump($currentSection, $targetSection, $currentPosition, $targetPosition);
 
 
 	if ($targetSection == $currentSection && $targetPosition == $currentPosition) {
-
+		if ($indexReachedBetriebsstelle == 99999999) {
+			$indexReachedBetriebsstelle = null;
+		}
 		$adress = $train["adresse"];
 		$return = array(array("live_position" => $targetPosition, "live_speed" => $targetSpeed, "live_time" => $endTime, "live_relative_position" => $targetPosition, "live_section" => $targetSection, "live_is_speed_change" => false, "live_target_reached" => $reachedBetriebsstelle, "wendet" => $wendet, "id" => $train["id"], "betriebsstelle_index" => $indexReachedBetriebsstelle));
-		$allTimes[$adress] = array_merge($allTimes[$adress], $return);
+		//$allTimes[$adress] = array_merge($allTimes[$adress], $return);
 		return 0;
 	}
 
@@ -377,6 +391,7 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $c
 
 
 
+
 	if ($timeToNextStop > $maxTimeToNextStop) {
 		// Do nothing, schneller kann der Zug eh nicht ankommen
 
@@ -393,14 +408,26 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $c
 		$trainBetriebsstelleIndex = array();
 		$trainWendet = array();
 
+		foreach ($trainPositionChange as $key => $value) {
+			if (array_key_last($trainPositionChange) != $key) {
+				$trainBetriebsstelleIndex[$key] = null;
+			} else {
+				if ($indexReachedBetriebsstelle = 99999999) {
+					$trainBetriebsstelleIndex[$key] = null;
+				} else {
+					$trainBetriebsstelleIndex[$key] = $indexReachedBetriebsstelle;
+				}
+			}
+		}
+
 		if ($reachedBetriebsstelle) {
 			foreach ($trainPositionChange as $key => $value) {
 				if (array_key_last($trainPositionChange) != $key) {
 					$trainTargetReached[$key] = false;
-					$trainBetriebsstelleIndex[$key] = false;
+					//$trainBetriebsstelleIndex[$key] = false;
 				} else {
 					$trainTargetReached[$key] = true;
-					$trainBetriebsstelleIndex[$key] = $indexReachedBetriebsstelle;
+					//$trainBetriebsstelleIndex[$key] = $indexReachedBetriebsstelle;
 				}
 			}
 		} else {
@@ -545,14 +572,26 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $c
 			}
 		}
 
+		foreach ($trainPositionChange as $key => $value) {
+			if (array_key_last($trainPositionChange) != $key) {
+				$trainBetriebsstelleIndex[$key] = null;
+			} else {
+				if ($indexReachedBetriebsstelle = 99999999) {
+					$trainBetriebsstelleIndex[$key] = null;
+				} else {
+					$trainBetriebsstelleIndex[$key] = $indexReachedBetriebsstelle;
+				}
+			}
+		}
+
 		if ($reachedBetriebsstelle) {
 			foreach ($trainPositionChange as $key => $value) {
 				if (array_key_last($trainPositionChange) != $key) {
 					$trainTargetReached[$key] = false;
-					$trainBetriebsstelleIndex[$key] = false;
+					//$trainBetriebsstelleIndex[$key] = false;
 				} else {
 					$trainTargetReached[$key] = true;
-					$trainBetriebsstelleIndex[$key] = $indexReachedBetriebsstelle;
+					//$trainBetriebsstelleIndex[$key] = $indexReachedBetriebsstelle;
 				}
 			}
 		} else {

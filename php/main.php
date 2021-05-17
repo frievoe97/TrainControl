@@ -25,7 +25,6 @@ $simulationTime = (float) getUhrzeit();
 $timeDifference = $databaseTime - $simulationTime;
 $timeDifferenceGetUhrzeit = $simulationTime - $databaseTime;
 
-
 $timeStart = microtime(true);
 $sessionIsActive = true;
 $trainErrors = array(0 => "Zug stand falsch herum und war zu lang um die Richtung zu ändern");
@@ -33,6 +32,16 @@ $trainErrors = array(0 => "Zug stand falsch herum und war zu lang um die Richtun
 // Step 1: Initilize all trains (verzoegerung, laenge etc.) where zustand <= 1 gilt
 $allTrains = getAllTrains();
 getFahrplanAndPosition();
+
+$idToAdresse = array();
+
+
+foreach ($allTrains as $index => $value) {
+	$idToAdresse[$index] = $value["adresse"];
+}
+
+$adresseToID = array_flip($idToAdresse);
+
 $allTimes = array();
 
 consoleAllTrainsPositionAndFahrplan();
@@ -59,51 +68,28 @@ if (true) {
 consoleCheckIfStartDirectionIsCorrect();
 consoleAllTrainsPositionAndFahrplan();
 
-
-
-
 // Fügt für alle Züge die möglichen Haltepunkte hinzu
 addStopsectionsForTimetable();
-
 initalFirstLiveData();
-$aa = array(0,1,2,3,4,5,6);
-$bb = array(24,25,26,27);
-
-if (false) {
-	$aa = array();
-	$aa[0]["bs"] = "XWF";
-	$aa[0]["laenge"] = 100;
-
-	$bb = array();
-	$bb[2]["bs"] = "XWF";
-	$bb[2]["laenge"] = 100;
-}
 
 showErrors();
 
-
 // Add next_sections, next_lengths, next_v_max
 calculateNextSections();
-
-
-
-
-
 addNextStopForAllTrains();
-
-
-
-
 checkIfFahrstrasseIsCorrrect();
 calculateFahrverlauf();
 
-
-
-$sleeptime = 0.1;
+$timeCheckAllTrainsInterval = 30;
+$timeCheckAllTrains = 30 + microtime(true);
+$sleeptime = 0.3;
 while (true) {
 	foreach ($allTimes as $timeIndex => $timeValue) {
 		if (sizeof($timeValue) > 0) {
+			$id = $timeValue[0]["id"];
 			if ((microtime(true) + $timeDifference) > $timeValue[0]["live_time"]) {
+
+
 
 				if ($timeValue[0]["live_is_speed_change"]) {
 					sendFahrzeugbefehl($timeValue[0]["id"], intval($timeValue[0]["live_speed"]));
@@ -111,24 +97,99 @@ while (true) {
 
 				}
 
-				if ($timeValue[0]["live_target_reached"]) {
-					// TODO
-					$oldZugId = $allTrains[$timeValue[0]["id"]]["zug_id"];
-					$newZugId = getFahrzeugZugIds(array($timeValue[0]["id"]));
-					$newZugId = intval($newZugId[array_key_first($newZugId)]["zug_id"]);
+				$allTrains[$id]["current_position"] = $timeValue[0]["live_relative_position"];
+				$allTrains[$id]["speed"] = $timeValue[0]["live_speed"];
+				$allTrains[$id]["current_infra_section"] = $timeValue[0]["live_section"];
 
-					if ($oldZugId != $newZugId) {
-						// TODO: Times löschen
+
+
+				if ($timeValue[0]["live_target_reached"]) {
+
+
+
+
+
+					if ($timeValue[0]["betriebsstelle_index"] != null) {
+						$allTrains[$id]["next_betriebsstellen_data"][$timeValue[0]["betriebsstelle_index"]]["angekommen"] = true;
 					}
 
-					$allTrains[$timeValue[0]["id"]]["next_betriebsstellen_data"][$timeValue[0]["betriebsstelle_index"]]["angekommen"] = true;
+
+
+					$currentZugId = $allTrains[$id]["zug_id"];
+					$newZugId = getFahrzeugZugIds(array($id));
+
+					if (sizeof($newZugId) == 0) {
+						$newZugId = null;
+					} else {
+						$newZugId = getFahrzeugZugIds(array($timeValue[0]["id"]));
+						$allTrains[$id]["zug_id"] = intval($newZugId);
+					}
+
+
+					if (!($currentZugId == $newZugId && $currentZugId != null)) {
+
+						if ($currentZugId != null && $newZugId != null) {
+							// neuer fahrplan
+							$allTrains[$id]["operates_on_timetable"] = 1;
+							getFahrplanAndPositionForOneTrain($id);
+							addStopsectionsForTimetable($id);
+							calculateNextSections($id);
+							addNextStopForAllTrains($id);
+							checkIfFahrstrasseIsCorrrect($id);
+							calculateFahrverlauf($id);
+
+						} elseif ($currentZugId == null && $newZugId != null) {
+							// fährt jetzt nach fahrplan
+							$allTrains[$id]["operates_on_timetable"] = 1;
+							getFahrplanAndPositionForOneTrain($id);
+							addStopsectionsForTimetable($id);
+							calculateNextSections($id);
+							addNextStopForAllTrains($id);
+							checkIfFahrstrasseIsCorrrect($id);
+							calculateFahrverlauf($id);
+
+						} elseif ($currentZugId != null && $newZugId == null) {
+							// fährt jetzt auf freier strecke
+							$allTrains[$id]["operates_on_timetable"] = 0;
+							calculateNextSections($id);
+							calculateFahrverlauf($id);
+
+						}
+					}
+
+
 				}
 
 				if ($timeValue[0]["wendet"]) {
+					$id = $timeValue[0]["id"];
+					$currentDirection = $allTrains[$id]["dir"];
+					$allTimes[$timeIndex] = array();
+					changeDirection($id);
+					if ($currentDirection == 0) {
+						$allTrains[$id]["dir"] = 1;
+					} else {
+						$allTrains[$id]["dir"] = 0;
+					}
+
+					// TODO: getNaechsteAbschnitte
+
+					// TODO: calculate next_sections, next
+
+
 					// TODO
 				}
 				array_shift($allTimes[$timeIndex]);
 			}
+		}
+	}
+
+
+	if (microtime(true) > $timeCheckAllTrains) {
+		foreach ($allTimes as $timeIndex => $timeValue) {
+			var_dump(sizeof($allTrains));
+			$id = $adresseToID[$timeIndex];
+			compareTwoNaechsteAbschnitte($id, $allTrains[$id]["last_get_naechste_abschnitte"], getNaechsteAbschnitte($allTrains[$id]["current_infra_section"], $allTrains[$id]["dir"]));
+			$timeCheckAllTrains += $timeCheckAllTrainsInterval;
 		}
 	}
 	sleep($sleeptime);
