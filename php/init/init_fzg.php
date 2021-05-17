@@ -667,7 +667,8 @@ function getAllTrains () : array {
 
 function getAllAdresses () : array {
 
-	$zustand = array("0", "1", "2");
+	$zustand = array("0", "1");
+	//$zustand = array("0", "1", "2");
 	echo "Alle Züge, die den Zustand ", implode(", ", $zustand), " haben, werden eingelesen.\n\n";
 	$returnAdresses = array();
 	$DB = new DB_MySQL();
