@@ -1,14 +1,14 @@
 <?php
 
-require 'vorbelegung.php';
-require 'functions/functions.php';
-require 'functions/funktionen_abschnitte.php';
-require 'prepare/prepare_fahrplan_session.php';
-require 'prepare/prepare_fahrplan_aktuell.php';
-require 'update/update_fahrzeuge_aktuell.php';
-require 'init/init_fzg.php';
-require 'init/update_fzg.php';
-require 'functions/functions_fahrtverlauf.php';
+require '../vorbelegung.php';
+require '../functions/functions.php';
+require '../functions/funktionen_abschnitte.php';
+require '../prepare/prepare_fahrplan_session.php';
+require '../prepare/prepare_fahrplan_aktuell.php';
+require '../update/update_fahrzeuge_aktuell.php';
+require '../init/init_fzg.php';
+require '../init/update_fzg.php';
+require '../functions/functions_fahrtverlauf.php';
 
 // Zeit (Die Berechnung findet in Millisekunden als Nachkommastellen statt)
 $DB = new DB_MySQL();
@@ -52,7 +52,7 @@ if (true) {
 // Nächsten Halt festlegen
 if (true) {
 	foreach ($allTrains as $key => $value) {
-		$allTrains[$key] = setTargetSpeed($allTrains, $key, 0, 707, 10, $fixedTestTime + 221);
+		$allTrains[$key] = setTargetSpeed($allTrains, $key, 0, 700, 5, $fixedTestTime + 221);
 	}
 }
 
@@ -63,6 +63,7 @@ if (true) {
 		$allTrains[$key]['position_change'] = $returnValue[0];
 		$allTrains[$key]['speed_change'] = $returnValue[1];
 		$allTrains[$key]['time_change'] = $returnValue[2];
+		//var_dump($returnValue);
 	}
 }
 
@@ -76,7 +77,11 @@ foreach ($allTrains as $key => $value) {
 	}
 }
 
-while (sizeof($allTimes) != 0) {
+
+
+
+
+while (sizeof($allTimes) == 0) {
 	if ((microtime(true) - $timeDiff) > $allTimes[0]["time_change"]) {
 		sendFahrzeugbefehl($allTimes[0]["adresse"], $allTimes[0]["speed_change"]);
 		var_dump($allTimes[0]["speed_change"]);

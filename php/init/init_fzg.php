@@ -56,15 +56,12 @@ function initAbschnitte (array $ID, array $LENGTH, array $VMAX, array $pushArray
 	return $pushArray;
 }
 
-
 function setCurrentValues (array $allTrains, int $key, int $speed, int $section, int $position) {
-
 	$allTrains[$key]["current_speed"] = $speed;
 	$allTrains[$key]["current_infra_section"] = $section;
 	$allTrains[$key]["current_position"] = $position;
 
 	return $allTrains[$key];
-
 }
 
 // Create a new fzg
@@ -100,31 +97,12 @@ function updateVMax (array $allTrains) {
                             WHERE `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`nummer` = $adresse
                            ");
 
-
 		if (sizeof($v_max) != 0) {
 			$train["v_max"] = get_object_vars($v_max[0])["vmax"];
 			array_push($returnTrains, $train);
 		}
-
-
 	}
-
-
-
-
-
-
 	return $returnTrains;
-}
-
-function getAllTrainsFromSessionFahrplan() {
-
-	$DB = new DB_MySQL();
-	$allTrains = array();
-
-
-
-
 }
 
 // return: true -> es muss nichts angepasst werden
@@ -133,12 +111,15 @@ function compareTwoNaechsteAbschnitte(int $id, array $currentNaechsteAbschnitte,
 	global $allTrains;
 	global $allTimes;
 
-	if (!(end($currentNaechsteAbschnitte)["infra_id"] == end($newNaechsteAbschnitte)["infra_id"])) {
-		calculateNextSections($id);
-		$adresse = $allTrains[$id]["adresse"];
-		$allTimes[$adresse] = array();
-		checkIfFahrstrasseIsCorrrect($id);
-		calculateFahrverlauf($id);
+	if ($allTrains[$id]["can_drive"]) {
+
+		if (!(end($currentNaechsteAbschnitte)["infra_id"] == end($newNaechsteAbschnitte)["infra_id"])) {
+			calculateNextSections($id);
+			$adresse = $allTrains[$id]["adresse"];
+			$allTimes[$adresse] = array();
+			checkIfFahrstrasseIsCorrrect($id);
+			calculateFahrverlauf($id);
+		}
 	}
 }
 

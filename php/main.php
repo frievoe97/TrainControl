@@ -20,7 +20,7 @@ $infraToFma = array_flip($fmaToInfra);
 $DB = new DB_MySQL();
 $databaseTime = (float) strtotime($DB->select("SELECT CURRENT_TIMESTAMP")[0]->CURRENT_TIMESTAMP);
 unset($DB);
-$databaseTime = 1619164800;
+//$databaseTime = 1619164800;
 $simulationTime = (float) getUhrzeit();
 $timeDifference = $databaseTime - $simulationTime;
 $timeDifferenceGetUhrzeit = $simulationTime - $databaseTime;
@@ -34,14 +34,10 @@ $allTrains = getAllTrains();
 getFahrplanAndPosition();
 
 $idToAdresse = array();
-
-
 foreach ($allTrains as $index => $value) {
 	$idToAdresse[$index] = $value["adresse"];
 }
-
 $adresseToID = array_flip($idToAdresse);
-
 $allTimes = array();
 
 consoleAllTrainsPositionAndFahrplan();
@@ -56,10 +52,10 @@ if (true) {
 	$allTrains[65]["laenge"] = 50;
 	$allTrains[78]["laenge"] = 50;
 
-	$allTrains[51]["current_infra_section"] = 1167;
+	$allTrains[51]["current_infra_section"] = 1166;
 	$allTrains[57]["current_infra_section"] = 1169;
 
-	$allTrains[51]["current_position"] = $cacheInfraLaenge[$allTrains[51]["current_infra_section"]];
+	$allTrains[51]["current_position"] = 1;
 	$allTrains[57]["current_position"] = 1;
 	$allTrains[65]["current_position"] = $cacheInfraLaenge[$allTrains[65]["current_infra_section"]];
 	$allTrains[78]["current_position"] = $cacheInfraLaenge[$allTrains[78]["current_infra_section"]];
@@ -74,11 +70,18 @@ initalFirstLiveData();
 
 showErrors();
 
+
+
+
+
+
+
 // Add next_sections, next_lengths, next_v_max
 calculateNextSections();
 addNextStopForAllTrains();
 checkIfFahrstrasseIsCorrrect();
 calculateFahrverlauf();
+
 
 $timeCheckAllTrainsInterval = 30;
 $timeCheckAllTrains = 30 + microtime(true);
@@ -88,8 +91,6 @@ while (true) {
 		if (sizeof($timeValue) > 0) {
 			$id = $timeValue[0]["id"];
 			if ((microtime(true) + $timeDifference) > $timeValue[0]["live_time"]) {
-
-
 
 				if ($timeValue[0]["live_is_speed_change"]) {
 					sendFahrzeugbefehl($timeValue[0]["id"], intval($timeValue[0]["live_speed"]));
@@ -101,19 +102,23 @@ while (true) {
 				$allTrains[$id]["speed"] = $timeValue[0]["live_speed"];
 				$allTrains[$id]["current_infra_section"] = $timeValue[0]["live_section"];
 
-
-
-				if ($timeValue[0]["live_target_reached"]) {
-
-
-
-
-
-					if ($timeValue[0]["betriebsstelle_index"] != null) {
-						$allTrains[$id]["next_betriebsstellen_data"][$timeValue[0]["betriebsstelle_index"]]["angekommen"] = true;
+				if ($timeValue[0]["wendet"]) {
+					$id = $timeValue[0]["id"];
+					$currentDirection = $allTrains[$id]["dir"];
+					$allTimes[$timeIndex] = array();
+					changeDirection($id);
+					if ($currentDirection == 0) {
+						$allTrains[$id]["dir"] = 1;
+					} else {
+						$allTrains[$id]["dir"] = 0;
 					}
 
+				}
 
+				if ($timeValue[0]["live_target_reached"]) {
+					if ($timeValue[0]["betriebsstelle_index"] >= 0) {
+						$allTrains[$id]["next_betriebsstellen_data"][$timeValue[0]["betriebsstelle_index"]]["angekommen"] = true;
+					}
 
 					$currentZugId = $allTrains[$id]["zug_id"];
 					$newZugId = getFahrzeugZugIds(array($id));
@@ -124,7 +129,6 @@ while (true) {
 						$newZugId = getFahrzeugZugIds(array($timeValue[0]["id"]));
 						$allTrains[$id]["zug_id"] = intval($newZugId);
 					}
-
 
 					if (!($currentZugId == $newZugId && $currentZugId != null)) {
 
@@ -156,37 +160,14 @@ while (true) {
 
 						}
 					}
-
-
-				}
-
-				if ($timeValue[0]["wendet"]) {
-					$id = $timeValue[0]["id"];
-					$currentDirection = $allTrains[$id]["dir"];
-					$allTimes[$timeIndex] = array();
-					changeDirection($id);
-					if ($currentDirection == 0) {
-						$allTrains[$id]["dir"] = 1;
-					} else {
-						$allTrains[$id]["dir"] = 0;
-					}
-
-					// TODO: getNaechsteAbschnitte
-
-					// TODO: calculate next_sections, next
-
-
-					// TODO
 				}
 				array_shift($allTimes[$timeIndex]);
 			}
 		}
 	}
 
-
 	if (microtime(true) > $timeCheckAllTrains) {
 		foreach ($allTimes as $timeIndex => $timeValue) {
-			var_dump(sizeof($allTrains));
 			$id = $adresseToID[$timeIndex];
 			compareTwoNaechsteAbschnitte($id, $allTrains[$id]["last_get_naechste_abschnitte"], getNaechsteAbschnitte($allTrains[$id]["current_infra_section"], $allTrains[$id]["dir"]));
 			$timeCheckAllTrains += $timeCheckAllTrainsInterval;
@@ -194,11 +175,3 @@ while (true) {
 	}
 	sleep($sleeptime);
 }
-
-
-// BIG LOOP
-
-	// Step 3: Loop to send the current speed to the train
-
-	// Step 4: Check if the v_max of the next sections has changed
-

@@ -842,16 +842,7 @@ function initalFirstLiveData() {
     global $databaseTime;
 
     foreach ($allTrains as $trainIndex => $trainValue) {
-        $allTimes[$trainValue["adresse"]][0]["live_position"] = $trainValue["current_position"];
-        $allTimes[$trainValue["adresse"]][0]["live_speed"] = $trainValue["speed"];
-        $allTimes[$trainValue["adresse"]][0]["live_time"] = $databaseTime;
-        $allTimes[$trainValue["adresse"]][0]["live_relative_position"] = $trainValue["current_position"];
-        $allTimes[$trainValue["adresse"]][0]["live_section"] = $trainValue["current_infra_section"];
-        $allTimes[$trainValue["adresse"]][0]["live_is_speed_change"] = false;
-        $allTimes[$trainValue["adresse"]][0]["live_target_reached"] = false;
-        $allTimes[$trainValue["adresse"]][0]["wendet"] = false;
-        $allTimes[$trainValue["adresse"]][0]["id"] = $trainValue["id"];
-        $allTimes[$trainValue["adresse"]][0]["betriebsstelle_index"] = null;
+        $allTimes[$trainValue["adresse"]] = array();
     }
 }
 
@@ -994,10 +985,6 @@ function calculateFahrverlauf($id = false) {
 function checkIfFahrstrasseIsCorrrect($id = false) {
 
     global $allTrains;
-    // 1 = ja
-
-    $aa = array(1,2,3,4);
-    $bb = array(4,5,6,7);
 
     $checkAllTrains = true;
 

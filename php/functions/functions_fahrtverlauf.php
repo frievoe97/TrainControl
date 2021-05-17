@@ -64,62 +64,7 @@ function createKeyPoint (float $position_0, float $position_1, int $speed_0, int
 
  */
 
-function emergencyBrake (float $distanceToNextStop, float $startTime) {
-
-	global $currentSpeed;
-	global $notverzoegerung;
-	global $indexCurrentSection;
-	global $next_sections;
-
-	$cumulativeLength = 0;
-
-	$trainPositionChange = array();
-	$trainSpeedChange = array();
-	$trainTimeChange = array();
-	$trainRelativePosition = array();
-	$trainSection = array();
-	$trainIsSpeedChange = array();
-
-	array_push($trainPositionChange, 0);
-	array_push($trainSpeedChange, $currentSpeed);
-	array_push($trainTimeChange, $startTime);
-	//array_push($trainSection, ($i - 2));
-	//array_push($trainIsSpeedChange, true);
-
-
-
-
-
-
-
-
-
-
-
-	for ($i = $currentSpeed - 2; $i > 0; $i = $i - 2) {
-		$newPosition = getBrakeDistance($i + 2, $i, $notverzoegerung) + end($trainPositionChange);
-		if ($newPosition > $distanceToNextStop) {
-			array_push($trainPositionChange, $newPosition);
-			array_push($trainSpeedChange, ($i - 2));
-			array_push($trainTimeChange, getBrakeTime($i + 2, $i, $notverzoegerung));
-		} else {
-			array_push($trainPositionChange, $newPosition);
-			array_push($trainSpeedChange, ($i - 2));
-			array_push($trainTimeChange, getBrakeTime($i + 2, $i, $notverzoegerung));
-		}
-	}
-
-
-
-
-
-}
-
 function updateNextSpeed (array $train, float $startTime, float $endTime, int $currentSectionPara, int $currentSpeedPara, int $currentPositionPara, int $targetSectionPara, int $targetSpeedPara, int $targetPositionPara, bool $reachedBetriebsstelle, int $indexReachedBetriebsstelle, bool $wendet) {
-
-
-	//var_dump( $train,  $startTime,  $endTime,  $currentSectionPara,  $currentSpeedPara,  $currentPositionPara,  $targetSectionPara,  $targetSpeedPara,  $targetPositionPara,  $reachedBetriebsstelle,  $indexReachedBetriebsstelle,  $wendet);
-	//sleep(3);
 
 	global $next_sections;
 	global $next_lengths;
@@ -197,16 +142,18 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $c
 
 
 
+
+
 	//var_dump($currentSection, $targetSection, $currentPosition, $targetPosition);
 
 
 	if ($targetSection == $currentSection && $targetPosition == $currentPosition) {
 		if ($indexReachedBetriebsstelle == 99999999) {
-			$indexReachedBetriebsstelle = null;
+			$indexReachedBetriebsstelle = -1;
 		}
 		$adress = $train["adresse"];
 		$return = array(array("live_position" => $targetPosition, "live_speed" => $targetSpeed, "live_time" => $endTime, "live_relative_position" => $targetPosition, "live_section" => $targetSection, "live_is_speed_change" => false, "live_target_reached" => $reachedBetriebsstelle, "wendet" => $wendet, "id" => $train["id"], "betriebsstelle_index" => $indexReachedBetriebsstelle));
-		//$allTimes[$adress] = array_merge($allTimes[$adress], $return);
+		$allTimes[$adress] = array_merge($allTimes[$adress], $return);
 		return 0;
 	}
 
@@ -241,7 +188,7 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $c
 	for ($i = $indexCurrentSection; $i <= $indexTargetSection; $i++) {
 		if ($indexCurrentSection == $indexTargetSection) {
 			$cumulativeSectionLengthStart[$i] = 0;
-			$cumulativeSectionLengthEnd[$i] = $targetPosition;
+			$cumulativeSectionLengthEnd[$i] = $targetPosition - $currentPosition;
 		} else {
 			if ($i == $indexCurrentSection) {
 				$cumulativeSectionLengthStart[$i] = 0;
@@ -284,8 +231,48 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $c
 	$distanceToNextStop = $cumulativeSectionLengthEnd[$indexTargetSection];
 
 
-	if (getBrakeDistance($currentSpeed, $targetSpeed, $verzoegerung) < $distanceToNextStop && $currentSpeed != 0) {
+
+
+
+
+
+	if (getBrakeDistance($currentSpeed, $targetSpeed, $verzoegerung)> $distanceToNextStop && $currentSpeed != 0) {
 		// TODO: Notbremsung
+
+
+
+		$returnArray = array();
+		$time = $startTime;
+
+		$targetSpeedNotbremsung =  getTargetBrakeSpeedWithDistanceAndStartSpeed($distanceToNextStop, $verzoegerung, $currentSpeed);
+		$speedBeforeStop = intval($targetSpeedNotbremsung / 2) * 2;
+
+		if ($speedBeforeStop >= 10) {
+			// Bis 10 und dann 0
+
+			for ($i = $currentSpeed; $i >= 10; $i = $i - 2) {
+				array_push($returnArray, array("live_position" => 0, "live_speed" => $i, "live_time" => $time, "live_relative_position" => 0, "live_section" => $currentSection, "live_is_speed_change" => true, "live_target_reached" => false, "id" => $train["id"], "wendet" => false, "betriebsstelle_index" => null));
+				$time =  $time + getBrakeTime($i, $i - 1, $verzoegerung);
+			}
+
+			array_push($returnArray, array("live_position" => 0, "live_speed" => 0, "live_time" => $time, "live_relative_position" => 0, "live_section" => $currentSection, "live_is_speed_change" => true, "live_target_reached" => false, "id" => $train["id"], "wendet" => false, "betriebsstelle_index" => null));
+
+
+
+
+		} else {
+			array_push($returnArray, array("live_position" => 0, "live_speed" => $currentSpeed, "live_time" => $time, "live_relative_position" => 0, "live_section" => $currentSection, "live_is_speed_change" => true, "live_target_reached" => false, "id" => $train["id"], "wendet" => false, "betriebsstelle_index" => null));
+			$time =  $time + getBrakeTime($currentSpeed, $currentSpeed - 1, $verzoegerung);
+			array_push($returnArray, array("live_position" => 0, "live_speed" => 0, "live_time" => $time, "live_relative_position" => 0, "live_section" => $currentSection, "live_is_speed_change" => true, "live_target_reached" => false, "id" => $train["id"], "wendet" => false, "betriebsstelle_index" => null));
+		}
+
+		$allTimes[$train["adresse"]] = $returnArray;
+
+
+
+
+		return 0;
+
 	}
 
 	//maximale geschwindigkeit zwischen zwei punkten...
@@ -301,10 +288,6 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $c
 	*/
 
 	$v_maxFirstIteration = getVMaxBetweenTwoPoints($distanceToNextStop, $currentSpeed, $targetSpeed);
-
-	if ($train["id"] == 57) {
-		//var_dump($v_maxFirstIteration, $distanceToNextStop, $currentSpeed, $targetSpeed);
-	}
 
 	if ($v_maxFirstIteration == 0) {
 		// TODO:
@@ -412,8 +395,8 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $c
 			if (array_key_last($trainPositionChange) != $key) {
 				$trainBetriebsstelleIndex[$key] = null;
 			} else {
-				if ($indexReachedBetriebsstelle = 99999999) {
-					$trainBetriebsstelleIndex[$key] = null;
+				if ($indexReachedBetriebsstelle == 99999999) {
+					$trainBetriebsstelleIndex[$key] = -1;
 				} else {
 					$trainBetriebsstelleIndex[$key] = $indexReachedBetriebsstelle;
 				}
@@ -576,8 +559,8 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $c
 			if (array_key_last($trainPositionChange) != $key) {
 				$trainBetriebsstelleIndex[$key] = null;
 			} else {
-				if ($indexReachedBetriebsstelle = 99999999) {
-					$trainBetriebsstelleIndex[$key] = null;
+				if ($indexReachedBetriebsstelle == 99999999) {
+					$trainBetriebsstelleIndex[$key] = -1;
 				} else {
 					$trainBetriebsstelleIndex[$key] = $indexReachedBetriebsstelle;
 				}
@@ -1675,6 +1658,10 @@ function convertKeyPointsToTrainChangeArray (array $keyPoints) : array {
 
 function createKeyPoint (float $position_0, float $position_1, int $speed_0, int $speed_1, int $maxSpeed = NULL) : array {
 	return array("position_0" => $position_0, "position_1" => $position_1, "speed_0" => $speed_0, "speed_1" => $speed_1, "max_speed" => $maxSpeed);
+}
+
+function getTargetBrakeSpeedWithDistanceAndStartSpeed (float $distance, float $verzoegerung, int $speed) {
+	return sqrt((-2 * $verzoegerung * $distance) + (pow(($speed / 3.6), 2)));
 }
 
 // Anpassen für viele Schritte => $a bleibt konstant?! => Eher nicht anpassen und allgemein halten
