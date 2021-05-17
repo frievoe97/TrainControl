@@ -550,7 +550,6 @@ function calculateNextSections($id = false) {
 
 		if ($checkAllTrains || $trainValue["id"] == $id) {
 
-
 			if ($trainValue["can_drive"]) {
 				$dir = $trainValue["dir"];
 				$currentSection = $trainValue["current_infra_section"];

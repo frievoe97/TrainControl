@@ -41,7 +41,7 @@ $adresseToID = array_flip($idToAdresse);
 $allTimes = array();
 
 consoleAllTrainsPositionAndFahrplan();
-if (true) {
+if (false) {
 	$allTrains[51]["dir"] = 1;
 	$allTrains[57]["dir"] = 1;
 	$allTrains[65]["dir"] = 1;
@@ -61,26 +61,25 @@ if (true) {
 	$allTrains[78]["current_position"] = $cacheInfraLaenge[$allTrains[78]["current_infra_section"]];
 
 }
+
 consoleCheckIfStartDirectionIsCorrect();
 consoleAllTrainsPositionAndFahrplan();
 
-// Fügt für alle Züge die möglichen Haltepunkte hinzu
 addStopsectionsForTimetable();
 initalFirstLiveData();
-
 showErrors();
-
-
-
-
-
-
-
-// Add next_sections, next_lengths, next_v_max
 calculateNextSections();
 addNextStopForAllTrains();
 checkIfFahrstrasseIsCorrrect();
+
+foreach ($allTrains as $trainIndex => $trainValue) {
+	$allTrains[$trainIndex]["last_get_naechste_abschnitte"] = getNaechsteAbschnitte($trainValue["current_infra_section"], $trainValue["dir"]);
+}
+
+
 calculateFahrverlauf();
+
+
 
 
 $timeCheckAllTrainsInterval = 30;
@@ -172,6 +171,7 @@ while (true) {
 			compareTwoNaechsteAbschnitte($id, $allTrains[$id]["last_get_naechste_abschnitte"], getNaechsteAbschnitte($allTrains[$id]["current_infra_section"], $allTrains[$id]["dir"]));
 			$timeCheckAllTrains += $timeCheckAllTrainsInterval;
 		}
+		$timeCheckAllTrains = $timeCheckAllTrains + $timeCheckAllTrainsInterval;
 	}
 	sleep($sleeptime);
 }

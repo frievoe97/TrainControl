@@ -244,7 +244,7 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $c
 		$returnArray = array();
 		$time = $startTime;
 
-		$targetSpeedNotbremsung =  getTargetBrakeSpeedWithDistanceAndStartSpeed($distanceToNextStop, $verzoegerung, $currentSpeed);
+		$targetSpeedNotbremsung =  getTargetBrakeSpeedWithDistanceAndStartSpeed($distanceToNextStop, $notverzoegerung, $currentSpeed);
 		$speedBeforeStop = intval($targetSpeedNotbremsung / 2) * 2;
 
 		if ($speedBeforeStop >= 10) {
@@ -252,7 +252,7 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $c
 
 			for ($i = $currentSpeed; $i >= 10; $i = $i - 2) {
 				array_push($returnArray, array("live_position" => 0, "live_speed" => $i, "live_time" => $time, "live_relative_position" => 0, "live_section" => $currentSection, "live_is_speed_change" => true, "live_target_reached" => false, "id" => $train["id"], "wendet" => false, "betriebsstelle_index" => null));
-				$time =  $time + getBrakeTime($i, $i - 1, $verzoegerung);
+				$time =  $time + getBrakeTime($i, $i - 1, $notverzoegerung);
 			}
 
 			array_push($returnArray, array("live_position" => 0, "live_speed" => 0, "live_time" => $time, "live_relative_position" => 0, "live_section" => $currentSection, "live_is_speed_change" => true, "live_target_reached" => false, "id" => $train["id"], "wendet" => false, "betriebsstelle_index" => null));
@@ -262,11 +262,12 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $c
 
 		} else {
 			array_push($returnArray, array("live_position" => 0, "live_speed" => $currentSpeed, "live_time" => $time, "live_relative_position" => 0, "live_section" => $currentSection, "live_is_speed_change" => true, "live_target_reached" => false, "id" => $train["id"], "wendet" => false, "betriebsstelle_index" => null));
-			$time =  $time + getBrakeTime($currentSpeed, $currentSpeed - 1, $verzoegerung);
+			$time =  $time + getBrakeTime($currentSpeed, $currentSpeed - 1, $notverzoegerung);
 			array_push($returnArray, array("live_position" => 0, "live_speed" => 0, "live_time" => $time, "live_relative_position" => 0, "live_section" => $currentSection, "live_is_speed_change" => true, "live_target_reached" => false, "id" => $train["id"], "wendet" => false, "betriebsstelle_index" => null));
 		}
 
 		$allTimes[$train["adresse"]] = $returnArray;
+		$allTrains[$train["id"]]["can_drive"] = false;
 
 
 
