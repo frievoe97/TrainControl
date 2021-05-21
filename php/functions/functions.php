@@ -856,6 +856,20 @@ function initalFirstLiveData() {
     }
 }
 
+
+// input: one train array from $allTrains (current_infra_section, dir)
+// output: next_{sections, lenghts, v_max} incl. current section data
+function generateNextSections(array $train) {
+
+}
+
+
+
+
+
+
+
+
 function calculateFahrverlauf($id = false) {
     global $allTrains;
     global $allTimes;
@@ -971,7 +985,7 @@ function calculateFahrverlauf($id = false) {
                 } else {
                     // Fährt einfach drauf los...
 
-                    $startTime = $startTime = $timeDifference + (float)getUhrzeit();
+                    $startTime = $timeDifference + (float)getUhrzeit();
                     $endTime = $startTime;
 
                     $currentSection = $trainValue["current_infra_section"];

@@ -106,20 +106,90 @@ function updateVMax (array $allTrains) {
 }
 
 // return: true -> es muss nichts angepasst werden
-function compareTwoNaechsteAbschnitte(int $id, array $currentNaechsteAbschnitte, array $newNaechsteAbschnitte) {
+function compareTwoNaechsteAbschnitte(int $id) {
 
 	global $allTrains;
 	global $allTimes;
 
 	if ($allTrains[$id]["can_drive"]) {
 
-		if (!(end($currentNaechsteAbschnitte)["infra_id"] == end($newNaechsteAbschnitte)["infra_id"])) {
+		$newData = calculateNextSections($id, false);
+		$newNextSection = $newData[0];
+		$newNextLenghts = $newData[1];
+		$newNextVMax = $newData[2];
+		$oldNextSections = $allTrains[$id]["next_sections"];
+		$oldLenghts = $allTrains[$id]["next_lenghts"];
+		$oldNextVMax = $allTrains[$id]["next_v_max"];
+		$currentSection = $allTrains[$id]["current_infra_section"];
+
+		/*
+		$currentSection = 1000;
+		$newNextSection = array(1000, 1001, 1002, 1003, 1004, 1005);
+		$newNextLenghts = array(100, 100, 100, 100, 100, 100);
+		$newNextVMax = array(120, 120, 120, 120, 120, 120);
+		$oldNextSections = array(999, 1000, 1001, 1002, 1003, 1004, 1005);
+		$oldLenghts = array(100, 100, 100, 100, 100, 100, 100);
+		$oldNextVMax = array(120, 120, 120, 110, 120, 120, 120);
+		*/
+
+		$keyCurrentSection = array_search($currentSection, $oldNextSections);
+		$keyLatestSection = array_key_last($oldNextSections);
+		$dataIsIdentical = true;
+
+		$compareNextSections = array();
+		$compareNextLenghts = array();
+		$compareNextVMax = array();
+
+		for($i = $keyCurrentSection; $i <= $keyLatestSection; $i++) {
+			array_push($compareNextSections, $oldNextSections[$i]);
+			array_push($compareNextLenghts, $oldLenghts[$i]);
+			array_push($compareNextVMax, $oldNextVMax[$i]);
+		}
+
+		//var_dump($compareNextSections);
+		//var_dump($compareNextLenghts);
+		//var_dump($compareNextVMax);
+
+		if (sizeof($newNextSection) != sizeof($compareNextLenghts)) {
+			$dataIsIdentical = false;
+		} else {
+			for ($i = 0; $i < $keyLatestSection - $keyCurrentSection; $i++) {
+				if ($newNextSection[$i] != $compareNextSections[$i] || $newNextLenghts[$i] != $compareNextLenghts[$i] || $newNextVMax[$i] != $compareNextVMax[$i]) {
+					var_dump($i);
+					$dataIsIdentical = false;
+					break;
+				}
+			}
+		}
+
+		if (!$dataIsIdentical) {
 			calculateNextSections($id);
 			$adresse = $allTrains[$id]["adresse"];
 			$allTimes[$adresse] = array();
 			checkIfFahrstrasseIsCorrrect($id);
 			calculateFahrverlauf($id);
 		}
+	}
+}
+
+function getSimulationStartTime(string $startzeit) {
+
+	$status = 1;
+
+	$DB = new DB_MySQL();
+
+
+	$simStartTime = $DB->select("SELECT `".DB_TABLE_FAHRPLAN_SESSION."`.`$startzeit`    
+                            FROM `".DB_TABLE_FAHRPLAN_SESSION."`
+                            WHERE `".DB_TABLE_FAHRPLAN_SESSION."`.`status` = $status
+                           ");
+
+	unset($DB);
+
+	if ($startzeit == "sim_startzeit") {
+		return $simStartTime[0]->sim_startzeit;
+	} else if ($startzeit == "real_startzeit"){
+		return $simStartTime[0]->real_startzeit;
 	}
 }
 
@@ -535,7 +605,7 @@ function getSignalForSectionAndDirection(int $section, int $dir) {
 
 }
 
-function calculateNextSections($id = false) {
+function calculateNextSections($id = false, $writeResultToTrain = true) {
 
 	global $allTrains;
 	global $cacheInfraLaenge;
@@ -572,21 +642,24 @@ function calculateNextSections($id = false) {
 
 				$return = getNaechsteAbschnitte($currentSection, $dir);
 				$allTrains[$trainIndex]["last_get_naechste_abschnitte"] = $return;
-				$currentVMax = 120;
+				$currentVMax = 120; // max speed for a train in the current section
 
 				array_push($nextSections, $currentSection);
 				array_push($nextVMax, $currentVMax);
 				array_push($nextLengths, $cacheInfraLaenge[$currentSection]);
-
 
 				if (isset($nextSignalbegriff)) {
 					$currentVMax = $nextSignalbegriff;
 				}
 
 				if ($currentVMax == 0) {
-					$allTrains[$trainIndex]["next_sections"] = $nextSections;
-					$allTrains[$trainIndex]["next_lenghts"] = $nextLengths;
-					$allTrains[$trainIndex]["next_v_max"] = $nextVMax;
+					if ($writeResultToTrain) {
+						$allTrains[$trainIndex]["next_sections"] = $nextSections;
+						$allTrains[$trainIndex]["next_lenghts"] = $nextLengths;
+						$allTrains[$trainIndex]["next_v_max"] = $nextVMax;
+					} else {
+						return array($nextSections, $nextLengths, $nextVMax);
+					}
 				} else {
 					foreach ($return as $section) {
 						array_push($nextSections, $section["infra_id"]);
@@ -605,9 +678,13 @@ function calculateNextSections($id = false) {
 							}
 						}
 					}
-					$allTrains[$trainIndex]["next_sections"] = $nextSections;
-					$allTrains[$trainIndex]["next_lenghts"] = $nextLengths;
-					$allTrains[$trainIndex]["next_v_max"] = $nextVMax;
+					if ($writeResultToTrain) {
+						$allTrains[$trainIndex]["next_sections"] = $nextSections;
+						$allTrains[$trainIndex]["next_lenghts"] = $nextLengths;
+						$allTrains[$trainIndex]["next_v_max"] = $nextVMax;
+					} else {
+						return array($nextSections, $nextLengths, $nextVMax);
+					}
 				}
 			}
 		}

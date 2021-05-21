@@ -1,5 +1,6 @@
 <?php
 
+// Load all required external files
 require 'vorbelegung.php';
 require 'functions/funktionen_abschnitte.php';
 require 'init/init_abschnitte.php';
@@ -25,13 +26,44 @@ $simulationTime = (float) getUhrzeit();
 $timeDifference = $databaseTime - $simulationTime;
 $timeDifferenceGetUhrzeit = $simulationTime - $databaseTime;
 
-$timeStart = microtime(true);
+
+
+date_default_timezone_set("Europe/Berlin");
+
+var_dump(getUhrzeit(1619164800, "simulationszeit", null, array("outputtyp"=>"h:i:s")));
+
+var_dump(time());
+
+
+
+/*
+$simulationStartTime = getSimulationStartTime("sim_startzeit");
+$realStartTime = getSimulationStartTime("real_startzeit");
+$serverTime = time();
+var_dump($realStartTime);
+var_dump($simulationStartTime);
+var_dump($serverTime);
+var_dump(getUhrzeit($realStartTime, "simulationszeit", null, $options = array("outputtyp" => "h:i:s")));
+var_dump(getUhrzeit($simulationStartTime, "simulationszeit", null, $options = array("outputtyp" => "h:i:s")));
+
+sleep(5);
+
+
+$realzeit = getUhrzeit(null, "realzeit");
+$simulationszeit = getUhrzeit(null, "simulationszeit");
+var_dump($realzeit, $simulationszeit);
+var_dump(getTimeshift());
+sleep(5);
+*/
 $sessionIsActive = true;
 $trainErrors = array(0 => "Zug stand falsch herum und war zu lang um die Richtung zu ändern");
 
 // Step 1: Initilize all trains (verzoegerung, laenge etc.) where zustand <= 1 gilt
 $allTrains = getAllTrains();
 getFahrplanAndPosition();
+
+//sleep(5);
+
 
 $idToAdresse = array();
 foreach ($allTrains as $index => $value) {
@@ -41,7 +73,7 @@ $adresseToID = array_flip($idToAdresse);
 $allTimes = array();
 
 consoleAllTrainsPositionAndFahrplan();
-if (false) {
+if (true) {
 	$allTrains[51]["dir"] = 1;
 	$allTrains[57]["dir"] = 1;
 	$allTrains[65]["dir"] = 1;
@@ -76,11 +108,7 @@ foreach ($allTrains as $trainIndex => $trainValue) {
 	$allTrains[$trainIndex]["last_get_naechste_abschnitte"] = getNaechsteAbschnitte($trainValue["current_infra_section"], $trainValue["dir"]);
 }
 
-
 calculateFahrverlauf();
-
-
-
 
 $timeCheckAllTrainsInterval = 30;
 $timeCheckAllTrains = 30 + microtime(true);
@@ -168,7 +196,7 @@ while (true) {
 	if (microtime(true) > $timeCheckAllTrains) {
 		foreach ($allTimes as $timeIndex => $timeValue) {
 			$id = $adresseToID[$timeIndex];
-			compareTwoNaechsteAbschnitte($id, $allTrains[$id]["last_get_naechste_abschnitte"], getNaechsteAbschnitte($allTrains[$id]["current_infra_section"], $allTrains[$id]["dir"]));
+			compareTwoNaechsteAbschnitte($id);
 			$timeCheckAllTrains += $timeCheckAllTrainsInterval;
 		}
 		$timeCheckAllTrains = $timeCheckAllTrains + $timeCheckAllTrainsInterval;
