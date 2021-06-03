@@ -9,9 +9,6 @@ require 'functions/functions.php';
 require 'functions/functions_fahrtverlauf.php';
 require 'functions/signale_stellen.php';
 
-
-
-
 // Set timezone
 date_default_timezone_set("Europe/Berlin");
 
@@ -65,7 +62,7 @@ $adresseToID = array_flip($idToAdresse);
 $allTimes = array();
 
 consoleAllTrainsPositionAndFahrplan();
-if (true) {
+if (false) {
 	$allTrains[51]["dir"] = 1;
 	$allTrains[57]["dir"] = 1;
 	$allTrains[65]["dir"] = 1;
@@ -114,21 +111,13 @@ $timeCheckAllTrainsInterval = 3;
 $timeCheckAllTrains = $timeCheckAllTrainsInterval + microtime(true);
 $sleeptime = 0.3;
 while (true) {
-
-	//var_dump(microtime(true) +  $newTimeDifference);
 	foreach ($allTimes as $timeIndex => $timeValue) {
 		if (sizeof($timeValue) > 0) {
 			$id = $timeValue[0]["id"];
-			// prev: $timeDifference
 			if ((microtime(true) + $newTimeDifference) > $timeValue[0]["live_time"]) {
-
-
 
 				if ($timeValue[0]["live_is_speed_change"]) {
 					sendFahrzeugbefehl($timeValue[0]["id"], intval($timeValue[0]["live_speed"]));
-					//$betriebsstelleName = $allTrains[$id]["next_betriebsstellen_data"][$timeValue[0]["betriebsstelle_index"]["betriebstelle"]];
-					//var_dump($betriebsstelleName);
-					//var_dump($timeValue[0]["betriebsstelle_index"]);
 					$bsIndex = $timeValue[0]["betriebsstelle_index"];
 					if ($bsIndex == 99999999) {
 						echo "Der Zug mit der Adresse ", $timeIndex, " hat auf der freien Fahrt seine Geschwindigkeit auf ", $timeValue[0]["live_speed"], " km/h angepasst.\n";
@@ -136,7 +125,6 @@ while (true) {
 						echo "Der Zug mit der Adresse ", $timeIndex, " hat auf der Fahrt nach ", $allTrains[$id]["next_betriebsstellen_data"][$bsIndex]["betriebstelle"]," seine Geschwindigkeit auf ", $timeValue[0]["live_speed"], " km/h angepasst.\n";
 					}
 				}
-
 
 				$allTrains[$id]["current_position"] = $timeValue[0]["live_relative_position"];
 				$allTrains[$id]["speed"] = $timeValue[0]["live_speed"];
@@ -152,27 +140,19 @@ while (true) {
 					} else {
 						$allTrains[$id]["dir"] = 0;
 					}
-
 				}
-
 
 				if ($timeValue[0]["live_target_reached"]) {
 
 					if ($timeValue[0]["betriebsstelle_index"] >= 0) {
-						//var_dump($allTrains[$id]["next_betriebsstellen_data"][$timeValue[0]["betriebsstelle_index"]]["angekommen"]);
 						$allTrains[$id]["next_betriebsstellen_data"][$timeValue[0]["betriebsstelle_index"]]["angekommen"] = true;
-						//var_dump($allTrains[$id]["next_betriebsstellen_data"][$timeValue[0]["betriebsstelle_index"]]["angekommen"]);
 						$bsIndex = $timeValue[0]["betriebsstelle_index"];
 						if ($bsIndex == 99999999) {
 							//echo "Der Zug mit der Adresse ", $timeIndex, " hat den Halt ", $allTrains[$id]["next_betriebsstellen_data"][$bsIndex]["betriebstelle"], " mit einer Verspätung von ", number_format($allTrains[$id]["next_betriebsstellen_data"][$bsIndex]["zeiten"]["verspätung"], 2), " Sekunden erreicht.\n";
 						} else {
 							echo "Der Zug mit der Adresse ", $timeIndex, " hat den Halt ", $allTrains[$id]["next_betriebsstellen_data"][$bsIndex]["betriebstelle"], " mit einer Verspätung von ", number_format($allTrains[$id]["next_betriebsstellen_data"][$bsIndex]["zeiten"]["verspätung"], 2), " Sekunden erreicht.\n";
 						}
-
-						//var_dump($id);
-						//echo "ANGEKOMMEN!\n";
 					}
-
 
 					$currentZugId = $allTrains[$id]["zug_id"];
 					$newZugId = getFahrzeugZugIds(array($id));
@@ -184,7 +164,6 @@ while (true) {
 						$newZugId = $newZugId[array_key_first($newZugId)]["zug_id"];
 					}
 
-					//
 					if (!($currentZugId == $newZugId && $currentZugId != null)) {
 
 						if ($currentZugId != null && $newZugId != null) {
@@ -212,10 +191,8 @@ while (true) {
 							$allTrains[$id]["operates_on_timetable"] = 0;
 							calculateNextSections($id);
 							calculateFahrverlauf($id);
-
 						}
 					}
-
 				}
 				if (sizeof($timeValue) == 1 && !in_array($timeIndex, $unusedTrains)) {
 					array_push($unusedTrains, $timeIndex);
