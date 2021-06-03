@@ -4,7 +4,6 @@
 
 require 'db_tables.php';
 require 'mysqli.php';
-require 'config/config.php';
 require '../config/db_access.php';
 
 // --------------------------------------------------------------------------------------------------------
