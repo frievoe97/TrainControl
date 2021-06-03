@@ -7,17 +7,26 @@ require 'init/init_abschnitte.php';
 require 'init/init_fzg.php';
 require 'functions/functions.php';
 require 'functions/functions_fahrtverlauf.php';
+require 'functions/signale_stellen.php';
 
+
+
+
+// Set timezone
+date_default_timezone_set("Europe/Berlin");
+
+// Load static data from the databse into the cache
 $cacheInfranachbarn = createCacheInfranachbarn();
 $cacheInfradaten = createCacheInfradaten();
 $cacheSignaldaten = createCacheSignaldaten();
 $cacheInfraLaenge = createcacheInfraLaenge();
 $cacheHaltepunkte = createCacheHaltepunkte();
 
+// TODO: Rename as cache... vars
 $fmaToInfra = createFmaToInfraData();
 $infraToFma = array_flip($fmaToInfra);
 
-// Zeit:
+// Time:
 $DB = new DB_MySQL();
 $databaseTime = (float) strtotime($DB->select("SELECT CURRENT_TIMESTAMP")[0]->CURRENT_TIMESTAMP);
 unset($DB);
@@ -26,43 +35,26 @@ $simulationTime = (float) getUhrzeit();
 $timeDifference = $databaseTime - $simulationTime;
 $timeDifferenceGetUhrzeit = $simulationTime - $databaseTime;
 
+// Get simulation time, real time and simulation duration
+$simulationStartTime = getDataFromFahrplanSession("sim_startzeit");
+$simulationEndTime = getDataFromFahrplanSession("sim_endzeit");
+$simulationDuration = $simulationEndTime - $simulationStartTime;
+$simulationStartTimeToday = getUhrzeit(getUhrzeit($simulationStartTime, "simulationszeit", null, array("outputtyp"=>"h:i:s")), "simulationszeit", null, array("inputtyp"=>"h:i:s"));
+$simulationEndTimeToday = getUhrzeit(getUhrzeit($simulationEndTime, "simulationszeit", null, array("outputtyp"=>"h:i:s")), "simulationszeit", null, array("inputtyp"=>"h:i:s"));
+$realStartTime = time();
+$realEndTime = $realStartTime + $simulationDuration;
+$newTimeDifference = $simulationStartTimeToday - $realStartTime;
 
 
-date_default_timezone_set("Europe/Berlin");
+// setting the startscreen
+startMessage();
 
-var_dump(getUhrzeit(1619164800, "simulationszeit", null, array("outputtyp"=>"h:i:s")));
-
-var_dump(time());
-
-
-
-/*
-$simulationStartTime = getSimulationStartTime("sim_startzeit");
-$realStartTime = getSimulationStartTime("real_startzeit");
-$serverTime = time();
-var_dump($realStartTime);
-var_dump($simulationStartTime);
-var_dump($serverTime);
-var_dump(getUhrzeit($realStartTime, "simulationszeit", null, $options = array("outputtyp" => "h:i:s")));
-var_dump(getUhrzeit($simulationStartTime, "simulationszeit", null, $options = array("outputtyp" => "h:i:s")));
-
-sleep(5);
-
-
-$realzeit = getUhrzeit(null, "realzeit");
-$simulationszeit = getUhrzeit(null, "simulationszeit");
-var_dump($realzeit, $simulationszeit);
-var_dump(getTimeshift());
-sleep(5);
-*/
 $sessionIsActive = true;
 $trainErrors = array(0 => "Zug stand falsch herum und war zu lang um die Richtung zu ändern");
 
 // Step 1: Initilize all trains (verzoegerung, laenge etc.) where zustand <= 1 gilt
 $allTrains = getAllTrains();
 getFahrplanAndPosition();
-
-//sleep(5);
 
 
 $idToAdresse = array();
@@ -92,7 +84,13 @@ if (true) {
 	$allTrains[65]["current_position"] = $cacheInfraLaenge[$allTrains[65]["current_infra_section"]];
 	$allTrains[78]["current_position"] = $cacheInfraLaenge[$allTrains[78]["current_infra_section"]];
 
+	$allTrains[51]["speed"] = 0;
+	$allTrains[57]["speed"] = 0;
+	$allTrains[65]["speed"] = 0;
+	$allTrains[78]["speed"] = 0;
+
 }
+
 
 consoleCheckIfStartDirectionIsCorrect();
 consoleAllTrainsPositionAndFahrplan();
@@ -110,20 +108,35 @@ foreach ($allTrains as $trainIndex => $trainValue) {
 
 calculateFahrverlauf();
 
-$timeCheckAllTrainsInterval = 30;
-$timeCheckAllTrains = 30 + microtime(true);
+
+$unusedTrains = array_keys($allTimes);
+$timeCheckAllTrainsInterval = 3;
+$timeCheckAllTrains = $timeCheckAllTrainsInterval + microtime(true);
 $sleeptime = 0.3;
 while (true) {
+
+	//var_dump(microtime(true) +  $newTimeDifference);
 	foreach ($allTimes as $timeIndex => $timeValue) {
 		if (sizeof($timeValue) > 0) {
 			$id = $timeValue[0]["id"];
-			if ((microtime(true) + $timeDifference) > $timeValue[0]["live_time"]) {
+			// prev: $timeDifference
+			if ((microtime(true) + $newTimeDifference) > $timeValue[0]["live_time"]) {
+
+
 
 				if ($timeValue[0]["live_is_speed_change"]) {
 					sendFahrzeugbefehl($timeValue[0]["id"], intval($timeValue[0]["live_speed"]));
-					echo "Der Zug mit der Adresse ", $timeIndex, " hat auf der Fahrt nach ??? seine Geschwindigkeit auf ", $timeValue[0]["live_speed"], " km/h angepasst.\n";
-
+					//$betriebsstelleName = $allTrains[$id]["next_betriebsstellen_data"][$timeValue[0]["betriebsstelle_index"]["betriebstelle"]];
+					//var_dump($betriebsstelleName);
+					//var_dump($timeValue[0]["betriebsstelle_index"]);
+					$bsIndex = $timeValue[0]["betriebsstelle_index"];
+					if ($bsIndex == 99999999) {
+						echo "Der Zug mit der Adresse ", $timeIndex, " hat auf der freien Fahrt seine Geschwindigkeit auf ", $timeValue[0]["live_speed"], " km/h angepasst.\n";
+					} else {
+						echo "Der Zug mit der Adresse ", $timeIndex, " hat auf der Fahrt nach ", $allTrains[$id]["next_betriebsstellen_data"][$bsIndex]["betriebstelle"]," seine Geschwindigkeit auf ", $timeValue[0]["live_speed"], " km/h angepasst.\n";
+					}
 				}
+
 
 				$allTrains[$id]["current_position"] = $timeValue[0]["live_relative_position"];
 				$allTrains[$id]["speed"] = $timeValue[0]["live_speed"];
@@ -142,10 +155,24 @@ while (true) {
 
 				}
 
+
 				if ($timeValue[0]["live_target_reached"]) {
+
 					if ($timeValue[0]["betriebsstelle_index"] >= 0) {
+						//var_dump($allTrains[$id]["next_betriebsstellen_data"][$timeValue[0]["betriebsstelle_index"]]["angekommen"]);
 						$allTrains[$id]["next_betriebsstellen_data"][$timeValue[0]["betriebsstelle_index"]]["angekommen"] = true;
+						//var_dump($allTrains[$id]["next_betriebsstellen_data"][$timeValue[0]["betriebsstelle_index"]]["angekommen"]);
+						$bsIndex = $timeValue[0]["betriebsstelle_index"];
+						if ($bsIndex == 99999999) {
+							//echo "Der Zug mit der Adresse ", $timeIndex, " hat den Halt ", $allTrains[$id]["next_betriebsstellen_data"][$bsIndex]["betriebstelle"], " mit einer Verspätung von ", number_format($allTrains[$id]["next_betriebsstellen_data"][$bsIndex]["zeiten"]["verspätung"], 2), " Sekunden erreicht.\n";
+						} else {
+							echo "Der Zug mit der Adresse ", $timeIndex, " hat den Halt ", $allTrains[$id]["next_betriebsstellen_data"][$bsIndex]["betriebstelle"], " mit einer Verspätung von ", number_format($allTrains[$id]["next_betriebsstellen_data"][$bsIndex]["zeiten"]["verspätung"], 2), " Sekunden erreicht.\n";
+						}
+
+						//var_dump($id);
+						//echo "ANGEKOMMEN!\n";
 					}
+
 
 					$currentZugId = $allTrains[$id]["zug_id"];
 					$newZugId = getFahrzeugZugIds(array($id));
@@ -154,9 +181,10 @@ while (true) {
 						$newZugId = null;
 					} else {
 						$newZugId = getFahrzeugZugIds(array($timeValue[0]["id"]));
-						$allTrains[$id]["zug_id"] = intval($newZugId);
+						$newZugId = $newZugId[array_key_first($newZugId)]["zug_id"];
 					}
 
+					//
 					if (!($currentZugId == $newZugId && $currentZugId != null)) {
 
 						if ($currentZugId != null && $newZugId != null) {
@@ -187,6 +215,10 @@ while (true) {
 
 						}
 					}
+
+				}
+				if (sizeof($timeValue) == 1 && !in_array($timeIndex, $unusedTrains)) {
+					array_push($unusedTrains, $timeIndex);
 				}
 				array_shift($allTimes[$timeIndex]);
 			}
@@ -194,10 +226,9 @@ while (true) {
 	}
 
 	if (microtime(true) > $timeCheckAllTrains) {
-		foreach ($allTimes as $timeIndex => $timeValue) {
-			$id = $adresseToID[$timeIndex];
+		foreach ($unusedTrains as $unusedTrainsIndex => $unusedTrainsValue) {
+			$id = $adresseToID[$unusedTrainsValue];
 			compareTwoNaechsteAbschnitte($id);
-			$timeCheckAllTrains += $timeCheckAllTrainsInterval;
 		}
 		$timeCheckAllTrains = $timeCheckAllTrains + $timeCheckAllTrainsInterval;
 	}

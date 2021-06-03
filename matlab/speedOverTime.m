@@ -50,6 +50,7 @@ line([0 vmaxOverPosition_Position(1)], [vmaxOverPosition_v_max(1) vmaxOverPositi
 for i = 1:size(vmaxOverPosition_Position) - 1
    line([vmaxOverPosition_Position(i) vmaxOverPosition_Position(i + 1)], [vmaxOverPosition_v_max(i + 1) vmaxOverPosition_v_max(i + 1)],'LineWidth',1,'color','black');
    line([vmaxOverPosition_Position(i) vmaxOverPosition_Position(i)], [0 vmaxOverPosition_v_max(i + 1)],'LineWidth',1,'color','black'); 
+   line([vmaxOverPosition_Position(i) vmaxOverPosition_Position(i)], [0 vmaxOverPosition_v_max(i)],'LineWidth',1,'color','black'); 
    line([vmaxOverPosition_Position(i + 1) vmaxOverPosition_Position(i + 1)], [0 vmaxOverPosition_v_max(i + 1)],'LineWidth',1,'color','black'); 
 end
 

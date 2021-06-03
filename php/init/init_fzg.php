@@ -135,10 +135,18 @@ function compareTwoNaechsteAbschnitte(int $id) {
 		$keyCurrentSection = array_search($currentSection, $oldNextSections);
 		$keyLatestSection = array_key_last($oldNextSections);
 		$dataIsIdentical = true;
+		$numberOfSection = $keyLatestSection - $keyCurrentSection + 1;
 
 		$compareNextSections = array();
 		$compareNextLenghts = array();
 		$compareNextVMax = array();
+
+		$keyCurrentOldSection = array_search($currentSection, $oldNextSections);
+		$keyLastOldSection = array_key_last($oldNextSections);
+		$oldNumber = $keyLastOldSection - $keyCurrentOldSection + 1;
+
+
+
 
 		for($i = $keyCurrentSection; $i <= $keyLatestSection; $i++) {
 			array_push($compareNextSections, $oldNextSections[$i]);
@@ -146,50 +154,152 @@ function compareTwoNaechsteAbschnitte(int $id) {
 			array_push($compareNextVMax, $oldNextVMax[$i]);
 		}
 
-		//var_dump($compareNextSections);
-		//var_dump($compareNextLenghts);
-		//var_dump($compareNextVMax);
 
-		if (sizeof($newNextSection) != sizeof($compareNextLenghts)) {
+
+		if (sizeof($newNextSection) != ($numberOfSection)) {
 			$dataIsIdentical = false;
 		} else {
 			for ($i = 0; $i < $keyLatestSection - $keyCurrentSection; $i++) {
-				if ($newNextSection[$i] != $compareNextSections[$i] || $newNextLenghts[$i] != $compareNextLenghts[$i] || $newNextVMax[$i] != $compareNextVMax[$i]) {
-					var_dump($i);
+				if ($newNextSection[$i] != $compareNextSections[$i] || $newNextLenghts[$i] != $compareNextLenghts[$i]) { //|| $newNextVMax[$i] != $compareNextVMax[$i]
+					//var_dump($i);
 					$dataIsIdentical = false;
 					break;
 				}
 			}
 		}
+		/*
+
+		var_dump("################");
+		var_dump($id);
+		var_dump($oldNextSections);
+		var_dump($newNextSection);
+		var_dump($compareNextSections);
+		var_dump($dataIsIdentical);
+		var_dump("################");
+
+		*/
+
+
+
 
 		if (!$dataIsIdentical) {
+			//var_dump("Neue Berechnung");
 			calculateNextSections($id);
 			$adresse = $allTrains[$id]["adresse"];
 			$allTimes[$adresse] = array();
 			checkIfFahrstrasseIsCorrrect($id);
 			calculateFahrverlauf($id);
+			//var_dump($allTimes[$adresse]);
 		}
 	}
 }
 
-function getSimulationStartTime(string $startzeit) {
+function startMessage() {
+
+	global $realStartTime;
+	global $simulationEndTime;
+	global $simulationDuration;
+	global $realEndTime;
+	global $simulationStartTime;
+
+	$realStartTimeAsHHMMSS = getUhrzeit($realStartTime, "simulationszeit", null, array("outputtyp"=>"h:i:s"));
+	$simulationEndTimeAsHHMMSS = getUhrzeit($simulationEndTime, "simulationszeit", null, array("outputtyp"=>"h:i:s"));
+	$simulationDurationAsHHMMSS = toStd($simulationDuration);
+	$realEndTimeAsHHMMSS = getUhrzeit($realEndTime, "simulationszeit", null, array("outputtyp"=>"h:i:s"));
+	$simulationStartTimeAsHHMMSS = getUhrzeit($simulationStartTime, "simulationszeit", null, array("outputtyp"=>"h:i:s"));
+
+	$fahrplanSessionkey = getDataFromFahrplanSession("sessionkey");
+	$fahrplanSessionName = getDataFromFahrplanSession("name");
+
+	$hashtagLine = "#####################################################################\n";
+	$emptyLine = "#\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t#\n";
+
+	echo $hashtagLine;
+	echo $emptyLine;
+	echo "#\t\t\t  Start der automatischen Zugbeeinflussung\t\t\t\t#\n";
+	echo "#\t\tim Eisenbahnbetriebs- und Experimentierfeld (EBuEf) \t\t#\n";
+	echo "#\t\t\t\t\t\t    der TU Berlin\t\t\t\t\t\t\t#\n";
+	echo "#\t\t\t\t\t    im eingleisigen Netz \t\t\t\t\t\t#\n";
+	echo $emptyLine;
+	echo "#\t\t\t\t\t\t\t____\t\t\t\t\t\t\t\t\t#\n";
+	echo "#\t\t\t\t\t\t\t|DD|____T_\t\t\t\t\t\t\t\t#\n";
+	echo "#\t\t\t\t\t\t\t|_ |_____|<\t\t\t\t\t\t\t\t#\n";
+	echo "#\t\t\t\t\t\t\t  @-@-@-oo\\\t\t\t\t\t\t\t\t#\n";
+	echo "#\t\t\t\t\t=============================\t\t\t\t\t#\n";
+	echo $emptyLine;
+	echo "#\t Start der Simulation: \t\t\t\t\t\t\t\t\t\t\t#\n";
+	echo "#\t\t Simulationszeit: \t\t\t", $simulationStartTimeAsHHMMSS, "\t\t\t\t\t\t#\n";
+	echo "#\t\t Realzeit: \t\t\t\t\t", $realStartTimeAsHHMMSS, "\t\t\t\t\t\t#\n";
+	echo $emptyLine;
+	echo "#\t Ende der Simulation: \t\t\t\t\t\t\t\t\t\t\t#\n";
+	echo "#\t\t Simulationszeit: \t\t\t", $simulationEndTimeAsHHMMSS, "\t\t\t\t\t\t#\n";
+	echo "#\t\t Realzeit: \t\t\t\t\t", $realEndTimeAsHHMMSS, "\t\t\t\t\t\t#\n";
+	echo $emptyLine;
+	echo "#\t Dauer der Simulation: \t\t\t", $simulationDurationAsHHMMSS, "\t\t\t\t\t\t#\n";
+	echo $emptyLine;
+	echo "#\t Fahrplanname: \t\t\t\t\t", $fahrplanSessionName, "\t\t#\n";
+	echo "#\t Sessionkey: \t\t\t\t\t", $fahrplanSessionkey, "\t\t\t\t\t#\n";
+	echo $emptyLine;
+	echo $hashtagLine, "\n\n";
+
+
+
+
+}
+
+function toStd($sekunden)
+{
+	$stunden = floor($sekunden / 3600);
+	$minuten = floor(($sekunden - ($stunden * 3600)) / 60);
+	$sekunden = round($sekunden - ($stunden * 3600) - ($minuten * 60), 0);
+
+	if ($stunden <= 9) {
+		$strStunden = "0" . $stunden;
+	} else {
+		$strStunden = $stunden;
+	}
+
+	if ($minuten <= 9) {
+		$strMinuten = "0" . $minuten;
+	} else {
+		$strMinuten = $minuten;
+	}
+
+	if ($sekunden <= 9) {
+		$strSekunden = "0" . $sekunden;
+	} else {
+		$strSekunden = $sekunden;
+	}
+
+	return "$strStunden:$strMinuten:$strSekunden";
+}
+
+function getDataFromFahrplanSession(string $columnName) {
 
 	$status = 1;
 
 	$DB = new DB_MySQL();
 
 
-	$simStartTime = $DB->select("SELECT `".DB_TABLE_FAHRPLAN_SESSION."`.`$startzeit`    
+	$simStartTime = $DB->select("SELECT `".DB_TABLE_FAHRPLAN_SESSION."`.`$columnName`    
                             FROM `".DB_TABLE_FAHRPLAN_SESSION."`
                             WHERE `".DB_TABLE_FAHRPLAN_SESSION."`.`status` = $status
                            ");
 
 	unset($DB);
 
-	if ($startzeit == "sim_startzeit") {
+	if ($columnName == "sim_startzeit") {
 		return $simStartTime[0]->sim_startzeit;
-	} else if ($startzeit == "real_startzeit"){
+	} else if ($columnName == "real_startzeit"){
 		return $simStartTime[0]->real_startzeit;
+	} else if ($columnName == "sim_endzeit") {
+		return $simStartTime[0]->sim_endzeit;
+	} else if ($columnName == "name") {
+		return $simStartTime[0]->name;
+	} else if ($columnName == "sessionkey") {
+		return $simStartTime[0]->sessionkey;
+	} else {
+		return false;
 	}
 }
 
@@ -338,15 +448,16 @@ function getFahrplanAndPosition () {
 
 	foreach ($returnArray as $trainIndex => $trainValue) {
 		foreach ($trainValue["next_betriebsstellen_data"] as $betriebsstelleIndex => $betriebsstelleValue) {
+			// bei getUhrzeit was vorher $timeDifferenceGetUhrzeit
 			if ($betriebsstelleValue["zeiten"] != false) {
 				if ($betriebsstelleValue["zeiten"]["abfahrt_soll"] != null) {
-					$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["abfahrt_soll_timestamp"] = getUhrzeit($betriebsstelleValue["zeiten"]["abfahrt_soll"], "simulationszeit", $timeDifferenceGetUhrzeit, array("inputtyp" => "h:i:s"));
+					$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["abfahrt_soll_timestamp"] = getUhrzeit($betriebsstelleValue["zeiten"]["abfahrt_soll"], "simulationszeit", null, array("inputtyp" => "h:i:s"));
 				} else {
 					$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["abfahrt_soll_timestamp"] = null;
 				}
 
 				if ($betriebsstelleValue["zeiten"]["ankunft_soll"] != null) {
-					$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["ankunft_soll_timestamp"] = getUhrzeit($betriebsstelleValue["zeiten"]["ankunft_soll"], "simulationszeit", $timeDifferenceGetUhrzeit, array("inputtyp" => "h:i:s"));
+					$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["ankunft_soll_timestamp"] = getUhrzeit($betriebsstelleValue["zeiten"]["ankunft_soll"], "simulationszeit", null, array("inputtyp" => "h:i:s"));
 				} else {
 					$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["ankunft_soll_timestamp"] = null;
 				}
@@ -609,6 +720,7 @@ function calculateNextSections($id = false, $writeResultToTrain = true) {
 
 	global $allTrains;
 	global $cacheInfraLaenge;
+	global $realStartTime;
 
 	$checkAllTrains = true;
 
@@ -627,6 +739,7 @@ function calculateNextSections($id = false, $writeResultToTrain = true) {
 				$nextSections = array();
 				$nextVMax = array();
 				$nextLengths = array();
+				$nextSignalbegriff = null;
 
 				if ($signal != null) {
 					$nextSignalbegriff = getSignalbegriff($signal);
@@ -640,9 +753,12 @@ function calculateNextSections($id = false, $writeResultToTrain = true) {
 					$nextSignalbegriff = null;
 				}
 
+
+
+
 				$return = getNaechsteAbschnitte($currentSection, $dir);
 				$allTrains[$trainIndex]["last_get_naechste_abschnitte"] = $return;
-				$currentVMax = 120; // max speed for a train in the current section
+				$currentVMax = 60; // max speed for a train in the current section
 
 				array_push($nextSections, $currentSection);
 				array_push($nextVMax, $currentVMax);
@@ -652,7 +768,43 @@ function calculateNextSections($id = false, $writeResultToTrain = true) {
 					$currentVMax = $nextSignalbegriff;
 				}
 
+
+
 				if ($currentVMax == 0) {
+					if ($trainValue["id"] == 78) {
+						/*
+						if ($realStartTime + 2 < microtime(true) ) {
+							$nextSections = array();
+							$nextVMax = array();
+							$nextLengths = array();
+
+							array_push($nextSections, 1187);
+							array_push($nextLengths, $cacheInfraLaenge[1187]);
+							array_push($nextVMax, 120);
+							array_push($nextSections, 1185);
+							array_push($nextLengths, $cacheInfraLaenge[1185]);
+							array_push($nextVMax, 120);
+							array_push($nextSections, 1184);
+							array_push($nextLengths, $cacheInfraLaenge[1184]);
+							array_push($nextVMax, 120);
+							array_push($nextSections, 1183);
+							array_push($nextLengths, $cacheInfraLaenge[1183]);
+							array_push($nextVMax, 120);
+							array_push($nextSections, 1182);
+							array_push($nextLengths, $cacheInfraLaenge[1182]);
+							array_push($nextVMax, 120);
+							array_push($nextSections, 1181);
+							array_push($nextLengths, $cacheInfraLaenge[1181]);
+							array_push($nextVMax, 120);
+							array_push($nextSections, 1176);
+							array_push($nextLengths, $cacheInfraLaenge[1176]);
+							array_push($nextVMax, 120);
+							array_push($nextSections, 1175);
+							array_push($nextLengths, $cacheInfraLaenge[1175]);
+							array_push($nextVMax, 120);
+						}
+						*/
+					}
 					if ($writeResultToTrain) {
 						$allTrains[$trainIndex]["next_sections"] = $nextSections;
 						$allTrains[$trainIndex]["next_lenghts"] = $nextLengths;
@@ -661,6 +813,40 @@ function calculateNextSections($id = false, $writeResultToTrain = true) {
 						return array($nextSections, $nextLengths, $nextVMax);
 					}
 				} else {
+					if ($trainValue["id"] == 78) {
+						/*
+						if ($realStartTime + 2 < microtime(true)) {
+							$nextSections = array();
+							$nextVMax = array();
+							$nextLengths = array();
+
+							array_push($nextSections, 1187);
+							array_push($nextLengths, $cacheInfraLaenge[1187]);
+							array_push($nextVMax, 120);
+							array_push($nextSections, 1185);
+							array_push($nextLengths, $cacheInfraLaenge[1185]);
+							array_push($nextVMax, 120);
+							array_push($nextSections, 1184);
+							array_push($nextLengths, $cacheInfraLaenge[1184]);
+							array_push($nextVMax, 120);
+							array_push($nextSections, 1183);
+							array_push($nextLengths, $cacheInfraLaenge[1183]);
+							array_push($nextVMax, 120);
+							array_push($nextSections, 1182);
+							array_push($nextLengths, $cacheInfraLaenge[1182]);
+							array_push($nextVMax, 120);
+							array_push($nextSections, 1181);
+							array_push($nextLengths, $cacheInfraLaenge[1181]);
+							array_push($nextVMax, 120);
+							array_push($nextSections, 1176);
+							array_push($nextLengths, $cacheInfraLaenge[1176]);
+							array_push($nextVMax, 120);
+							array_push($nextSections, 1175);
+							array_push($nextLengths, $cacheInfraLaenge[1175]);
+							array_push($nextVMax, 120);
+						}
+						*/
+					}
 					foreach ($return as $section) {
 						array_push($nextSections, $section["infra_id"]);
 						array_push($nextVMax, $currentVMax);
