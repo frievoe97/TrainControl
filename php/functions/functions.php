@@ -658,7 +658,7 @@ function consoleAllTrainsPositionAndFahrplan() {
         } else {
             $fahrplan = "nein";
         }
-        echo "Zug ID: ", $train["id"], " (Adresse: ", $train["adresse"], ")\t Fährt nach Fahrplan: ", $fahrplan, "\t Richtung: ", $train["dir"], "\t Infra-Abschnitt: ", $train["current_infra_section"], "\t Aktuelle relative Position im Infra-Abschnitt: ", $train["current_position"], "m\n";
+        echo "Zug ID: ", $train["id"], " (Adresse: ", $train["adresse"], "; Zug ID:", $train["zug_id"], ")\t Fährt nach Fahrplan: ", $fahrplan, "\t Richtung: ", $train["dir"], "\t Infra-Abschnitt: ", $train["current_infra_section"], "\t Aktuelle relative Position im Infra-Abschnitt: ", $train["current_position"], "m\n";
     }
     echo "\n";
 }
@@ -679,6 +679,135 @@ function consoleCheckIfStartDirectionIsCorrect() {
         }
     }
     echo "\n";
+}
+
+function createCacheInfraToGbt () {
+
+    $DB = new DB_MySQL();
+
+    $infraArray = array();
+    $returnArray = array();
+
+    $allInfra = $DB->select("SELECT  `".DB_TABLE_FMA_GBT."`.`infra_id`
+                                FROM `".DB_TABLE_FMA_GBT."`
+                                WHERE `".DB_TABLE_FMA_GBT."`.`infra_id` IS NOT NULL
+                                ");
+    unset($DB);
+
+
+
+    foreach ($allInfra as $infra) {
+        array_push($infraArray, intval($infra->infra_id));
+    }
+
+
+
+    foreach ($infraArray as  $infra) {
+        $DB = new DB_MySQL();
+
+        $gbt = $DB->select("SELECT  `".DB_TABLE_FMA_GBT."`.`gbt_id`
+                                FROM `".DB_TABLE_FMA_GBT."`
+                                WHERE `".DB_TABLE_FMA_GBT."`.`infra_id` = '$infra'
+                                ")[0]->gbt_id;
+        unset($DB);
+
+        $returnArray[$infra] = intval($gbt);
+
+
+
+    }
+
+
+    return $returnArray;
+
+}
+
+function createCacheGbtToInfra () {
+
+    $DB = new DB_MySQL();
+
+    $returnArray = array();
+
+    $allGbt = $DB->select("SELECT DISTINCT `".DB_TABLE_FMA_GBT."`.`gbt_id`
+                                FROM `".DB_TABLE_FMA_GBT."`
+                                WHERE `".DB_TABLE_FMA_GBT."`.`gbt_id` IS NOT NULL
+                                ");
+    unset($DB);
+
+
+
+    foreach ($allGbt as  $gbt) {
+        $DB = new DB_MySQL();
+
+        $gbt = $gbt->gbt_id;
+
+        $infras = $DB->select("SELECT  `".DB_TABLE_FMA_GBT."`.`infra_id`
+                                FROM `".DB_TABLE_FMA_GBT."`
+                                WHERE `".DB_TABLE_FMA_GBT."`.`gbt_id` = '$gbt'
+                                ");
+        unset($DB);
+
+        $returnArray[$gbt] = array();
+
+        foreach ($infras as $infra) {
+            array_push($returnArray[$gbt], intval($infra->infra_id));
+        }
+
+
+
+
+
+    }
+
+    return $returnArray;
+}
+
+function createChacheZwischenhaltepunkte() {
+
+    $DB = new DB_MySQL();
+    $allZwischenhalte = array();
+    $returnArray = array();
+
+    $zwischenhalte = $DB->select("SELECT DISTINCT `".DB_TABLE_SIGNALE_STANDORTE."`.`betriebsstelle`
+                                FROM `".DB_TABLE_SIGNALE_STANDORTE."`
+                                WHERE `".DB_TABLE_SIGNALE_STANDORTE."`.`betriebsstelle` IS NOT NULL
+                                ");
+    unset($DB);
+
+
+
+    foreach ($zwischenhalte as $halt) {
+        array_push($allZwischenhalte, $halt->betriebsstelle);
+    }
+
+
+
+
+    foreach ($allZwischenhalte as $halt) {
+
+        $DB = new DB_MySQL();
+
+        $zwischenhalte = $DB->select("SELECT `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id`
+                                FROM `".DB_TABLE_SIGNALE_STANDORTE."`
+                                WHERE `".DB_TABLE_SIGNALE_STANDORTE."`.`betriebsstelle` = '$halt'
+                                AND `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id` IS NOT NULL
+                                ");
+        unset($DB);
+
+
+
+        if (sizeof($zwischenhalte) == 1) {
+            $returnArray[$halt] = intval($zwischenhalte[0]->freimelde_id);
+        }
+
+    }
+
+    return $returnArray;
+
+
+
+
+
 }
 
 function createCacheHaltepunkte() : array{
@@ -765,10 +894,11 @@ function createCacheHaltepunkte() : array{
     return $returnArray;
 }
 
-function addStopsectionsForTimetable($id = false) {
+function checkIfTrainReachedHaltepunkt ($id = false) {
 
     global $allTrains;
-    global $cacheHaltepunkte;
+    global $cacheInfraToGbt;
+    global $cacheGbtToInfra;
 
     $checkAllTrains = true;
 
@@ -776,6 +906,38 @@ function addStopsectionsForTimetable($id = false) {
         $checkAllTrains = false;
     }
 
+foreach ($allTrains as $trainIndex => $trainValue) {
+    if ($checkAllTrains || $trainValue["id"] == $id) {
+
+        $currentInfrasection = $trainValue["current_infra_section"];
+        $currentGbt = $cacheInfraToGbt[$currentInfrasection];
+        $allInfraSections = $cacheGbtToInfra[$currentGbt];
+
+        if (sizeof(array_intersect($trainValue["next_betriebsstellen_data"][0]["haltepunkte"], $allInfraSections)) != 0) {
+            $allTrains[$trainIndex]["next_betriebsstellen_data"][0]["angekommen"] = true;
+        }
+
+    }
+}
+
+}
+
+function addStopsectionsForTimetable($id = false) {
+
+    global $allTrains;
+    global $cacheHaltepunkte;
+    global $cacheZwischenhaltepunkte;
+
+    $checkAllTrains = true;
+
+    if ($id != false) {
+        $checkAllTrains = false;
+    }
+
+
+
+
+    // TODO: Ist das can_drive if statement nötig?
     foreach ($allTrains as $trainIndex => $trainValue) {
         if ($checkAllTrains || $trainValue["id"] == $id) {
             if ($trainValue["can_drive"]) {
@@ -783,6 +945,8 @@ function addStopsectionsForTimetable($id = false) {
                     foreach ($trainValue["next_betriebsstellen_data"] as $betriebsstelleKey => $betriebsstelleValue) {
                         if (in_array($betriebsstelleValue["betriebstelle"], array_keys($cacheHaltepunkte))) {
                             $allTrains[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleKey]["haltepunkte"] = $cacheHaltepunkte[$betriebsstelleValue["betriebstelle"]][$trainValue["dir"]];
+                        } else if (in_array($betriebsstelleValue["betriebstelle"], array_keys($cacheZwischenhaltepunkte))) {
+                            $allTrains[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleKey]["haltepunkte"] = array($cacheZwischenhaltepunkte[$betriebsstelleValue["betriebstelle"]]);
                         } else {
                             $allTrains[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleKey]["haltepunkte"] = array();
                         }
@@ -793,6 +957,8 @@ function addStopsectionsForTimetable($id = false) {
                     foreach ($trainValue["next_betriebsstellen_data"] as $betriebsstelleKey => $betriebsstelleValue) {
                         if (in_array($betriebsstelleValue["betriebstelle"], array_keys($cacheHaltepunkte))) {
                             $allTrains[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleKey]["haltepunkte"] = $cacheHaltepunkte[$betriebsstelleValue["betriebstelle"]][$trainValue["dir"]];
+                        } else if (in_array($betriebsstelleValue["betriebstelle"], array_keys($cacheZwischenhaltepunkte))) {
+                            $allTrains[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleKey]["haltepunkte"] = array($cacheZwischenhaltepunkte[$betriebsstelleValue["betriebstelle"]]);
                         } else {
                             $allTrains[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleKey]["haltepunkte"] = array();
                         }
@@ -886,12 +1052,20 @@ function calculateFahrverlauf($id = false) {
         $checkAllTrains = false;
     }
 
+
+
     foreach ($allTrains as $trainIndex => $trainValue) {
+        $interrupt = false;
+
+        $allPossibleStops = array();
+
+        for($i = 0; $i < sizeof($trainValue["next_betriebsstellen_data"]); $i++) {
+            if ($trainValue["next_betriebsstellen_data"][$i]["zeiten"]["is_halt"]) {
+                array_push($allPossibleStops, $i);
+            }
+        }
 
         if ($trainValue["can_drive"] && $trainValue["fahrstrasse_is_correct"] == 1) {
-
-
-
             if ($checkAllTrains || $trainValue["id"] == $id) {
                 if ($trainValue["operates_on_timetable"] == 1) {
                     $firstSection = $trainValue["current_infra_section"];
@@ -905,11 +1079,18 @@ function calculateFahrverlauf($id = false) {
                     $wendet = false;
                     $wendetIndex = null;
 
-
                     for ($i = 0; $i < sizeof($trainValue["next_betriebsstellen_data"]); $i++) {
-                        if (!$trainValue["next_betriebsstellen_data"][$i]["angekommen"] && $trainValue["next_betriebsstellen_data"][$i]["is_on_fahrstrasse"]) {
+                        if (!$trainValue["next_betriebsstellen_data"][$i]["angekommen"] && $trainValue["next_betriebsstellen_data"][$i]["is_on_fahrstrasse"] && $trainValue["next_betriebsstellen_data"][$i]["zeiten"]["is_halt"] == true) {
                             $firstBetriebsstelleIndex = $i;
                             break;
+                        }
+                    }
+
+                    if ($firstBetriebsstelleIndex == null) {
+                        for ($i = 0; $i < sizeof($trainValue["next_betriebsstellen_data"]); $i++) {
+                            if (!$trainValue["next_betriebsstellen_data"][$i]["angekommen"] && $trainValue["next_betriebsstellen_data"][$i]["is_on_fahrstrasse"]) {
+                                $firstBetriebsstelleIndex = $i;
+                            }
                         }
                     }
 
@@ -920,116 +1101,145 @@ function calculateFahrverlauf($id = false) {
                     }
 
                     if ($firstBetriebsstelleIndex === null || $lastBetriebsstelleIndex === null) {
-                        return false;
+                        $interrupt = true;
                     }
 
-
-
-                    for ($i = $firstBetriebsstelleIndex; $i <= $lastBetriebsstelleIndex; $i++) {
-                        if ($trainValue["next_betriebsstellen_data"][$i]["zeiten"]["wendet"] == 1) {
-                            $wendetIndex = $i;
-                            $wendet = true;
-                            break;
+                    if (!$interrupt) {
+                        for ($i = $firstBetriebsstelleIndex; $i <= $lastBetriebsstelleIndex; $i++) {
+                            if ($trainValue["next_betriebsstellen_data"][$i]["zeiten"]["wendet"] == 1) {
+                                $wendetIndex = $i;
+                                $wendet = true;
+                                break;
+                            }
                         }
-                    }
 
-                    if ($wendetIndex != null) {
-                        $lastBetriebsstelleIndex = $wendetIndex;
-                    }
-
-                    if ($trainValue["id"] == 78) {
-                        //var_dump($firstBetriebsstelleIndex, $lastBetriebsstelleIndex);
-                    }
-
-
-                    array_push($allStops, $firstBetriebsstelleIndex);
-                    for ($i = ($firstBetriebsstelleIndex + 1); $i < $lastBetriebsstelleIndex; $i++) {
-                        if ($trainValue["next_betriebsstellen_data"][$i]["is_halt"] == true) {
-                            array_push($allStops, $i);
+                        if ($wendetIndex != null) {
+                            $lastBetriebsstelleIndex = $wendetIndex;
                         }
-                    }
-                    if ($firstBetriebsstelleIndex != $lastBetriebsstelleIndex) {
-                        array_push($allStops, $lastBetriebsstelleIndex);
-                    }
 
+                        if ($trainValue["id"] == 78) {
+                            //var_dump($firstBetriebsstelleIndex, $lastBetriebsstelleIndex);
+                        }
 
+                        //var_dump($trainValue["next_betriebsstellen_data"]);
+                        array_push($allStops, $firstBetriebsstelleIndex);
+                        for ($i = ($firstBetriebsstelleIndex + 1); $i < $lastBetriebsstelleIndex; $i++) {
+                            if ($trainValue["next_betriebsstellen_data"][$i]["zeiten"]["is_halt"] == true) {
+                                array_push($allStops, $i);
+                            }
+                        }
+                        if ($firstBetriebsstelleIndex != $lastBetriebsstelleIndex) {
+                            array_push($allStops, $lastBetriebsstelleIndex);
+                        }
 
-                    foreach ($allStops as $stopIndex => $stopValue) {
+                        //var_dump($allStops);
 
-                        $targetSpeed = 0;
+                        foreach ($allStops as $stopIndex => $stopValue) {
+                            //var_dump($stopValue);
 
-                        $targetSection = $trainValue["next_betriebsstellen_data"][$stopValue]["used_haltepunkt"];
-                        $targetPosition = $cacheInfraLaenge[$trainValue["next_betriebsstellen_data"][$stopValue]["used_haltepunkt"]];
+                            $targetSpeed = 0;
 
-                        $currentSection = null;
-                        $currentPosition = null;
-                        $currentSpeed = null;
+                            $targetSection = $trainValue["next_betriebsstellen_data"][$stopValue]["used_haltepunkt"];
+                            $targetPosition = $cacheInfraLaenge[$trainValue["next_betriebsstellen_data"][$stopValue]["used_haltepunkt"]];
 
-                        $startTime = null;
-                        $endTime = null;
+                            $currentSection = null;
+                            $currentPosition = null;
+                            $currentSpeed = null;
 
+                            $startTime = null;
+                            $endTime = null;
 
-
-                        if ($stopIndex == array_key_first($allStops)) {
-                            $currentSpeed = $trainValue["speed"];
-                            $currentSection = $trainValue["current_infra_section"];
-                            $currentPosition = $trainValue["current_position"];
-                            //$startTime = $timeDifference + (float)getUhrzeit();
-                            $startTime = microtime(true) + $newTimeDifference;
-                            if ($stopValue == 0) {
-                                $endTime = $startTime;
-                            } else if ($stopValue == 1) {
-                                $endTime = $trainValue["next_betriebsstellen_data"][$stopValue]["zeiten"]["ankunft_soll_timestamp"];
-                                if ($trainValue["next_betriebsstellen_data"][$stopValue - 1]["zeiten"]["verspaetung"] > 0) {
-                                    $startTime = $trainValue["next_betriebsstellen_data"][$stopValue - 1]["zeiten"]["abfahrt_soll_timestamp"] + $trainValue["next_betriebsstellen_data"][$stopValue - 1]["zeiten"]["verspaetung"];
-                                } else {
-                                    $startTime = $trainValue["next_betriebsstellen_data"][$stopValue - 1]["zeiten"]["abfahrt_soll_timestamp"];
+                            if ($stopIndex == array_key_first($allStops)) {
+                                $currentSpeed = $trainValue["speed"];
+                                $currentSection = $trainValue["current_infra_section"];
+                                $currentPosition = $trainValue["current_position"];
+                                //$startTime = $timeDifference + (float)getUhrzeit();
+                                $indexLastHalt = null;
+                                for($i = $stopValue - 1; $i >= 0; $i--) {
+                                    if ($trainValue["next_betriebsstellen_data"][$i]["zeiten"]["is_halt"]) {
+                                        $indexLastHalt = $i;
+                                        break;
+                                    }
                                 }
-                            } else {
-                                //$sortedStops = array_values($allStops);
-                                //$prevIndex = $sortedStops[array_search($stopValue, $sortedStops) - 1];
-                                $endTime = $trainValue["next_betriebsstellen_data"][$stopValue]["zeiten"]["ankunft_soll_timestamp"];
-                                if ($trainValue["next_betriebsstellen_data"][$stopValue - 1]["zeiten"]["verspaetung"] > 0) {
-                                    $startTime = $trainValue["next_betriebsstellen_data"][$stopValue - 1]["zeiten"]["abfahrt_soll_timestamp"] + $trainValue["next_betriebsstellen_data"][$stopValue - 1]["zeiten"]["verspaetung"];
-                                } else {
-                                    $startTime = $trainValue["next_betriebsstellen_data"][$stopValue - 1]["zeiten"]["abfahrt_soll_timestamp"];
+                                if ($indexLastHalt == null) {
+                                    //TODO: Sollte nur eintreten, wenn der Zug noch zum ersten Halt fahren muss...
+                                    // => startTime = jetzt
+                                    // => endTime = erster Halt StartTime
+                                    // if (stopValue == 0) sollte das abfangen...
                                 }
-                            }
-                        } else {
-                            $currentSpeed = 0;
-                            $currentSection = $trainValue["current_infra_section"];
-                            $sortedStops = array_values($allStops);
-                            $prevIndex = $sortedStops[array_search($stopValue, $sortedStops) - 1];
-                            $currentPosition = $cacheInfraLaenge[$trainValue["next_betriebsstellen_data"][$prevIndex]["used_haltepunkt"]];
-                            $currentSection = $trainValue["next_betriebsstellen_data"][$prevIndex]["used_haltepunkt"];
-                            if ($trainValue["next_betriebsstellen_data"][$prevIndex]["zeiten"]["verspaetung"] > 0) {
-                                $startTime = $trainValue["next_betriebsstellen_data"][$prevIndex]["zeiten"]["abfahrt_soll_timestamp"] + $trainValue["next_betriebsstellen_data"][$prevIndex]["zeiten"]["verspaetung"];
+                                //TODO: Benötigt man die else if() Anweisung?
+                                if ($stopValue == 0) {
+                                    $endTime = $startTime;
+                                } else if ($stopValue == 1) {
+                                    $endTime = $trainValue["next_betriebsstellen_data"][$stopValue]["zeiten"]["ankunft_soll_timestamp"];
+                                    if ($trainValue["next_betriebsstellen_data"][$stopValue - 1]["zeiten"]["verspaetung"] > 0) {
+                                        $startTime = $trainValue["next_betriebsstellen_data"][$stopValue - 1]["zeiten"]["abfahrt_soll_timestamp"] + $trainValue["next_betriebsstellen_data"][$stopValue - 1]["zeiten"]["verspaetung"];
+                                    } else {
+                                        $startTime = $trainValue["next_betriebsstellen_data"][$stopValue - 1]["zeiten"]["abfahrt_soll_timestamp"];
+                                    }
+                                } else {
+                                    //$sortedStops = array_values($allStops);
+                                    //$prevIndex = $sortedStops[array_search($stopValue, $sortedStops) - 1];
+                                    $endTime = $trainValue["next_betriebsstellen_data"][$stopValue]["zeiten"]["ankunft_soll_timestamp"];
+                                    if ($trainValue["next_betriebsstellen_data"][$indexLastHalt]["zeiten"]["verspaetung"] > 0) {
+                                        $startTime = $trainValue["next_betriebsstellen_data"][$indexLastHalt]["zeiten"]["abfahrt_soll_timestamp"] + $trainValue["next_betriebsstellen_data"][$stopValue - 1]["zeiten"]["verspaetung"];
+                                    } else {
+                                        $startTime = $trainValue["next_betriebsstellen_data"][$indexLastHalt]["zeiten"]["abfahrt_soll_timestamp"];
+                                    }
+                                }
+
                             } else {
-                                $startTime = $trainValue["next_betriebsstellen_data"][$prevIndex]["zeiten"]["abfahrt_soll_timestamp"];
+                                $currentSpeed = 0;
+                                $currentSection = $trainValue["current_infra_section"];
+                                $sortedStops = array_values($allStops);
+                                $prevIndex = $sortedStops[array_search($stopValue, $sortedStops) - 1];
+                                $indexLastHalt = null;
+                                for($i = $stopValue - 1; $i >= 0; $i--) {
+                                    if ($trainValue["next_betriebsstellen_data"][$i]["zeiten"]["is_halt"]) {
+                                        $indexLastHalt = $i;
+                                        break;
+                                    }
+                                }
+                                //var_dump($prevIndex, $stopValue);
+                                $currentPosition = $cacheInfraLaenge[$trainValue["next_betriebsstellen_data"][$prevIndex]["used_haltepunkt"]];
+                                $currentSection = $trainValue["next_betriebsstellen_data"][$prevIndex]["used_haltepunkt"];
+                                if ($trainValue["next_betriebsstellen_data"][$prevIndex]["zeiten"]["verspaetung"] > 0) {
+                                    $startTime = $trainValue["next_betriebsstellen_data"][$prevIndex]["zeiten"]["abfahrt_soll_timestamp"] + $trainValue["next_betriebsstellen_data"][$prevIndex]["zeiten"]["verspaetung"];
+                                } else {
+                                    $startTime = $trainValue["next_betriebsstellen_data"][$prevIndex]["zeiten"]["abfahrt_soll_timestamp"];
+                                }
+                                $endTime = $trainValue["next_betriebsstellen_data"][$stopValue]["zeiten"]["ankunft_soll_timestamp"];
+                                var_dump($startTime);
                             }
-                            $endTime = $trainValue["next_betriebsstellen_data"][$stopValue]["zeiten"]["ankunft_soll_timestamp"];
-                        }
 
-                        $reachedBetriebsstele = true;
+                            $reachedBetriebsstele = true;
 
-                        if ($startTime < microtime(true) + $newTimeDifference) {
-                            $startTime = microtime(true) + $newTimeDifference;
-                        }
+                            if ($startTime < microtime(true) + $newTimeDifference) {
+                                $startTime = microtime(true) + $newTimeDifference;
+                            }
 
-                        $verapetung = updateNextSpeed($trainValue, $startTime, $endTime, $currentSection, $currentSpeed, $currentPosition, $targetSection, $targetSpeed, $targetPosition, $reachedBetriebsstele, $stopValue, $wendet);
+                            $verapetung = updateNextSpeed($trainValue, $startTime, $endTime, $currentSection, $currentSpeed, $currentPosition, $targetSection, $targetSpeed, $targetPosition, $reachedBetriebsstele, $stopValue, $wendet);
 
-                        if ($stopValue != 0) {
-                            $allTrains[$trainIndex]["next_betriebsstellen_data"][$stopValue]["zeiten"]["verspätung"] = $verapetung;
-                        } else if ($stopValue == 0) {
-                            $end = $allTrains[$trainIndex]["next_betriebsstellen_data"][$stopValue]["zeiten"]["abfahrt_soll_timestamp"];
-                            $start = $simulationStartTimeToday;
-                            if ($start + $verapetung + $fistHaltMinTime < $end) {
-                                $allTrains[$trainIndex]["next_betriebsstellen_data"][$stopValue]["zeiten"]["verspätung"] = 0;
-                            } else {
-                                $allTrains[$trainIndex]["next_betriebsstellen_data"][$stopValue]["zeiten"]["verspätung"] = $start + $verapetung + $fistHaltMinTime - $end;
+
+
+                            if ($stopValue != 0) {
+                                $allTrains[$trainIndex]["next_betriebsstellen_data"][$stopValue]["zeiten"]["verspaetung"] = $verapetung;
+                                $trainValue["next_betriebsstellen_data"][$stopValue]["zeiten"]["verspaetung"] = $verapetung;
+
+                            } else if ($stopValue == 0) {
+                                $end = $allTrains[$trainIndex]["next_betriebsstellen_data"][$stopValue]["zeiten"]["abfahrt_soll_timestamp"];
+                                $start = $simulationStartTimeToday;
+                                if ($start + $verapetung + $fistHaltMinTime < $end) {
+                                    $allTrains[$trainIndex]["next_betriebsstellen_data"][$stopValue]["zeiten"]["verspaetung"] = 0;
+                                    $trainValue["next_betriebsstellen_data"][$stopValue]["zeiten"]["verspaetung"] = 0;
+                                } else {
+                                    $allTrains[$trainIndex]["next_betriebsstellen_data"][$stopValue]["zeiten"]["verspaetung"] = $start + $verapetung + $fistHaltMinTime - $end;
+                                    $trainValue["next_betriebsstellen_data"][$stopValue]["zeiten"]["verspaetung"] = $start + $verapetung + $fistHaltMinTime - $end;
+                                }
                             }
                         }
                     }
+
                 } else {
                     // Fährt einfach drauf los...
 
@@ -1053,7 +1263,6 @@ function calculateFahrverlauf($id = false) {
                     if ($signal > -25 && $signal < 0) {
                         $wendet = true;
                     }
-
 
                     updateNextSpeed($trainValue, $startTime, $endTime, $currentSection, $currentSpeed, $currentPosition, $targetSection, $targetSpeed, $targetPosition, $reachedBetriebsstele, $stopValue, $wendet);
                 }
@@ -1097,15 +1306,13 @@ function checkIfFahrstrasseIsCorrrect($id = false) {
                         $indexSection = 0;
                         for ($i = 0; $i < sizeof($trainValue["next_sections"]); $i++) {
                             if ($stopValue["haltepunkte"] != null) {
-                                if (true) {
-                                    if (in_array($trainValue["next_sections"][$i], $stopValue["haltepunkte"])) {
-                                        if ($i >= $indexSection) {
-                                            $allTrains[$trainIndex]["next_betriebsstellen_data"][$stopIndex]["is_on_fahrstrasse"] = true;
-                                            $allTrains[$trainIndex]["next_betriebsstellen_data"][$stopIndex]["used_haltepunkt"] = $trainValue["next_sections"][$i];
-                                            $allTrains[$trainIndex]["fahrstrasse_is_correct"] = 1;
-                                            $i = sizeof($trainValue["next_sections"]);
-                                            $indexSection = $i;
-                                        }
+                                if (in_array($trainValue["next_sections"][$i], $stopValue["haltepunkte"])) {
+                                    if ($i >= $indexSection) {
+                                        $allTrains[$trainIndex]["next_betriebsstellen_data"][$stopIndex]["is_on_fahrstrasse"] = true;
+                                        $allTrains[$trainIndex]["next_betriebsstellen_data"][$stopIndex]["used_haltepunkt"] = $trainValue["next_sections"][$i];
+                                        $allTrains[$trainIndex]["fahrstrasse_is_correct"] = 1;
+                                        $i = sizeof($trainValue["next_sections"]);
+                                        $indexSection = $i;
                                     }
                                 }
                             } else {

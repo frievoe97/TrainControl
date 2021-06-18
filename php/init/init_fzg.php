@@ -183,12 +183,13 @@ function compareTwoNaechsteAbschnitte(int $id) {
 
 
 		if (!$dataIsIdentical) {
-			//var_dump("Neue Berechnung");
+			var_dump("Neue Berechnung");
 			calculateNextSections($id);
 			$adresse = $allTrains[$id]["adresse"];
 			$allTimes[$adresse] = array();
 			checkIfFahrstrasseIsCorrrect($id);
 			calculateFahrverlauf($id);
+			//var_dump($allTimes[6464]);
 			//var_dump($allTimes[$adresse]);
 		}
 	}
@@ -241,6 +242,14 @@ function startMessage() {
 	echo "#\t Sessionkey: \t\t\t\t\t", $fahrplanSessionkey, "\t\t\t\t\t#\n";
 	echo $emptyLine;
 	echo $hashtagLine, "\n\n";
+
+
+
+
+	echo "simulationStartTime = getDataFromFahrplanSession('sim_startzeit') \n \n";
+	echo getDataFromFahrplanSession("sim_startzeit"), "\n\n";
+	echo "getUhrzeit('simulationStartTime', 'simulationszeit', null, array('outputtyp'=>'h:i:s'))\n\n";
+	echo getUhrzeit(getDataFromFahrplanSession('sim_startzeit'), 'simulationszeit', null, array('outputtyp'=>'h:i:s')), "\n\n";
 
 
 
@@ -310,9 +319,12 @@ function getFahrplanAndPosition () {
 	global $cacheInfraLaenge;
 	global $timeDifferenceGetUhrzeit;
 	global $allTrains;
+	global $cacheZwischenhaltepunkte;
 
 	$returnArray = array();
 	$checkAllTrains = true;
+
+	$keysZwischenhalte = array_keys($cacheZwischenhaltepunkte);
 
 
 
@@ -349,10 +361,13 @@ function getFahrplanAndPosition () {
 		}
 	}
 
+	//TODO: neu strukturieren, es wird schon überprüft, ob der Zug nach Fahrplan fährt... if statement nach operates_on_timetable aufbauen...
+
 	// Get next Betriebsstellen
 	foreach ($allTrains as $trainIndex => $trainValue) {
 		$allTrains[$trainIndex]["next_betriebsstellen_data"] = array();
 		$zug_id = intval($allTrains[$trainIndex]["zug_id"]);
+
 
 		if ($zug_id != 0) {
 			$nextBetriebsstellen = getNextBetriebsstellen($zug_id);
@@ -361,6 +376,12 @@ function getFahrplanAndPosition () {
 					if (sizeof(explode("_", $nextBetriebsstellen[$i])) != 2) {
 						$allTrains[$trainIndex]["next_betriebsstellen_data"][$i]["betriebstelle"] = $nextBetriebsstellen[$i];
 						$allTrains[$trainIndex]["next_betriebsstellen_data"][$i]["zeiten"] = getFahrplanzeiten($nextBetriebsstellen[$i], $zug_id);
+						$allTrains[$trainIndex]["next_betriebsstellen_data"][$i]["fahrplanhalt"] = true;
+					} else if(in_array($nextBetriebsstellen[$i], $keysZwischenhalte)) {
+						$allTrains[$trainIndex]["next_betriebsstellen_data"][$i]["betriebstelle"] = $nextBetriebsstellen[$i];
+						$allTrains[$trainIndex]["next_betriebsstellen_data"][$i]["zeiten"] = getFahrplanzeiten($nextBetriebsstellen[$i], $zug_id);
+						$allTrains[$trainIndex]["next_betriebsstellen_data"][$i]["fahrplanhalt"] = false;
+
 					}
 				}
 				//$allTrains[$trainIndex]["next_betriebsstellen_name"] = $nextBetriebsstellen;
@@ -479,6 +500,7 @@ function getFahrplanAndPosition () {
 
 	foreach ($returnArray as $trainIndex => $trainValue) {
 		foreach ($trainValue["next_betriebsstellen_data"] as $betriebsstelleIndex => $betriebsstelleValue) {
+
 			if ($betriebsstelleValue["zeiten"]["abfahrt_soll_timestamp"] != null && $betriebsstelleValue["zeiten"]["ankunft_soll_timestamp"] != null) {
 				$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["haltezeit"] = $betriebsstelleValue["zeiten"]["abfahrt_soll_timestamp"] - $betriebsstelleValue["zeiten"]["ankunft_soll_timestamp"];
 				if (($betriebsstelleValue["zeiten"]["abfahrt_soll_timestamp"] - $betriebsstelleValue["zeiten"]["ankunft_soll_timestamp"]) > 0) {
@@ -491,6 +513,7 @@ function getFahrplanAndPosition () {
 				$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["is_halt"] = true;
 			}
 			$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["verspaetung"] = 0;
+
 		}
 
 	}

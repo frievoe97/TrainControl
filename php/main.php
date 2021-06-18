@@ -18,6 +18,10 @@ $cacheInfradaten = createCacheInfradaten();
 $cacheSignaldaten = createCacheSignaldaten();
 $cacheInfraLaenge = createcacheInfraLaenge();
 $cacheHaltepunkte = createCacheHaltepunkte();
+$cacheZwischenhaltepunkte = createChacheZwischenhaltepunkte();
+$cacheInfraToGbt = createCacheInfraToGbt();
+$cacheGbtToInfra = createCacheGbtToInfra();
+
 
 // TODO: Rename as cache... vars
 $fmaToInfra = createFmaToInfraData();
@@ -45,6 +49,8 @@ $newTimeDifference = $simulationStartTimeToday - $realStartTime;
 
 // setting the startscreen
 startMessage();
+
+
 
 $sessionIsActive = true;
 $trainErrors = array(0 => "Zug stand falsch herum und war zu lang um die Richtung zu ändern");
@@ -97,13 +103,18 @@ initalFirstLiveData();
 showErrors();
 calculateNextSections();
 addNextStopForAllTrains();
+checkIfTrainReachedHaltepunkt();
 checkIfFahrstrasseIsCorrrect();
+
 
 foreach ($allTrains as $trainIndex => $trainValue) {
 	$allTrains[$trainIndex]["last_get_naechste_abschnitte"] = getNaechsteAbschnitte($trainValue["current_infra_section"], $trainValue["dir"]);
 }
 
 calculateFahrverlauf();
+
+
+
 
 
 $unusedTrains = array_keys($allTimes);
@@ -150,7 +161,7 @@ while (true) {
 						if ($bsIndex == 99999999) {
 							//echo "Der Zug mit der Adresse ", $timeIndex, " hat den Halt ", $allTrains[$id]["next_betriebsstellen_data"][$bsIndex]["betriebstelle"], " mit einer Verspätung von ", number_format($allTrains[$id]["next_betriebsstellen_data"][$bsIndex]["zeiten"]["verspätung"], 2), " Sekunden erreicht.\n";
 						} else {
-							echo "Der Zug mit der Adresse ", $timeIndex, " hat den Halt ", $allTrains[$id]["next_betriebsstellen_data"][$bsIndex]["betriebstelle"], " mit einer Verspätung von ", number_format($allTrains[$id]["next_betriebsstellen_data"][$bsIndex]["zeiten"]["verspätung"], 2), " Sekunden erreicht.\n";
+							echo "Der Zug mit der Adresse ", $timeIndex, " hat den Halt ", $allTrains[$id]["next_betriebsstellen_data"][$bsIndex]["betriebstelle"], " mit einer Verspätung von ", number_format($allTrains[$id]["next_betriebsstellen_data"][$bsIndex]["zeiten"]["verspaetung"], 2), " Sekunden erreicht.\n";
 						}
 					}
 
@@ -203,6 +214,7 @@ while (true) {
 	}
 
 	if (microtime(true) > $timeCheckAllTrains) {
+
 		foreach ($unusedTrains as $unusedTrainsIndex => $unusedTrainsValue) {
 			$id = $adresseToID[$unusedTrainsValue];
 			compareTwoNaechsteAbschnitte($id);

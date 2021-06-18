@@ -611,10 +611,24 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $c
 
 	//var_dump($trainRelativePosition);
 
+	/*
+	var_dump(sizeof($trainPositionChange));
+	var_dump(sizeof($trainSpeedChange));
+	var_dump(sizeof($trainTimeChange));
+	var_dump(sizeof($trainRelativePosition));
+	var_dump(sizeof($trainSection));
+	var_dump(sizeof($trainIsSpeedChange));
+	var_dump(sizeof($trainTargetReached));
+	var_dump(sizeof($trainID));
+	var_dump(sizeof($trainWendet));
+	var_dump(sizeof($trainBetriebsstelleIndex));
+	*/
+
 	foreach ($trainPositionChange as $trainPositionChangeIndex => $trainPositionChangeValue) {
 		array_push($returnArray, array("live_position" => $trainPositionChangeValue, "live_speed" => $trainSpeedChange[$trainPositionChangeIndex], "live_time" => $trainTimeChange[$trainPositionChangeIndex], "live_relative_position" => $trainRelativePosition[$trainPositionChangeIndex], "live_section" => $trainSection[$trainPositionChangeIndex], "live_is_speed_change" => $trainIsSpeedChange[$trainPositionChangeIndex], "live_target_reached" => $trainTargetReached[$trainPositionChangeIndex], "id" => $trainID[$trainPositionChangeIndex], "wendet" => $trainWendet[$trainPositionChangeIndex], "betriebsstelle_index" => $trainBetriebsstelleIndex[$trainPositionChangeIndex]));
 	}
 	$allTimes[$adress] = array_merge($allTimes[$adress], $returnArray);
+	//$allTimes[$adress] = $returnArray;
 
 	return (end($trainTimeChange) - $trainTimeChange[0]) - ($endTime - $startTime);
 
