@@ -9,6 +9,8 @@ require 'functions/functions.php';
 require 'functions/functions_fahrtverlauf.php';
 require 'functions/signale_stellen.php';
 
+error_reporting(E_ERROR | E_WARNING | E_PARSE);
+
 // Set timezone
 date_default_timezone_set("Europe/Berlin");
 
