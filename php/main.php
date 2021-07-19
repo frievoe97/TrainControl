@@ -9,7 +9,9 @@ require 'functions/functions.php';
 require 'functions/functions_fahrtverlauf.php';
 require 'functions/signale_stellen.php';
 
-error_reporting(E_ERROR | E_WARNING | E_PARSE);
+// Reports only errors
+error_reporting(1);
+
 
 // Set timezone
 date_default_timezone_set("Europe/Berlin");
@@ -59,6 +61,7 @@ $trainErrors = array(0 => "Zug stand falsch herum und war zu lang um die Richtun
 
 // Step 1: Initilize all trains (verzoegerung, laenge etc.) where zustand <= 1 gilt
 $allTrains = getAllTrains();
+
 getFahrplanAndPosition();
 
 
@@ -70,7 +73,7 @@ $adresseToID = array_flip($idToAdresse);
 $allTimes = array();
 
 consoleAllTrainsPositionAndFahrplan();
-if (false) {
+if (true) {
 	$allTrains[51]["dir"] = 1;
 	$allTrains[57]["dir"] = 1;
 	$allTrains[65]["dir"] = 1;
@@ -99,6 +102,8 @@ if (false) {
 
 consoleCheckIfStartDirectionIsCorrect();
 consoleAllTrainsPositionAndFahrplan();
+
+
 
 addStopsectionsForTimetable();
 initalFirstLiveData();

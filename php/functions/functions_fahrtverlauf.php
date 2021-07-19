@@ -809,9 +809,12 @@ function checkBetweenTwoKeyPoints(array $temKeyPoints, int $index) {
 	return $returnKeyPoints;
 }
 
+// Überprüft immer zwei benachbarte KeyPoints (0+1, 2+3, 4+5, 6+7 etc.)
+// TODO: schöner schreiben die Funktion... sieht hässlich aus!
 function recalculateKeyPoints(array $tempKeyPoints) {
 
 	$returnKeyPoints = array();
+	// Anzahl an ganzer Paare
 	$numberOfPairs = (sizeof($tempKeyPoints) - ((sizeof($tempKeyPoints)) % 2)) / 2;
 
 	for($j = 0; $j < $numberOfPairs; $j++) {
@@ -990,18 +993,9 @@ function speedFineTuning(float $timeDiff, int $index) {
 
 	global $keyPoints;
 
-	//var_dump($keyPoints);
-
-
 	$availableDistance = $keyPoints[$index + 1]["position_0"] - $keyPoints[$index]["position_1"];
 	$timeBetweenKeyPoints = $keyPoints[$index + 1]["time_0"] - $keyPoints[$index]["time_1"];
 	$availableTime = $timeBetweenKeyPoints + $timeDiff;
-
-	//var_dump($keyPoints);
-
-
-
-
 
 	if ($keyPoints[$index]["speed_0"] == 0 && $keyPoints[$index + 1]["speed_1"] == 0) {
 		return;
@@ -1015,8 +1009,6 @@ function speedFineTuning(float $timeDiff, int $index) {
 		$keyPoints[$index]["position_0"] = $keyPoints[$index]["position_0"] - $lengthDifference;
 		$keyPoints[$index]["position_1"] = $keyPoints[$index]["position_1"] - $lengthDifference;
 	}
-
-
 }
 
 function calculateDistanceforSpeedFineTuning(int $v_0, int $v_1, float $distance, float $time) : float {

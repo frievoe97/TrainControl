@@ -339,7 +339,7 @@ function getFahrzeugdaten (array $fahrzeugdaten, string $abfragetyp) {
 
 
 
-
+/*
 
 // Sendet eine Nachricht an ein konkretes Fahrzeug
 function sendFahrzeugbefehl (int $fahrzeug_id, int $geschwindigkeit) {
@@ -352,6 +352,145 @@ function sendFahrzeugbefehl (int $fahrzeug_id, int $geschwindigkeit) {
     unset($DB);
 
 }
+*/
+
+// -------------------------------------------
+// Sendet eine Nachricht an ein konkretes Fahrzeug
+function sendFahrzeugbefehl ($fahrzeug_id, $geschwindigkeit) {
+
+    $fahrzeugdaten = getFahrzeugdaten(array("id" => $fahrzeug_id), "decoder_fzs");
+    $decoder_adresse = $fahrzeugdaten->adresse;
+
+    if (empty($decoder_adresse) || (empty($geschwindigkeit) && $geschwindigkeit != 0)) { return false; }
+
+    $DB = new DB_MySQL();
+    $fahrzeugdaten = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE_DATEN."`.`id`, `".DB_TABLE_FAHRZEUGE."`.`zugtyp`, `".DB_TABLE_FAHRZEUGE."`.`speed`, `".DB_TABLE_FAHRZEUGE."`.`fzs`,
+                                      `".DB_TABLE_FAHRZEUGE."`.`dir`, `".DB_TABLE_FAHRZEUGE."`.`f0`, `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`traktion`
+                               FROM `".DB_TABLE_FAHRZEUGE."`
+                               LEFT JOIN `".DB_TABLE_FAHRZEUGE_DATEN."` ON (`".DB_TABLE_FAHRZEUGE."`.`id` = `".DB_TABLE_FAHRZEUGE_DATEN."`.`id`)
+                               LEFT JOIN `".DB_TABLE_FAHRZEUGE_BAUREIHEN."` ON (`".DB_TABLE_FAHRZEUGE_DATEN."`.`baureihe` = `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`nummer`) 
+                               WHERE  `".DB_TABLE_FAHRZEUGE."`.`adresse` = '".$decoder_adresse."'
+                              ");
+    unset ($DB);
+
+    if (count($fahrzeugdaten) == 0) { return false; }
+    if (!$fahrzeugdaten[0]->zugtyp) { $fahrzeugdaten[0]->zugtyp = "ra"; }
+
+    // Initialisierung mit aktuellen Daten
+    $licht    = $fahrzeugdaten[0]->f0;
+    $richtung = $fahrzeugdaten[0]->dir;
+    $fahrstufe = $fahrzeugdaten[0]->speed;
+
+    switch ($richtung) {
+        CASE 0:
+            {
+                $neuedir = 1;
+            }
+            break;
+
+        CASE 1:
+            {
+                $neuedir = 0;
+            }
+            break;
+    }
+
+    switch ($licht) {
+        CASE 0:
+            {
+                $neueslicht = 1;
+            }
+            break;
+
+        CASE 1:
+            {
+                $neueslicht = 0;
+            }
+            break;
+    }
+
+    setFahrzeugZustand (array($fahrzeugdaten[0]->id),0);
+
+    switch ($geschwindigkeit) {
+        // rangierfahrt
+        case -25:
+            {
+                $fahrstufe = floor(25 / FZS_V_SKALIERUNG);
+            }
+            break;
+
+        // anhalten
+        case 0:
+        case -9:
+            {
+                $fahrstufe = 0;
+            }
+            break;
+
+        // Licht schalten
+        case -7:
+            {
+                $licht  = $neueslicht;
+            }
+            break;
+
+        // wenden
+        case -1:
+        case -4:
+        case -6:
+            {
+                $fahrstufe = 0;
+                $richtung  = $neuedir;
+            }
+            break;
+
+        // Halt für Elektro-Traktion
+        case -3:
+            {
+                switch ($fahrzeugdaten[0]->traktion) {
+                    DEFAULT:
+                        {
+                            // Nix => Signal ist irrelevant
+                            $fahrstufe = -3;
+                        }
+                        break;
+
+                    CASE "elektrisch":
+                        {
+                            $fahrstufe = 0;
+                            $licht     = 0;
+                        }
+                        break;
+                }
+            }
+            break;
+
+        // Neutral
+        case -2:
+            {
+                // Es passiert nichts, da der Signalbegriff von der Fahrzeugsteuerung nicht berücksichtigt wird!
+            }
+            break;
+
+        // Konkrete Geschwindigkeit
+        default:
+            {
+                $fahrstufe = floor ($geschwindigkeit / FZS_V_SKALIERUNG);
+
+                // Abfangen falscher Fahrstufen
+                if ($fahrstufe < 0) { $fahrstufe = 0; }
+            }
+            break;
+    }
+
+    //echo "sendeFahrzeugBefehl2: ".trim("mc2ln lok ".$decoder_adresse." ".$fahrstufe." ".$licht." ".$richtung)."\n";
+    if ($fahrstufe >= 0) {
+        ebuef_sendmulticast (trim("mc2ln lok ".$decoder_adresse." ".$fahrstufe." ".$licht." ".$richtung), MULTICAST_LN_IP, MULTICAST_LN_PORT);
+    }
+}
+
+// --------------
+
 
 
 
@@ -894,6 +1033,8 @@ function createCacheHaltepunkte() : array{
     return $returnArray;
 }
 
+// Checks for all trains (no ID passed) or for one train (one ID passed)
+// whether the train is already at the first scheduled stop or not.
 function checkIfTrainReachedHaltepunkt ($id = false) {
 
     global $allTrains;
@@ -906,20 +1047,18 @@ function checkIfTrainReachedHaltepunkt ($id = false) {
         $checkAllTrains = false;
     }
 
-foreach ($allTrains as $trainIndex => $trainValue) {
-    if ($checkAllTrains || $trainValue["id"] == $id) {
+    foreach ($allTrains as $trainIndex => $trainValue) {
+        if ($checkAllTrains || $trainValue["id"] == $id) {
 
-        $currentInfrasection = $trainValue["current_infra_section"];
-        $currentGbt = $cacheInfraToGbt[$currentInfrasection];
-        $allInfraSections = $cacheGbtToInfra[$currentGbt];
+            $currentInfrasection = $trainValue["current_infra_section"];
+            $currentGbt = $cacheInfraToGbt[$currentInfrasection];
+            $allInfraSections = $cacheGbtToInfra[$currentGbt];
 
-        if (sizeof(array_intersect($trainValue["next_betriebsstellen_data"][0]["haltepunkte"], $allInfraSections)) != 0) {
-            $allTrains[$trainIndex]["next_betriebsstellen_data"][0]["angekommen"] = true;
+            if (sizeof(array_intersect($trainValue["next_betriebsstellen_data"][0]["haltepunkte"], $allInfraSections)) != 0) {
+                $allTrains[$trainIndex]["next_betriebsstellen_data"][0]["angekommen"] = true;
+            }
         }
-
     }
-}
-
 }
 
 function addStopsectionsForTimetable($id = false) {
@@ -933,9 +1072,6 @@ function addStopsectionsForTimetable($id = false) {
     if ($id != false) {
         $checkAllTrains = false;
     }
-
-
-
 
     // TODO: Ist das can_drive if statement nötig?
     foreach ($allTrains as $trainIndex => $trainValue) {
@@ -1015,7 +1151,6 @@ function initalFirstLiveData() {
 
     global $allTrains;
     global $allTimes;
-    global $databaseTime;
 
     foreach ($allTrains as $trainIndex => $trainValue) {
         $allTimes[$trainValue["adresse"]] = array();

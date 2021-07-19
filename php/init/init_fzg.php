@@ -285,6 +285,8 @@ function toStd($sekunden)
 
 function getDataFromFahrplanSession(string $columnName) {
 
+	// '"."gleis"."'
+
 	$status = 1;
 
 	$DB = new DB_MySQL();
@@ -743,7 +745,6 @@ function calculateNextSections($id = false, $writeResultToTrain = true) {
 
 	global $allTrains;
 	global $cacheInfraLaenge;
-	global $realStartTime;
 
 	$checkAllTrains = true;
 
@@ -754,7 +755,6 @@ function calculateNextSections($id = false, $writeResultToTrain = true) {
 	foreach ($allTrains as $trainIndex => $trainValue) {
 
 		if ($checkAllTrains || $trainValue["id"] == $id) {
-
 			if ($trainValue["can_drive"]) {
 				$dir = $trainValue["dir"];
 				$currentSection = $trainValue["current_infra_section"];
@@ -776,9 +776,6 @@ function calculateNextSections($id = false, $writeResultToTrain = true) {
 					$nextSignalbegriff = null;
 				}
 
-
-
-
 				$return = getNaechsteAbschnitte($currentSection, $dir);
 				$allTrains[$trainIndex]["last_get_naechste_abschnitte"] = $return;
 				$currentVMax = 60; // max speed for a train in the current section
@@ -791,43 +788,7 @@ function calculateNextSections($id = false, $writeResultToTrain = true) {
 					$currentVMax = $nextSignalbegriff;
 				}
 
-
-
 				if ($currentVMax == 0) {
-					if ($trainValue["id"] == 78) {
-						/*
-						if ($realStartTime + 2 < microtime(true) ) {
-							$nextSections = array();
-							$nextVMax = array();
-							$nextLengths = array();
-
-							array_push($nextSections, 1187);
-							array_push($nextLengths, $cacheInfraLaenge[1187]);
-							array_push($nextVMax, 120);
-							array_push($nextSections, 1185);
-							array_push($nextLengths, $cacheInfraLaenge[1185]);
-							array_push($nextVMax, 120);
-							array_push($nextSections, 1184);
-							array_push($nextLengths, $cacheInfraLaenge[1184]);
-							array_push($nextVMax, 120);
-							array_push($nextSections, 1183);
-							array_push($nextLengths, $cacheInfraLaenge[1183]);
-							array_push($nextVMax, 120);
-							array_push($nextSections, 1182);
-							array_push($nextLengths, $cacheInfraLaenge[1182]);
-							array_push($nextVMax, 120);
-							array_push($nextSections, 1181);
-							array_push($nextLengths, $cacheInfraLaenge[1181]);
-							array_push($nextVMax, 120);
-							array_push($nextSections, 1176);
-							array_push($nextLengths, $cacheInfraLaenge[1176]);
-							array_push($nextVMax, 120);
-							array_push($nextSections, 1175);
-							array_push($nextLengths, $cacheInfraLaenge[1175]);
-							array_push($nextVMax, 120);
-						}
-						*/
-					}
 					if ($writeResultToTrain) {
 						$allTrains[$trainIndex]["next_sections"] = $nextSections;
 						$allTrains[$trainIndex]["next_lenghts"] = $nextLengths;
@@ -836,40 +797,6 @@ function calculateNextSections($id = false, $writeResultToTrain = true) {
 						return array($nextSections, $nextLengths, $nextVMax);
 					}
 				} else {
-					if ($trainValue["id"] == 78) {
-						/*
-						if ($realStartTime + 2 < microtime(true)) {
-							$nextSections = array();
-							$nextVMax = array();
-							$nextLengths = array();
-
-							array_push($nextSections, 1187);
-							array_push($nextLengths, $cacheInfraLaenge[1187]);
-							array_push($nextVMax, 120);
-							array_push($nextSections, 1185);
-							array_push($nextLengths, $cacheInfraLaenge[1185]);
-							array_push($nextVMax, 120);
-							array_push($nextSections, 1184);
-							array_push($nextLengths, $cacheInfraLaenge[1184]);
-							array_push($nextVMax, 120);
-							array_push($nextSections, 1183);
-							array_push($nextLengths, $cacheInfraLaenge[1183]);
-							array_push($nextVMax, 120);
-							array_push($nextSections, 1182);
-							array_push($nextLengths, $cacheInfraLaenge[1182]);
-							array_push($nextVMax, 120);
-							array_push($nextSections, 1181);
-							array_push($nextLengths, $cacheInfraLaenge[1181]);
-							array_push($nextVMax, 120);
-							array_push($nextSections, 1176);
-							array_push($nextLengths, $cacheInfraLaenge[1176]);
-							array_push($nextVMax, 120);
-							array_push($nextSections, 1175);
-							array_push($nextLengths, $cacheInfraLaenge[1175]);
-							array_push($nextVMax, 120);
-						}
-						*/
-					}
 					foreach ($return as $section) {
 						array_push($nextSections, $section["infra_id"]);
 						array_push($nextVMax, $currentVMax);
@@ -911,7 +838,7 @@ function getAllTrains () : array {
 
 	foreach ($allAdresses as $adress) {
 
-		$train = get_object_vars($DB->select("SELECT `".DB_TABLE_FAHRZEUGE."`.`id`, 
+		$train_fahrzeuge = get_object_vars($DB->select("SELECT `".DB_TABLE_FAHRZEUGE."`.`id`, 
 							`".DB_TABLE_FAHRZEUGE."`.`adresse`, 
 							`".DB_TABLE_FAHRZEUGE."`.`timestamp`, 
 							`".DB_TABLE_FAHRZEUGE."`.`speed`, 
@@ -926,22 +853,22 @@ function getAllTrains () : array {
                             WHERE `".DB_TABLE_FAHRZEUGE."`.`adresse` = $adress
                            ")[0]);
 
-		$trainTwo = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`bezeichnung`, 
+		$train_baureihe = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`bezeichnung`, 
 							`".DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`vmax`, 
 							`".DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`traktion`      
                             FROM `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`
                             WHERE `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`nummer` = $adress
                            ");
 
-		if (sizeof($trainTwo) != 0) {
-			$trainTwo = get_object_vars($trainTwo[0]);
+		if (sizeof($train_baureihe) != 0) {
+			$train_baureihe = get_object_vars($train_baureihe[0]);
 		} else {
-			$trainTwo["bezeichnung"] = null;
-			$trainTwo["vmax"] = null;
-			$trainTwo["traktion"] = null;
+			$train_baureihe["bezeichnung"] = null;
+			$train_baureihe["vmax"] = null;
+			$train_baureihe["traktion"] = null;
 		}
 
-		$returnArray = array_merge($train, $trainTwo);
+		$returnArray = array_merge($train_fahrzeuge, $train_baureihe);
 
 		array_push($allTrains, $returnArray);
 	}
