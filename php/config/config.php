@@ -2,7 +2,6 @@
 	// Debug-Modus aktivieren (= true)
 	$debug = false;
 
-
 	// Wartezeit für HHVM/PHP-Skripte bis zum nächsten Versuch, eine Fahrplansession zu ermitteln
 	define ('FAHRPLANSESSION_WARTEZEIT',30);
 

@@ -2,6 +2,8 @@
 
 require "functions.php";
 
+/*
+
 // ------------------------------------------------------------------------------------
 // Ermittelt die Ankunfts- und Abfahrtzeit eines Zuges an einer Betriebsstelle
 function getFahrplanzeiten ($betriebsstelle, $zugnummer, $options = array()) {
@@ -311,5 +313,7 @@ function getFahrzeugZugIds ($fahrzeug_ids = array())  {
 	debugMessage ("Es wurden ".count($zug_ids)." Zuordnungen von Zug-IDs zu Fahrzeugen gefunden.");
 	return $zug_ids;
 }
+
+*/
 
 

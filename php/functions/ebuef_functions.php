@@ -1,6 +1,5 @@
 <?php
 
-// Wandele eine Realzeit (vom Server) in eine Simulationszeit oder umgekehrt (als Timestamp)
 function getUhrzeit ($inputzeit = NULL, $zielart = "simulationszeit", $timeshift = NULL, $options = array()) {
 	if (!isset($inputzeit) || is_null($inputzeit)) { $inputzeit = time(); }
 	if (!isset($timeshift) || is_null($timeshift) || !is_numeric($timeshift)) { $timeshift = getTimeshift(); }
@@ -83,8 +82,7 @@ function getUhrzeit ($inputzeit = NULL, $zielart = "simulationszeit", $timeshift
 
 	return $outputzeit;
 }
-// ------------------------------------------------------------------------------------
-// Liefert die aktuelle Zeitverschiebung
+
 function getTimeshift() {
 	$DB = new DB_MySQL();
 	$sessionDB = $DB->select("SELECT `timeshift`
@@ -101,7 +99,6 @@ function getTimeshift() {
 	return $sessionDB[0]->timeshift;
 }
 
-// Ermittele die nächsten Freimeldeabschnitte
 function getNaechsteAbschnitte($start_infra_id, $fahrtrichtung, $zugtyp = "pz", $optional = array()) {
 
 	// optional["naechstessignal"] = true liefert den Abschnitt des nächsten Signals in Fahrtrichtung
@@ -218,8 +215,6 @@ function getNaechsteAbschnitte($start_infra_id, $fahrtrichtung, $zugtyp = "pz", 
 	return $abschnitte;
 }
 
-// ------------------------------------------------------------------------------------------------
-// Ermittelt die aktuelle Richtung eines Infrastrukturelements
 function getDir ($id) {
 	if (empty($id) || $id == 0) {
 		return false;
@@ -236,9 +231,6 @@ function getDir ($id) {
 	}
 }
 
-
-// -------------
-// Ermittelt zweistufig die Zug-ID zu Fahrzeug-IDs
 function getFahrzeugZugIds ($fahrzeug_ids = array())  {
 
 	$zug_ids = array();
@@ -321,7 +313,6 @@ function getFahrzeugZugIds ($fahrzeug_ids = array())  {
 	return $zug_ids;
 }
 
-// Ermittelt die Ankunfts- und Abfahrtzeit eines Zuges an einer Betriebsstelle
 function getFahrplanzeiten (string $betriebsstelle, int $zug_id, array $options = array ("id" => "zug_id", "art" => "wendepruefung")) {
 
 	if(!isset($betriebsstelle, $zug_id)) {
@@ -391,9 +382,6 @@ function getFahrplanzeiten (string $betriebsstelle, int $zug_id, array $options 
 
 }
 
-// ------------------------------------------------------------------------------------------------
-// Ermittlung des Signalbegriffs eines Signals(tandorts)
-// ------------------------------------------------------------------------------------------------
 function getSignalbegriff ($signal_id, $optionen = array()) {
 
 	global $cacheSignaldaten;
@@ -587,92 +575,556 @@ function debugMessage($message) {
 	}
 }
 
+function sendFahrzeugbefehl ($fahrzeug_id, $geschwindigkeit) {
 
+	$fahrzeugdaten = getFahrzeugdaten(array("id" => $fahrzeug_id), "decoder_fzs");
+	//$decoder_adresse = $fahrzeugdaten->adresse;
+	$decoder_adresse = $fahrzeugdaten["adresse"];
 
+	if (empty($decoder_adresse) || (empty($geschwindigkeit) && $geschwindigkeit != 0)) { return false; }
 
+	$DB = new DB_MySQL();
+	$fahrzeugdaten = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE_DATEN."`.`id`, `".DB_TABLE_FAHRZEUGE."`.`zugtyp`, `".DB_TABLE_FAHRZEUGE."`.`speed`, `".DB_TABLE_FAHRZEUGE."`.`fzs`,
+                                      `".DB_TABLE_FAHRZEUGE."`.`dir`, `".DB_TABLE_FAHRZEUGE."`.`f0`, `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`traktion`
+                               FROM `".DB_TABLE_FAHRZEUGE."`
+                               LEFT JOIN `".DB_TABLE_FAHRZEUGE_DATEN."` ON (`".DB_TABLE_FAHRZEUGE."`.`id` = `".DB_TABLE_FAHRZEUGE_DATEN."`.`id`)
+                               LEFT JOIN `".DB_TABLE_FAHRZEUGE_BAUREIHEN."` ON (`".DB_TABLE_FAHRZEUGE_DATEN."`.`baureihe` = `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`nummer`) 
+                               WHERE  `".DB_TABLE_FAHRZEUGE."`.`adresse` = '".$decoder_adresse."'
+                              ");
+	unset ($DB);
 
+	if (count($fahrzeugdaten) == 0) { return false; }
+	if (!$fahrzeugdaten[0]->zugtyp) { $fahrzeugdaten[0]->zugtyp = "ra"; }
 
+	// Initialisierung mit aktuellen Daten
+	$licht    = $fahrzeugdaten[0]->f0;
+	$richtung = $fahrzeugdaten[0]->dir;
+	$fahrstufe = $fahrzeugdaten[0]->speed;
 
+	switch ($richtung) {
+		CASE 0:
+			{
+				$neuedir = 1;
+			}
+			break;
 
-// Not working...
-/*
-function getFahrplanzeiten ($betriebsstelle, $zugnummer, $options = array()) {
-	if (!isset($betriebsstelle)) { return false; }
-	if (!isset($options["art"])) { $options["art"] = "hauptbetriebsstelle"; }
-	if (!isset($options["id"])) { $options["id"] = "zugnummer"; }
-	if (!isset($options["fzmquelle"])) { $options["fzmquelle"] = DB_TABLE_FAHRPLAN; }
-
-	if ($options["fzmquelle"] == DB_TABLE_FAHRPLAN) {
-		$where_version = " AND `".$options["fzmquelle"]."`.`version` = '".FAHRPLAN_VERSION_NAME."'";
-		$uebergang_fahrtrichtung = ",`fahrplan_uebergang`.`fahrtrichtung` AS `uebergang_fahrtrichtung` ";
-		$uebergang_nach = "LEFT JOIN `".$options["fzmquelle"]."` AS `fahrplan_uebergang`
-                                ON (`".$options["fzmquelle"]."`.`uebergang_nach` = `fahrplan_uebergang`.`zugnummer` AND
-                                    `".$options["fzmquelle"]."`.`betriebsstelle` = `fahrplan_uebergang`.`betriebsstelle`
-                                    AND `".$options["fzmquelle"]."`.`version` = `fahrplan_uebergang`.`version`)";
-	} else {
-		$where_version = "";
-		$uebergang_fahrtrichtung = "";
-		$uebergang_nach = "";
+		CASE 1:
+			{
+				$neuedir = 0;
+			}
+			break;
 	}
 
-	$felder_anab = getDBFieldsAnAb ($options["fzmquelle"]);
+	switch ($licht) {
+		CASE 0:
+			{
+				$neueslicht = 1;
+			}
+			break;
 
-	if ($options["art"] == "wendepruefung") {
-		if (isset($options["signaltyp"]) && (in_array($options["signaltyp"],array("ESig","BkSig")))) {
-			$options["art"] = "bst";
-		} else {
-			$options["art"] = "hauptbetriebsstelle";
+		CASE 1:
+			{
+				$neueslicht = 0;
+			}
+			break;
+	}
+
+	setFahrzeugZustand(array($fahrzeugdaten[0]->id),0);
+
+	switch ($geschwindigkeit) {
+		// rangierfahrt
+		case -25:
+			{
+				$fahrstufe = floor(25 / FZS_V_SKALIERUNG);
+			}
+			break;
+
+		// anhalten
+		case 0:
+		case -9:
+			{
+				$fahrstufe = 0;
+			}
+			break;
+
+		// Licht schalten
+		case -7:
+			{
+				$licht  = $neueslicht;
+			}
+			break;
+
+		// wenden
+		case -1:
+		case -4:
+		case -6:
+			{
+				$fahrstufe = 0;
+				$richtung  = $neuedir;
+			}
+			break;
+
+		// Halt für Elektro-Traktion
+		case -3:
+			{
+				switch ($fahrzeugdaten[0]->traktion) {
+					DEFAULT:
+						{
+							// Nix => Signal ist irrelevant
+							$fahrstufe = -3;
+						}
+						break;
+
+					CASE "elektrisch":
+						{
+							$fahrstufe = 0;
+							$licht     = 0;
+						}
+						break;
+				}
+			}
+			break;
+
+		// Neutral
+		case -2:
+			{
+				// Es passiert nichts, da der Signalbegriff von der Fahrzeugsteuerung nicht berücksichtigt wird!
+			}
+			break;
+
+		// Konkrete Geschwindigkeit
+		default:
+			{
+				$fahrstufe = floor ($geschwindigkeit / FZS_V_SKALIERUNG);
+
+				// Abfangen falscher Fahrstufen
+				if ($fahrstufe < 0) { $fahrstufe = 0; }
+			}
+			break;
+	}
+
+	//echo "sendeFahrzeugBefehl2: ".trim("mc2ln lok ".$decoder_adresse." ".$fahrstufe." ".$licht." ".$richtung)."\n";
+	if ($fahrstufe >= 0) {
+		ebuef_sendmulticast (trim("mc2ln lok ".$decoder_adresse." ".$fahrstufe." ".$licht." ".$richtung), MULTICAST_LN_IP, MULTICAST_LN_PORT);
+	}
+}
+
+function getFahrzeugdaten (array $fahrzeugdaten, string $abfragetyp) {
+
+	$DB = new DB_MySQL();
+
+	if (!empty($fahrzeugdaten["id"])) {
+		$fzgid = (int) $fahrzeugdaten["id"];
+	} elseif (!empty($fahrzeugdaten["decoder_adresse"])) {
+		$temp = (int) $fahrzeugdaten["decoder_adresse"];
+		$fzgid = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE."`.`id`
+                                    FROM `".DB_TABLE_FAHRZEUGE."`
+                                    WHERE `".DB_TABLE_FAHRZEUGE."`.`adresse` = $temp
+                                    ");
+		$fzgid = (int) $fzgid[0]->id;
+
+	} elseif (!empty($fahrzeugdaten["gbt_id"])) {
+		$temp = (int) $fahrzeugdaten["gbt_id"];
+		$fzgid = $DB->select("SELECT `".DB_TABLE_FMA_GBT."`.`gbt_id`, 
+                                    `".DB_TABLE_FMA_GBT."`.`fma_id`,
+                                    `".DB_TABLE_FAHRZEUGE."`.`id` 
+                                    FROM `".DB_TABLE_FMA_GBT."`
+                                    LEFT JOIN `".DB_TABLE_FMA."`
+                                    ON `".DB_TABLE_FMA_GBT."`.`fma_id` = `".DB_TABLE_FMA."`.`fma_id`
+                                    LEFT JOIN `".DB_TABLE_FAHRZEUGE."`
+                                    ON `".DB_TABLE_FAHRZEUGE."`.`adresse` = `".DB_TABLE_FMA."`.`decoder_adresse`
+                                    WHERE `".DB_TABLE_FMA_GBT."`.`gbt_id` = $temp
+                                    AND `".DB_TABLE_FAHRZEUGE."`.`id` IS NOT NULL
+                                    ");
+
+
+		$temp2= [];
+		foreach ($fzgid as $item) {
+			array_push($temp2, $item->id);
+		}
+
+		if (!(count(array_unique($temp2)) === 1 && end($temp2) === $fzgid[0]->id)) {
+			return false;
+		}
+
+		$fzgid = (int) $fzgid[0]->id;
+
+	} else {
+		return false;
+	}
+
+
+	$fahrzeugdaten   = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE."`.`id`,
+                                    `".DB_TABLE_FAHRZEUGE."`.`adresse`,
+                                    `".DB_TABLE_FAHRZEUGE."`.`speed`,
+                                    `".DB_TABLE_FAHRZEUGE."`.`dir`,
+                                    `".DB_TABLE_FAHRZEUGE."`.`fzs`,
+                                    `".DB_TABLE_FAHRZEUGE."`.`zugtyp`,
+                                    `".DB_TABLE_FAHRZEUGE."`.`verzoegerung`,
+                                    `".DB_TABLE_FAHRZEUGE."`.`zuglaenge`,
+                                    `".DB_TABLE_FAHRZEUGE."`.`timestamp`
+                                    FROM `".DB_TABLE_FAHRZEUGE."`
+                                    WHERE `".DB_TABLE_FAHRZEUGE."`.`id` = $fzgid
+                                    ");
+	unset($DB);
+
+	$fahrzeugdaten = (array) $fahrzeugdaten[0];
+
+	if (strcmp($abfragetyp, "dir_speed") == 0) {
+		$removeKeys = array("verzoegerung", "zuglaenge", "timestamp");
+		foreach($removeKeys as $key) {
+			unset($fahrzeugdaten[$key]);
+		}
+		return $fahrzeugdaten;
+	}
+
+	if (strcmp($abfragetyp, "id") == 0) {
+
+		$removeKeys = array("adresse", "speed", "dir", "fzs", "verzoegerung", "zuglaenge", "timestamp");
+		foreach($removeKeys as $key) {
+			unset($fahrzeugdaten[$key]);
+		}
+
+		return $fahrzeugdaten;
+	}
+
+	if (strcmp($abfragetyp, "dir_zugtyp_speed") == 0) {
+		$removeKeys = array("adresse", "verzoegerung", "zuglaenge", "timestamp");
+		foreach($removeKeys as $key) {
+			unset($fahrzeugdaten[$key]);
+		}
+		return $fahrzeugdaten;
+	}
+
+	if (strcmp($abfragetyp, "decoder_fzs") == 0) {
+		return $fahrzeugdaten;
+	}
+
+	if (strcmp($abfragetyp, "speed_verzoegerung") == 0) {
+		$removeKeys = array("adresse", "zuglaenge", "timestamp");
+		foreach($removeKeys as $key) {
+			unset($fahrzeugdaten[$key]);
+		}
+		return $fahrzeugdaten;
+	}
+}
+
+function ebuef_sendmulticast ($message, $zielip = MULTICAST_IP, $zielport = MULTICAST_PORT) {
+
+	if (!empty($message)) {
+
+		$sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
+
+		$len  = strlen($message);
+
+
+
+		socket_sendto($sock, $message, $len, 0, $zielip, $zielport);
+
+		socket_close($sock);
+
+	}
+
+}
+
+function setFahrzeugZustand ($fahrzeug_id = array(),$zustand) {
+
+	if (!$fahrzeug_id || (!$zustand && $zustand != 0)) { return false; }
+
+
+
+	$fahrzeugliste = implode (",",$fahrzeug_id);
+
+
+
+	switch ($zustand) {
+
+		DEFAULT:
+
+			{
+
+				// unbekannt
+
+			}
+
+			break;
+
+
+
+		CASE 0:
+
+		CASE 1:
+
+		CASE 2:
+
+		CASE 3:
+
+		CASE 4:
+
+			{
+
+				$zustandupdate = $zustand;
+
+			}
+
+			break;
+
+	}
+
+
+
+	$DB = new DB_MySQL();
+
+	$DB->query("UPDATE `".DB_TABLE_FAHRZEUGE."` SET `zustand` = '".$zustandupdate."'
+
+            WHERE  `id` IN (".$fahrzeugliste.") ");
+
+	unset ($DB);
+
+
+
+	return true;
+
+}
+
+function createCacheInfranachbarn () {
+
+	$DB = new DB_MySQL();
+	$infraliste = $DB->select("SELECT `id`, `infra_id`, `laenge`, `weiche_id`, `nachbar0_0`,`nachbar0_1`,`nachbar1_0`,`nachbar1_1`
+FROM `".DB_TABLE_INFRA_NACHBARN."`
+");
+	unset($DB);
+
+	$nachbarn = array();
+
+	if ($infraliste && count($infraliste) > 0) {
+		foreach ($infraliste as $nachbar) {
+			$nachbarn[$nachbar->id] = array("id" => $nachbar->id,
+				"weiche_id" => $nachbar->weiche_id,
+				"infra_id" => $nachbar->infra_id,
+				"laenge" => $nachbar->laenge,
+				"nachbar0_0" => $nachbar->nachbar0_0,
+				"nachbar0_1" => $nachbar->nachbar0_1,
+				"nachbar1_0" => $nachbar->nachbar1_0,
+				"nachbar1_1" => $nachbar->nachbar1_1);
 		}
 	}
 
-	// Entweder per Zugnummer oder (besser!) per zug_id abfragen
-	switch ($options["id"]) {
-		default:
-		case "zugnummer":
-			{
-				$zugschluessel = "zugnummer";
-			}
-			break;
+	return $nachbarn;
+}
 
-		case "zug_id":
-			{
-				$zugschluessel = "zug_id";
-			}
-			break;
-	}
+function createCacheInfradaten($id = false) {
+	$cacheInfradaten = array();
 
-	// Abfrageart
-	switch ($options["art"]) {
-		default:
-		case "hauptbetriebsstelle":
-			{
-				$betriebsstelle_zerlegt = explode ("_",$betriebsstelle);
-				$hauptbetriebsstelle = $betriebsstelle_zerlegt[0];
-			}
-			break;
-
-		case "bst":
-			{
-				$hauptbetriebsstelle = $betriebsstelle;
-			}
-			break;
-	}
-
-	$DB   = new DB_MySQL();
-	$fahrplandaten = $DB->select("SELECT ".$felder_anab." `".$options["fzmquelle"]."`.`fahrtrichtung` ,
-                                      `".$options["fzmquelle"]."`.`ist_durchfahrt`, `".$options["fzmquelle"]."`.`sortierzeit`
-                                     ".$uebergang_fahrtrichtung."
-                               FROM `".$options["fzmquelle"]."`
-                               ".$uebergang_nach."
-                               WHERE `".$options["fzmquelle"]."`.`betriebsstelle` = '".$hauptbetriebsstelle."'
-                                AND  `".$options["fzmquelle"]."`.`".$zugschluessel."` = '".$zugnummer."'
-                               ".$where_version);
-	unset ($DB);
-
-	if (count($fahrplandaten) == 0) {
-		return false;
+	// Wenn ein Array von IDs mitgeliefert wird, wird auf diese gefiltert (genutzt, wenn der Cache aus der GUI heraus aufgebaut wird)
+	if (isset($id) && is_array($id)) {
+		$where = "WHERE `id` IN (".implode(",",$id).")";
 	} else {
-		return $fahrplandaten[0];
+		$where = "";
+	}
+
+	$DB = new DB_MySQL();
+	$infraliste = $DB->select("SELECT `id`, `address`, `type`, `wrm_aktiv`, `laenge`,
+`betriebsstelle`, `signalstandort_id`, `freimeldeabschnitt_id`,
+`weichenabhaengigkeit_id`, `kurzbezeichnung`
+FROM `".DB_TABLE_INFRAZUSTAND."`
+".$where."
+");
+	unset($DB);
+
+	if ($infraliste && count($infraliste) > 0) {
+		foreach ($infraliste as $element) {
+			$cacheInfradaten[$element->id] = array("address" => $element->address,
+				"betriebsstelle" => $element->betriebsstelle,
+				"freimeldeabschnitt_id" => $element->freimeldeabschnitt_id,
+				"type" => $element->type, "laenge" => $element->laenge
+			);
+
+			// Gleisabschnitte haben weitere Eigenschaften
+			if ($element->type == "gleis") {
+				// Ermittele die Nachbarn dieses Elementes (sofern es ein Freimeldeabschnitt ist)
+				$nachbarn = getInfraNachbarn($element->id,"infra_id");
+
+				if ($nachbarn) {
+					$cacheInfradaten[$element->id]["nachbarn"] = $nachbarn;
+				}
+
+				// Ermittele Signale, die an diesem Abschnitt stehen
+
+
+			}
+		}
+	}
+
+	return $cacheInfradaten;
+}
+
+function createCacheSignaldaten() {
+	$cacheSignaldaten = array();
+	$cacheSignaldaten["standorte"] = array();
+	$cacheSignaldaten["begriffe"]  = array();
+	$cacheSignaldaten["elemente"]  = array();
+	$cacheSignaldaten["rotlampen"] = array();
+	$cacheSignaldaten["befehlslampen"] = array();
+
+	$DB = new DB_MySQL();
+
+	// Signalbegriffe
+	$signalbegriffdaten = $DB->select("SELECT `".DB_TABLE_SIGNALE_BEGRIFFE."`.`id` AS `signalbegriff_id`,
+`".DB_TABLE_SIGNALE_BEGRIFFE."`.`signal_id` AS `sid`,
+`".DB_TABLE_SIGNALE_BEGRIFFE."`.`geschwindigkeit`,
+`".DB_TABLE_SIGNALE_BEGRIFFE."`.`begriff`,
+`".DB_TABLE_SIGNALE_BEGRIFFE."`.`adresse`,
+`".DB_TABLE_SIGNALE_BEGRIFFE."`.`webstw_farbe`,
+`".DB_TABLE_SIGNALE_BEGRIFFE."`.`is_zugfahrtbegriff`,
+`".DB_TABLE_SIGNALE_BEGRIFFE."`.`zielentfernung`,
+`".DB_TABLE_SIGNALE_BEGRIFFE."`.`zielgeschwindigkeit`,
+`".DB_TABLE_SIGNALE_BEGRIFFE."`.`original_begriff_id`
+FROM `".DB_TABLE_SIGNALE_BEGRIFFE."`
+ORDER BY `".DB_TABLE_SIGNALE_BEGRIFFE."`.`id`
+");
+
+	// Rot-Lampen (zu ermitteln über die Infra-ID mit Typ "Startsignal")
+	$fahrstrassensignalbegriffdaten = $DB->select("SELECT `".DB_TABLE_FAHRSTRASSEN_ELEMENTE."`.`infra_id`,
+`".DB_TABLE_SIGNALE_STANDORTE."`.`betriebsstelle`,
+`".DB_TABLE_SIGNALE_STANDORTE."`.`signaltyp`,
+`".DB_TABLE_SIGNALE_STANDORTE."`.`id` AS `signalstandort_id`
+FROM `".DB_TABLE_FAHRSTRASSEN_ELEMENTE."`
+LEFT JOIN `".DB_TABLE_INFRAZUSTAND."`
+ON (  `".DB_TABLE_FAHRSTRASSEN_ELEMENTE."`.`infra_id` = `".DB_TABLE_INFRAZUSTAND."`.`id`)
+LEFT JOIN `".DB_TABLE_SIGNALE_STANDORTE."`
+ON (  `".DB_TABLE_INFRAZUSTAND."`.`signalstandort_id` = `".DB_TABLE_SIGNALE_STANDORTE."`.`id`)
+WHERE `".DB_TABLE_FAHRSTRASSEN_ELEMENTE."`.`dir` = 9
+GROUP BY `".DB_TABLE_FAHRSTRASSEN_ELEMENTE."`.`infra_id`
+ORDER BY `".DB_TABLE_FAHRSTRASSEN_ELEMENTE."`.`infra_id`
+");
+
+	foreach ($fahrstrassensignalbegriffdaten AS $fahrstrassensignalbegriff) {
+		$fahrstrassendaten = $DB->select("SELECT `".DB_TABLE_FAHRSTRASSEN_ELEMENTE."`.`fahrstrassen_id` FROM `".DB_TABLE_FAHRSTRASSEN_ELEMENTE."` WHERE `".DB_TABLE_FAHRSTRASSEN_ELEMENTE."`.`infra_id` = '".$fahrstrassensignalbegriff->infra_id."'");
+		$fahrstrassenliste = array();
+
+		foreach ($fahrstrassendaten as $fahrstrasse) {
+			$fahrstrassenliste[] = $fahrstrasse->fahrstrassen_id;
+		}
+
+		$cacheSignaldaten["rotlampen"][$fahrstrassensignalbegriff->infra_id] = array("betriebsstelle" => $fahrstrassensignalbegriff->betriebsstelle,
+			"signalstandort_id" => $fahrstrassensignalbegriff->signalstandort_id,
+			"signaltyp" => $fahrstrassensignalbegriff->signaltyp,
+			"fahrstrassen_id_liste" => $fahrstrassenliste);
+
+		$befehlsdaten = $DB->select("SELECT `id` FROM `".DB_TABLE_INFRAZUSTAND."` WHERE `".DB_TABLE_INFRAZUSTAND."`.`signalstandort_id` = '".$fahrstrassensignalbegriff->signalstandort_id."' AND `".DB_TABLE_INFRAZUSTAND."`.`type` = 'befehlssignal'");
+
+		if ($befehlsdaten && count($befehlsdaten) > 0) {
+			// Die Befehlslampen werden für Zs1, Zs7, Zs8 und schriftliche Befehle (u.a. in der ZNS) verwendet
+			$cacheSignaldaten["befehlslampen"][$befehlsdaten[0]->id] = array("betriebsstelle" => $fahrstrassensignalbegriff->betriebsstelle,
+				"signalstandort_id" => $fahrstrassensignalbegriff->signalstandort_id,
+				"signaltyp" => $fahrstrassensignalbegriff->signaltyp,
+				"fahrstrassen_id_liste" => $fahrstrassenliste);
+			unset ($befehlsdaten);
+		}
+
+		unset($fahrstrassenliste);
+	}
+
+	// Signalstandorte
+	$signalstandortliste = $DB->select("SELECT `".DB_TABLE_SIGNALE_STANDORTE."`.`id`,
+`".DB_TABLE_SIGNALE_STANDORTE."`.`haltfall_id`,
+`".DB_TABLE_SIGNALE_STANDORTE."`.`haltbegriff_id`,
+`".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id`,
+`".DB_TABLE_SIGNALE_STANDORTE."`.`signaltyp`,
+`".DB_TABLE_SIGNALE_STANDORTE."`.`haltabschnitt_id`,
+`".DB_TABLE_SIGNALE_STANDORTE."`.`wirkrichtung`,
+`".DB_TABLE_SIGNALE_STANDORTE."`.`fahrplanhalt`,
+`".DB_TABLE_BETRIEBSSTELLEN_DATEN."`.`kuerzel`,
+`".DB_TABLE_BETRIEBSSTELLEN_DATEN."`.`parent_kuerzel`
+FROM `".DB_TABLE_SIGNALE_STANDORTE."`
+LEFT JOIN `".DB_TABLE_BETRIEBSSTELLEN_DATEN."` ON (`".DB_TABLE_SIGNALE_STANDORTE."`.`betriebsstelle` = `".DB_TABLE_BETRIEBSSTELLEN_DATEN."`.`kuerzel`) ");
+
+	foreach ($signalbegriffdaten as $signalbegriff) {
+		$cacheSignaldaten["begriffe"][$signalbegriff->signalbegriff_id] = array ("geschwindigkeit" => $signalbegriff->geschwindigkeit,
+			"sid" => $signalbegriff->sid,
+			"begriff" => $signalbegriff->begriff,
+			"webstw_farbe" => $signalbegriff->webstw_farbe,
+			"zielentfernung" => $signalbegriff->zielentfernung,
+			"zielgeschwindigkeit" => $signalbegriff->zielgeschwindigkeit,
+			"is_zugfahrtbegriff" =>  $signalbegriff->is_zugfahrtbegriff,
+			"original_begriff_id" => $signalbegriff->original_begriff_id,
+			"adresse" => $signalbegriff->adresse);
+
+		$cacheSignaldaten["standorte"][$signalbegriff->sid]["begriffe_id"][] = $signalbegriff->signalbegriff_id;
+
+		unset($signalelemente_array);
+	}
+
+	// Abruf der Daten über $cacheSignaldaten["begriffe"]["signalbegriff_id"]: alle Elemente liegen in type / adresse / dir
+
+	foreach ($signalstandortliste as $signalstandorteintrag) {
+		$cacheSignaldaten["standorte"][$signalstandorteintrag->id]["haltfall_id"]      = $signalstandorteintrag->haltfall_id;
+		$cacheSignaldaten["standorte"][$signalstandorteintrag->id]["freimelde_id"]     = $signalstandorteintrag->freimelde_id;
+		$cacheSignaldaten["standorte"][$signalstandorteintrag->id]["signaltyp"]        = $signalstandorteintrag->signaltyp;
+		$cacheSignaldaten["standorte"][$signalstandorteintrag->id]["haltbegriff_id"]   = $signalstandorteintrag->haltbegriff_id;
+		$cacheSignaldaten["standorte"][$signalstandorteintrag->id]["haltabschnitt_id"] = $signalstandorteintrag->haltabschnitt_id;
+		$cacheSignaldaten["standorte"][$signalstandorteintrag->id]["fahrplanhalt"]     = $signalstandorteintrag->fahrplanhalt;
+
+		if ($signalstandorteintrag->parent_kuerzel != NULL) {
+			$cacheSignaldaten["standorte"][$signalstandorteintrag->id]["betriebsstelle"] = $signalstandorteintrag->parent_kuerzel;
+		} else {
+			$cacheSignaldaten["standorte"][$signalstandorteintrag->id]["betriebsstelle"] = $signalstandorteintrag->kuerzel;
+		}
+		$cacheSignaldaten["standorte"][$signalstandorteintrag->id]["signalbetriebsstelle"] = $signalstandorteintrag->kuerzel;
+
+		$cacheSignaldaten["freimeldeabschnitte"][$signalstandorteintrag->freimelde_id][$signalstandorteintrag->wirkrichtung]["signalstandort_id"] = $signalstandorteintrag->id;
+	}
+
+	// Signallampen
+	$signallampenliste = $DB->select("SELECT `".DB_TABLE_SIGNALE_ELEMENTE."`.`signal_id` AS `begriff_id`,
+`".DB_TABLE_SIGNALE_ELEMENTE."`.`infra_id`,
+`".DB_TABLE_SIGNALE_ELEMENTE."`.`dir`,
+`".DB_TABLE_INFRAZUSTAND."`.`address` AS `infra_adresse`,
+`".DB_TABLE_INFRAZUSTAND."`.`type` AS `infra_type`,
+`".DB_TABLE_INFRADATEN."`.`wert` AS `infra_zusatzwert`
+FROM `".DB_TABLE_SIGNALE_ELEMENTE."`
+LEFT JOIN `".DB_TABLE_INFRAZUSTAND."`
+ON (`".DB_TABLE_SIGNALE_ELEMENTE."`.`infra_id` = `".DB_TABLE_INFRAZUSTAND."`.`id`)
+LEFT JOIN `".DB_TABLE_INFRADATEN."`
+ON (`".DB_TABLE_SIGNALE_ELEMENTE."`.`infra_id` = `".DB_TABLE_INFRADATEN."`.`infra_id`)
+");
+
+	foreach ($signallampenliste as $signalelement) {
+		$cacheSignaldaten["elemente"][$signalelement->begriff_id][] = array("infra_id" => $signalelement->infra_id, "dir" => $signalelement->dir,
+			"infra_adresse" => $signalelement->infra_adresse,
+			"type" => $signalelement->infra_type,
+			"infra_zusatzwert" => $signalelement->infra_zusatzwert);
+	}
+
+	unset($DB);
+
+	return $cacheSignaldaten;
+}
+
+function getInfraNachbarn ($id, $id_typ = "infra_id") {
+
+	$DB = new DB_MySQL();
+	$infraliste = $DB->select("SELECT `id`, `weiche_id`, `nachbar0_0`,`nachbar0_1`,`nachbar1_0`,`nachbar1_1`
+FROM `".DB_TABLE_INFRA_NACHBARN."`
+WHERE `".$id_typ."` = '".$id."'
+");
+	unset($DB);
+
+	$nachbarn = array();
+
+	if ($infraliste && count($infraliste) > 0) {
+		foreach ($infraliste as $nachbar) {
+			$nachbarn[] = array("id" => $nachbar->id,
+				"weiche_id" => $nachbar->weiche_id,
+				"nachbar0_0" => $nachbar->nachbar0_0,
+				"nachbar0_1" => $nachbar->nachbar0_1,
+				"nachbar1_0" => $nachbar->nachbar1_0,
+				"nachbar1_1" => $nachbar->nachbar1_1);
+		}
+
+		return $nachbarn;
+	} else {
+		return false;
 	}
 }
-*/

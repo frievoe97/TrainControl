@@ -1,20 +1,33 @@
 <?php
+// TODO:
+// - Rename TimeDifference ($newTimeDifference)
+// - Train Errors hinzufügen
 
 // Load all required external files
 require 'vorbelegung.php';
-require 'functions/funktionen_abschnitte.php';
-require 'init/init_abschnitte.php';
-require 'init/init_fzg.php';
-require 'functions/functions.php';
-require 'functions/functions_fahrtverlauf.php';
-require 'functions/signale_stellen.php';
+require 'functions/sort_functions.php';
+require 'functions/cache_functions.php';
+require 'functions/cache_functions_own.php';
+require 'functions/ebuef_functions.php';
+require 'functions/fahrtverlauf_functions.php';
+require 'define_multicast.php';
+require 'globalVariables.php';
+
+// Set timezone
+date_default_timezone_set("Europe/Berlin");
+
+// Set memory
+//ini_set('memory_limit', '1024M');
 
 // Reports only errors
 error_reporting(1);
 
-
-// Set timezone
-date_default_timezone_set("Europe/Berlin");
+// Define own train errors
+$trainErrors = array();
+$trainErrors[0] = "Zug stand falsch herum und war zu lang um die Richtung zu ändern.";
+$trainErrors[1] = "In der Datenbank ist für den Zug keine Zuglänge angegeben.";
+$trainErrors[2] = "In der Datenbank ist für den Zug keine v_max angegeben.";
+$trainErrors[3] = "Zug musste eine Notbremsung durchführen.";
 
 // Load static data from the databse into the cache
 $cacheInfranachbarn = createCacheInfranachbarn();
@@ -25,154 +38,94 @@ $cacheHaltepunkte = createCacheHaltepunkte();
 $cacheZwischenhaltepunkte = createChacheZwischenhaltepunkte();
 $cacheInfraToGbt = createCacheInfraToGbt();
 $cacheGbtToInfra = createCacheGbtToInfra();
+$cacheFmaToInfra = createCacheFmaToInfra();
+$cacheInfraToFma = array_flip($cacheFmaToInfra);
+$cacheFahrplanSession = createCacheFahrplanSession();
+$cacheSignalIDToBetriebsstelle = createCacheToBetriebsstelle();
+$cacheAdresseToID = array();		// Filled with data in getAllTrains()
+$cacheIDToAdresse = array();		// Filled with data in getAllTrains()
 
+// Global variables
+$allTrainsOnTheTrack = array();		// All adresses found on the tracks
+$allTrains = array();				// All trains with the status 1 or 2
+$allUsedTrains = array();			// All trains with the status 1 or 2 that are standing on the tracks
+$allTimes = array();
+$lastMaxSpeedForInfraAndDir = array();
 
-// TODO: Rename as cache... vars
-$fmaToInfra = createFmaToInfraData();
-$infraToFma = array_flip($fmaToInfra);
-
-// Time:
-$DB = new DB_MySQL();
-$databaseTime = (float) strtotime($DB->select("SELECT CURRENT_TIMESTAMP")[0]->CURRENT_TIMESTAMP);
-unset($DB);
-//$databaseTime = 1619164800;
-$simulationTime = (float) getUhrzeit();
-$timeDifference = $databaseTime - $simulationTime;
-$timeDifferenceGetUhrzeit = $simulationTime - $databaseTime;
-
-// Get simulation time, real time and simulation duration
-$simulationStartTime = getDataFromFahrplanSession("sim_startzeit");
-$simulationEndTime = getDataFromFahrplanSession("sim_endzeit");
-$simulationDuration = $simulationEndTime - $simulationStartTime;
-$simulationStartTimeToday = getUhrzeit(getUhrzeit($simulationStartTime, "simulationszeit", null, array("outputtyp"=>"h:i:s")), "simulationszeit", null, array("inputtyp"=>"h:i:s"));
-$simulationEndTimeToday = getUhrzeit(getUhrzeit($simulationEndTime, "simulationszeit", null, array("outputtyp"=>"h:i:s")), "simulationszeit", null, array("inputtyp"=>"h:i:s"));
+// Get simulation and real time
+$simulationStartTimeToday = getUhrzeit(getUhrzeit($cacheFahrplanSession->sim_startzeit, "simulationszeit", null, array("outputtyp"=>"h:i:s")), "simulationszeit", null, array("inputtyp"=>"h:i:s"));
+$simulationEndTimeToday = getUhrzeit(getUhrzeit($cacheFahrplanSession->sim_endzeit, "simulationszeit", null, array("outputtyp"=>"h:i:s")), "simulationszeit", null, array("inputtyp"=>"h:i:s"));
+$simulationDuration = $cacheFahrplanSession->sim_endzeit - $cacheFahrplanSession->sim_startzeit;
 $realStartTime = time();
 $realEndTime = $realStartTime + $simulationDuration;
-$newTimeDifference = $simulationStartTimeToday - $realStartTime;
+$timeDifference = $simulationStartTimeToday - $realStartTime;
 
-
-// setting the startscreen
+// Start Message
 startMessage();
 
-
-
-$sessionIsActive = true;
-$trainErrors = array(0 => "Zug stand falsch herum und war zu lang um die Richtung zu ändern");
-
-// Step 1: Initilize all trains (verzoegerung, laenge etc.) where zustand <= 1 gilt
+// Load all trains
+// TODO: Funktion benötigt, die die Daten updatet...
 $allTrains = getAllTrains();
 
-getFahrplanAndPosition();
+// Loads all trains that are in the rail network and prepares everything for the start
+findTrainsOnTheTracks();
 
-
-$idToAdresse = array();
-foreach ($allTrains as $index => $value) {
-	$idToAdresse[$index] = $value["adresse"];
-}
-$adresseToID = array_flip($idToAdresse);
-$allTimes = array();
-
-consoleAllTrainsPositionAndFahrplan();
-if (true) {
-	$allTrains[51]["dir"] = 1;
-	$allTrains[57]["dir"] = 1;
-	$allTrains[65]["dir"] = 1;
-	$allTrains[78]["dir"] = 1;
-
-	$allTrains[51]["laenge"] = 50;
-	$allTrains[57]["laenge"] = 50;
-	$allTrains[65]["laenge"] = 50;
-	$allTrains[78]["laenge"] = 50;
-
-	$allTrains[51]["current_infra_section"] = 1166;
-	$allTrains[57]["current_infra_section"] = 1169;
-
-	$allTrains[51]["current_position"] = 1;
-	$allTrains[57]["current_position"] = 1;
-	$allTrains[65]["current_position"] = $cacheInfraLaenge[$allTrains[65]["current_infra_section"]];
-	$allTrains[78]["current_position"] = $cacheInfraLaenge[$allTrains[78]["current_infra_section"]];
-
-	$allTrains[51]["speed"] = 0;
-	$allTrains[57]["speed"] = 0;
-	$allTrains[65]["speed"] = 0;
-	$allTrains[78]["speed"] = 0;
-
-}
-
-
+// Checks if the trains are in the right direction and turns them if it is necessary and possible.
 consoleCheckIfStartDirectionIsCorrect();
 consoleAllTrainsPositionAndFahrplan();
-
-
-
-addStopsectionsForTimetable();
-initalFirstLiveData();
 showErrors();
+
+// Adds all the stops of the trains.
+addStopsectionsForTimetable();
+
+// Adds an index (address) to the $allTimes array for each train.
+initalFirstLiveData();
+
+// Determination of the current routes of all trains.
 calculateNextSections();
-addNextStopForAllTrains();
+
+// Checks whether the trains are already at the first scheduled stop or not.
 checkIfTrainReachedHaltepunkt();
+
+// Checks whether the routes are set correctly.
 checkIfFahrstrasseIsCorrrect();
 
-
-foreach ($allTrains as $trainIndex => $trainValue) {
-	$allTrains[$trainIndex]["last_get_naechste_abschnitte"] = getNaechsteAbschnitte($trainValue["current_infra_section"], $trainValue["dir"]);
-}
-
+// Calculate driving curve
 calculateFahrverlauf();
-
-
-
-
 
 $unusedTrains = array_keys($allTimes);
 $timeCheckAllTrainsInterval = 3;
 $timeCheckAllTrains = $timeCheckAllTrainsInterval + microtime(true);
-$sleeptime = 0.3;
+$sleeptime = 0.03;
 while (true) {
 	foreach ($allTimes as $timeIndex => $timeValue) {
 		if (sizeof($timeValue) > 0) {
 			$id = $timeValue[0]["id"];
-			if ((microtime(true) + $newTimeDifference) > $timeValue[0]["live_time"]) {
+			if ((microtime(true) + $timeDifference) > $timeValue[0]["live_time"]) {
 
 				if ($timeValue[0]["live_is_speed_change"]) {
 					sendFahrzeugbefehl($timeValue[0]["id"], intval($timeValue[0]["live_speed"]));
-					$bsIndex = $timeValue[0]["betriebsstelle_index"];
-					if ($bsIndex == 99999999) {
-						echo "Der Zug mit der Adresse ", $timeIndex, " hat auf der freien Fahrt seine Geschwindigkeit auf ", $timeValue[0]["live_speed"], " km/h angepasst.\n";
-					} else {
-						echo "Der Zug mit der Adresse ", $timeIndex, " hat auf der Fahrt nach ", $allTrains[$id]["next_betriebsstellen_data"][$bsIndex]["betriebstelle"]," seine Geschwindigkeit auf ", $timeValue[0]["live_speed"], " km/h angepasst.\n";
-					}
+					echo "Der Zug mit der Adresse ", $timeIndex, " hat auf der Fahrt nach ", $timeValue[0]["betriebsstelle"],
+					" seine Geschwindigkeit auf ", $timeValue[0]["live_speed"], " km/h angepasst.\n";
 				}
 
-				$allTrains[$id]["current_position"] = $timeValue[0]["live_relative_position"];
-				$allTrains[$id]["speed"] = $timeValue[0]["live_speed"];
-				$allTrains[$id]["current_infra_section"] = $timeValue[0]["live_section"];
+				$allUsedTrains[$id]["current_position"] = $timeValue[0]["live_relative_position"];
+				$allUsedTrains[$id]["current_speed"] = $timeValue[0]["live_speed"];
+				$allUsedTrains[$id]["current_section"] = $timeValue[0]["live_section"];
 
 				if ($timeValue[0]["wendet"]) {
-					$id = $timeValue[0]["id"];
-					$currentDirection = $allTrains[$id]["dir"];
-					$allTimes[$timeIndex] = array();
-					changeDirection($id);
-					if ($currentDirection == 0) {
-						$allTrains[$id]["dir"] = 1;
-					} else {
-						$allTrains[$id]["dir"] = 0;
-					}
+					//$allTimes[$timeIndex] = array();
+					changeDirection($timeValue[0]["id"]);
+				}
+
+				if (isset($timeValue[0]["live_all_targets_reached"])) {
+					$allUsedTrains[$id]["next_betriebsstellen_data"][$timeValue[0]["live_all_targets_reached"]]["angekommen"] = true;
+					echo "Der Zug mit der Adresse ", $timeIndex, " hat den Halt ", $allUsedTrains[$id]["next_betriebsstellen_data"][$timeValue[0]["live_all_targets_reached"]]["betriebstelle"], " erreicht.\n";
 				}
 
 				if ($timeValue[0]["live_target_reached"]) {
 
-					if ($timeValue[0]["betriebsstelle_index"] >= 0) {
-						$allTrains[$id]["next_betriebsstellen_data"][$timeValue[0]["betriebsstelle_index"]]["angekommen"] = true;
-						$bsIndex = $timeValue[0]["betriebsstelle_index"];
-						if ($bsIndex == 99999999) {
-							//echo "Der Zug mit der Adresse ", $timeIndex, " hat den Halt ", $allTrains[$id]["next_betriebsstellen_data"][$bsIndex]["betriebstelle"], " mit einer Verspätung von ", number_format($allTrains[$id]["next_betriebsstellen_data"][$bsIndex]["zeiten"]["verspätung"], 2), " Sekunden erreicht.\n";
-						} else {
-							echo "Der Zug mit der Adresse ", $timeIndex, " hat den Halt ", $allTrains[$id]["next_betriebsstellen_data"][$bsIndex]["betriebstelle"], " mit einer Verspätung von ", number_format($allTrains[$id]["next_betriebsstellen_data"][$bsIndex]["zeiten"]["verspaetung"], 2), " Sekunden erreicht.\n";
-						}
-					}
-
-					$currentZugId = $allTrains[$id]["zug_id"];
+					$currentZugId = $allUsedTrains[$id]["zug_id"];
 					$newZugId = getFahrzeugZugIds(array($id));
 
 					if (sizeof($newZugId) == 0) {
@@ -182,31 +135,32 @@ while (true) {
 						$newZugId = $newZugId[array_key_first($newZugId)]["zug_id"];
 					}
 
+					// Fährt nach Fahrplan und hat keine neue Zug ID bekommen
 					if (!($currentZugId == $newZugId && $currentZugId != null)) {
 
 						if ($currentZugId != null && $newZugId != null) {
 							// neuer fahrplan
-							$allTrains[$id]["operates_on_timetable"] = 1;
-							getFahrplanAndPositionForOneTrain($id);
+							$allUsedTrains[$id]["operates_on_timetable"] = true;
+							getFahrplanAndPositionForOneTrain($id, $newZugId);
 							addStopsectionsForTimetable($id);
 							calculateNextSections($id);
-							addNextStopForAllTrains($id);
+							//addNextStopForAllTrains($id);
 							checkIfFahrstrasseIsCorrrect($id);
 							calculateFahrverlauf($id);
 
-						} elseif ($currentZugId == null && $newZugId != null) {
+						} else if ($currentZugId == null && $newZugId != null) {
 							// fährt jetzt nach fahrplan
-							$allTrains[$id]["operates_on_timetable"] = 1;
+							$allUsedTrains[$id]["operates_on_timetable"] = true;
 							getFahrplanAndPositionForOneTrain($id);
 							addStopsectionsForTimetable($id);
 							calculateNextSections($id);
-							addNextStopForAllTrains($id);
+							//addNextStopForAllTrains($id);
 							checkIfFahrstrasseIsCorrrect($id);
 							calculateFahrverlauf($id);
 
-						} elseif ($currentZugId != null && $newZugId == null) {
+						} else if ($currentZugId != null && $newZugId == null) {
 							// fährt jetzt auf freier strecke
-							$allTrains[$id]["operates_on_timetable"] = 0;
+							$allUsedTrains[$id]["operates_on_timetable"] = false;
 							calculateNextSections($id);
 							calculateFahrverlauf($id);
 						}
@@ -214,6 +168,7 @@ while (true) {
 				}
 				if (sizeof($timeValue) == 1 && !in_array($timeIndex, $unusedTrains)) {
 					array_push($unusedTrains, $timeIndex);
+					var_dump($allUsedTrains);
 				}
 				array_shift($allTimes[$timeIndex]);
 			}
@@ -221,12 +176,44 @@ while (true) {
 	}
 
 	if (microtime(true) > $timeCheckAllTrains) {
-
 		foreach ($unusedTrains as $unusedTrainsIndex => $unusedTrainsValue) {
-			$id = $adresseToID[$unusedTrainsValue];
+			$id = $cacheAdresseToID[$unusedTrainsValue];
 			compareTwoNaechsteAbschnitte($id);
+		}
+
+		// Search new trains.
+		// added to allUsedTrains and to unusedTrains
+		$prevTrains = array_keys($allUsedTrains);
+		findTrainsOnTheTracks();
+		$nextTrains = array_keys($allUsedTrains);
+
+		if (sizeof($prevTrains) != sizeof($nextTrains)) {
+			echo "Neu hinzugefügte Züge:\n\n";
+		}
+
+		foreach ($nextTrains as $nextTrainID) {
+			if (!in_array($nextTrainID, $prevTrains)) {
+				consoleCheckIfStartDirectionIsCorrect($nextTrainID);
+				consoleAllTrainsPositionAndFahrplan($nextTrainID);
+				addStopsectionsForTimetable($nextTrainID);
+				initalFirstLiveData($nextTrainID);
+				calculateNextSections($nextTrainID);
+				checkIfTrainReachedHaltepunkt($nextTrainID);
+				checkIfFahrstrasseIsCorrrect($nextTrainID);
+				calculateFahrverlauf($nextTrainID);
+				array_push($unusedTrains, $allUsedTrains[$nextTrainID]["adresse"]);
+			}
 		}
 		$timeCheckAllTrains = $timeCheckAllTrains + $timeCheckAllTrainsInterval;
 	}
 	sleep($sleeptime);
 }
+
+
+
+
+
+
+
+
+
