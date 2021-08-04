@@ -1,4 +1,4 @@
-fname = '../json/speedOverPosition.json'; 
+fname = '../json/speedOverPosition_v1.json'; 
 fid = fopen(fname); 
 raw = fread(fid,inf); 
 str = char(raw'); 

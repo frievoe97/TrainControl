@@ -1,0 +1,36 @@
+\section{Ablaufplan}
+
+\begin{tikzpicture}[node distance=0.7cm, auto,]
+
+
+
+
+%nodes
+\node[punkt] (a) {Programmstart};
+\node[below=of a, punkt] (b) {Einlesen aller vorhandenen Züge};
+\node[below=of b, punkt](c) {Positionsbestimmung};
+\node[below=of c, punkt] (d) {Überprüfung von möglichen Fehlern};
+\node[left=of c, punkt] (e) {Start der Zugbeeinflussung};
+\node[right= 2.5cm of c, punkt] (f) {Programmabbruch};
+ 
+\draw [pil] (a) -- node[pos=0.5] {Beschriftung} (b);
+\draw [pil] (b) -- (c);
+\draw [pil] (c) -- (d);
+\draw [pil] (b.west) -- (e);
+\draw [pil] (e) -- (d.west);
+
+\draw [pil] 
+    (a.east) -- +(1.5,0) |- node[pos=0.25] {No} (d.east);
+    
+\draw [pil] 
+    (a.east) -- +(0.5,0) |- node[pos=0.25] {Yes} (c.east); 
+    
+\draw [pil] 
+    (e.south) -- +(0,-2.5) -| node[pos=0.25] {Yes} (f.south); 
+
+
+ 
+
+ 
+
+\end{tikzpicture}
