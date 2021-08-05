@@ -238,6 +238,12 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $c
 
 	// Emergency Brake
 	if (getBrakeDistance($currentSpeed, $targetSpeed, $verzoegerung)> $distanceToNextStop && $currentSpeed != 0) {
+
+
+		// FUNKTION!
+
+
+
 		echo "Der Zug mit der Adresse: ", $train["adresse"], " leitet jetzt eine Notbremsung ein.\n";
 		$returnArray = array();
 		$time = $startTime;
@@ -264,12 +270,7 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $c
 
 		$allTimes[$train["adresse"]] = $returnArray;
 		$allTrains[$train["id"]]["can_drive"] = false;
-
-
-
-
 		return 0;
-
 	}
 
 	//maximale geschwindigkeit zwischen zwei punkten...
@@ -1686,8 +1687,6 @@ function createKeyPoint (float $position_0, float $position_1, int $speed_0, int
 }
 
 function getTargetBrakeSpeedWithDistanceAndStartSpeed (float $distance, float $verzoegerung, int $speed) {
-	//var_dump($distance, $verzoegerung, $speed);
-	//var_dump($distance, $verzoegerung, $speed);
 	return sqrt((-2 * $verzoegerung * $distance) + (pow(($speed / 3.6), 2)))*3.6;
 }
 
@@ -1720,4 +1719,43 @@ function getBrakeTime (float $v_0, float $v_1, float $verzoegerung) : float  {
 	} else {
 		return false;
 	}
+}
+
+function emergencyBreak ($id, $distanceToNextStop = 0) {
+
+	global $allUsedTrains;
+	global $timeDifference;
+
+	$time = time() + $timeDifference;
+	$currentSpeed = $allUsedTrains[$id]["adresse"];
+	$targetSpeed = 0;
+	$notverzoegerung = $allUsedTrains[$id]["notverzoegerung"];
+	$currentSection = $allUsedTrains[$id]["current_section"];
+
+	echo "Der Zug mit der Adresse: ", $allUsedTrains[$id]["adresse"], " leitet jetzt eine Notbremsung ein.\n";
+	$returnArray = array();
+	if (getBrakeDistance($currentSpeed, $targetSpeed, $notverzoegerung) <= $distanceToNextStop) {
+		for ($i = $currentSpeed; $i >= 0; $i = $i - 2) {
+			array_push($returnArray, array("live_position" => 0, "live_speed" => $i, "live_time" => $time, "live_relative_position" => 0, "live_section" => $currentSection, "live_is_speed_change" => true, "live_target_reached" => false, "id" => $id, "wendet" => false, "betriebsstelle" => null, "live_all_targets_reached" => null));
+			$time =  $time + getBrakeTime($i, $i - 1, $notverzoegerung);
+		}
+	} else {
+		$targetSpeedNotbremsung =  getTargetBrakeSpeedWithDistanceAndStartSpeed($distanceToNextStop, $notverzoegerung, $currentSpeed);
+		$speedBeforeStop = intval($targetSpeedNotbremsung / 2) * 2;
+		if ($speedBeforeStop >= 10) {
+			for ($i = $currentSpeed; $i >= 10; $i = $i - 2) {
+				array_push($returnArray, array("live_position" => 0, "live_speed" => $i, "live_time" => $time, "live_relative_position" => 0, "live_section" => $currentSection, "live_is_speed_change" => true, "live_target_reached" => false, "id" => $id, "wendet" => false, "betriebsstelle" => null, "live_all_targets_reached" => null));
+				$time =  $time + getBrakeTime($i, $i - 1, $notverzoegerung);
+			}
+			array_push($returnArray, array("live_position" => 0, "live_speed" => 0, "live_time" => $time, "live_relative_position" => 0, "live_section" => $currentSection, "live_is_speed_change" => true, "live_target_reached" => false, "id" => $id, "wendet" => false, "betriebsstelle" => null, "live_all_targets_reached" => null));
+		} else {
+			array_push($returnArray, array("live_position" => 0, "live_speed" => $currentSpeed, "live_time" => $time, "live_relative_position" => 0, "live_section" => $currentSection, "live_is_speed_change" => true, "live_target_reached" => false, "id" => $id, "wendet" => false, "betriebsstelle" => null, "live_all_targets_reached" => null));
+			$time =  $time + getBrakeTime($currentSpeed, $currentSpeed - 1, $notverzoegerung);
+			array_push($returnArray, array("live_position" => 0, "live_speed" => 0, "live_time" => $time, "live_relative_position" => 0, "live_section" => $currentSection, "live_is_speed_change" => true, "live_target_reached" => false, "id" => $id, "wendet" => false, "betriebsstelle" => null, "live_all_targets_reached" => null));
+		}
+	}
+
+	$allTimes[$allUsedTrains[$id]["adresse"]] = $returnArray;
+	array_push($allUsedTrains[$allUsedTrains[$id]]["error"], 3);
+	return 0;
 }

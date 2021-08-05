@@ -130,6 +130,21 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $t
 
 	$distanceToNextStop = $cumulativeSectionLengthEnd[$indexTargetSection];
 
+	// Emergency Break...
+
+	// Emergency Break
+
+	if (getBrakeDistance($currentSpeed, $targetSpeed, $verzoegerung)> $distanceToNextStop && $currentSpeed != 0) {
+		if (!isset($distanceToNextStop)) {
+			emergencyBreak($train["id"]);
+			return 0;
+		} else {
+			emergencyBreak($train["id"], $distanceToNextStop);
+			return 0;
+		}
+	}
+
+
 	global $next_v_max_mod;
 	global $next_lengths_mod;
 	$next_v_max_mod = array();
@@ -209,6 +224,7 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $t
 
 	// Emergency Brake
 	// TODO: Wo muss die Notbremsung durchgeführt werden?
+	/*
 	if (getBrakeDistance($currentSpeed, $targetSpeed, $verzoegerung) > $distanceToNextStop && $currentSpeed != 0) {
 		echo "Der Zug mit der Adresse: ", $train["adresse"], " leitet jetzt eine Notbremsung ein.\n";
 		$returnArray = array();
@@ -237,6 +253,7 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $t
 		$allUsedTrains[$train["id"]]["can_drive"] = false;
 		return 0;
 	}
+	*/
 
 	$v_maxFirstIteration = getVMaxBetweenTwoPoints($distanceToNextStop, $currentSpeed, $targetSpeed);
 
@@ -414,7 +431,7 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $t
 			}
 		}
 	} else {
-		echo "Der Zug mit der Adresse ", $train["adresse"], " fährt aktuell ohne Fahrplan bis zum nächsten auf Halt stehendem Signal (Signal ID: ", $targetSignal, ", Betriebsstelle: ", $targetBetriebsstelle,").";
+		echo "Der Zug mit der Adresse ", $train["adresse"], " fährt aktuell ohne Fahrplan bis zum nächsten auf Halt stehendem Signal (Signal ID: ", $targetSignal, ", Betriebsstelle: ", $targetBetriebsstelle,").\n";
 	}
 
 	$returnTrainChanges = createTrainChanges(false);
@@ -1687,92 +1704,53 @@ function getFahrplanAndPositionForOneTrain (int $trainID, int $zugID) {
 		}
 		$allUsedTrains[$trainID]["next_betriebsstellen_data"][$betriebsstelleKey]["zeiten"]["verspaetung"] = 0;
 	}
-	/*
-	global $fmaToInfra;
-	global $infraToFma;
-	global $cacheInfraLaenge;
-	global $timeDifferenceGetUhrzeit;
-	global $allTrains;
-
-	$returnArray = array();
-	$checkAllTrains = true;
-
-	$allTrains[$id]["error"] = array();
-	$allTrains[$id]["next_sections"] = array();
-	$allTrains[$id]["next_lenghts"] = array();
-	$allTrains[$id]["next_v_max"] = array();
-	$allTrains[$id]["next_stop"] = array();
-	$values = getFahrzeugZugIds(array($allTrains[$id]["id"]));
-	if (sizeof($values) != 0) {
-		$value = $values[array_key_first($values)];
-		$allTrains[$id]["zug_id"] = intval($value["zug_id"]);
-		$allTrains[$id]["operates_on_timetable"] = 1;
-
-	} else {
-		$allTrains[$id]["zug_id"] = null;
-		$allTrains[$id]["operates_on_timetable"] = 0;
-	}
-
-	// Get next Betriebsstellen
-	$allTrains[$id]["next_betriebsstellen_data"] = array();
-	$zug_id = intval($allTrains[$id]["zug_id"]);
-
-	if ($zug_id != 0) {
-		$nextBetriebsstellen = getNextBetriebsstellen($zug_id);
-		if (sizeof($nextBetriebsstellen) != 0) {
-			for ($i = 0; $i < sizeof($nextBetriebsstellen); $i++) {
-				if (sizeof(explode("_", $nextBetriebsstellen[$i])) != 2) {
-					$allTrains[$id]["next_betriebsstellen_data"][$i]["betriebstelle"] = $nextBetriebsstellen[$i];
-					$allTrains[$id]["next_betriebsstellen_data"][$i]["zeiten"] = getFahrplanzeiten($nextBetriebsstellen[$i], $zug_id);
-				}
-			}
-		} else {
-			$allTrains[$id]["next_betriebsstellen_data"] = null;
-		}
-	} else {
-		$allTrains[$id]["next_betriebsstellen_data"] = array();
-
-	}
-	$allTrains[$id]["next_betriebsstellen_data"] = array_values($allTrains[$id]["next_betriebsstellen_data"]);
-
-	foreach ($allTrains[$id]["next_betriebsstellen_data"] as $betriebsstelleIndex => $betriebsstelleValue) {
-		if ($betriebsstelleValue["zeiten"] != false) {
-			if ($betriebsstelleValue["zeiten"]["abfahrt_soll"] != null) {
-				$allTrains[$id]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["abfahrt_soll_timestamp"] = getUhrzeit($betriebsstelleValue["zeiten"]["abfahrt_soll"], "simulationszeit", $timeDifferenceGetUhrzeit, array("inputtyp" => "h:i:s"));
-			} else {
-				$allTrains[$id]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["abfahrt_soll_timestamp"] = null;
-			}
-
-			if ($betriebsstelleValue["zeiten"]["ankunft_soll"] != null) {
-				$allTrains[$id]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["ankunft_soll_timestamp"] = getUhrzeit($betriebsstelleValue["zeiten"]["ankunft_soll"], "simulationszeit", $timeDifferenceGetUhrzeit, array("inputtyp" => "h:i:s"));
-			} else {
-				$allTrains[$id]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["ankunft_soll_timestamp"] = null;
-			}
-
-		}
-	}
-
-	foreach ($returnArray as $trainIndex => $trainValue) {
-		$returnArray[$trainIndex]["notverzoegerung"] = 2;
-	}
-
-	foreach ($allTrains[$id]["next_betriebsstellen_data"] as $betriebsstelleIndex => $betriebsstelleValue) {
-		if ($betriebsstelleValue["zeiten"]["abfahrt_soll_timestamp"] != null && $betriebsstelleValue["zeiten"]["ankunft_soll_timestamp"] != null) {
-			$allTrains[$id]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["haltezeit"] = $betriebsstelleValue["zeiten"]["abfahrt_soll_timestamp"] - $betriebsstelleValue["zeiten"]["ankunft_soll_timestamp"];
-			if (($betriebsstelleValue["zeiten"]["abfahrt_soll_timestamp"] - $betriebsstelleValue["zeiten"]["ankunft_soll_timestamp"]) > 0) {
-				$allTrains[$id]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["is_halt"] = true;
-			} else {
-				$allTrains[$id]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["is_halt"] = false;
-			}
-		} else {
-			$allTrains[$id]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["haltezeit"] = 0;
-			$allTrains[$id]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["is_halt"] = true;
-		}
-		$allTrains[$id]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["verspaetung"] = 0;
-	}
-	*/
 }
 
 function toArr(){
 	return func_get_args();
+}
+
+function emergencyBreak ($id, $distanceToNextStop = 0) {
+
+	global $allUsedTrains;
+	global $timeDifference;
+
+	$time = time() + $timeDifference;
+	$currentSpeed = $allUsedTrains[$id]["current_speed"];
+	$targetSpeed = 0;
+	$notverzoegerung = $allUsedTrains[$id]["notverzoegerung"];
+	$currentSection = $allUsedTrains[$id]["current_section"];
+
+	echo "Der Zug mit der Adresse: ", $allUsedTrains[$id]["adresse"], " leitet jetzt eine Notbremsung ein.\n";
+	$returnArray = array();
+	if (getBrakeDistance($currentSpeed, $targetSpeed, $notverzoegerung) <= $distanceToNextStop) {
+		for ($i = $currentSpeed; $i >= 0; $i = $i - 2) {
+			array_push($returnArray, array("live_position" => 0, "live_speed" => $i, "live_time" => $time, "live_relative_position" => 0, "live_section" => $currentSection, "live_is_speed_change" => true, "live_target_reached" => false, "id" => $id, "wendet" => false, "betriebsstelle" => 'Notbremsung', "live_all_targets_reached" => null));
+			$time =  $time + getBrakeTime($i, $i - 1, $notverzoegerung);
+		}
+	} else {
+		$targetSpeedNotbremsung =  getTargetBrakeSpeedWithDistanceAndStartSpeed($distanceToNextStop, $notverzoegerung, $currentSpeed);
+		$speedBeforeStop = intval($targetSpeedNotbremsung / 2) * 2;
+		if ($speedBeforeStop >= 10) {
+			for ($i = $currentSpeed; $i >= 10; $i = $i - 2) {
+				array_push($returnArray, array("live_position" => 0, "live_speed" => $i, "live_time" => $time, "live_relative_position" => 0, "live_section" => $currentSection, "live_is_speed_change" => true, "live_target_reached" => false, "id" => $id, "wendet" => false, "betriebsstelle" => 'Notbremsung', "live_all_targets_reached" => null));
+				$time =  $time + getBrakeTime($i, $i - 1, $notverzoegerung);
+			}
+			array_push($returnArray, array("live_position" => 0, "live_speed" => 0, "live_time" => $time, "live_relative_position" => 0, "live_section" => $currentSection, "live_is_speed_change" => true, "live_target_reached" => false, "id" => $id, "wendet" => false, "betriebsstelle" => 'Notbremsung', "live_all_targets_reached" => null));
+		} else {
+			array_push($returnArray, array("live_position" => 0, "live_speed" => $currentSpeed, "live_time" => $time, "live_relative_position" => 0, "live_section" => $currentSection, "live_is_speed_change" => true, "live_target_reached" => false, "id" => $id, "wendet" => false, "betriebsstelle" => 'Notbremsung', "live_all_targets_reached" => null));
+			$time =  $time + getBrakeTime($currentSpeed, $currentSpeed - 1, $notverzoegerung);
+			array_push($returnArray, array("live_position" => 0, "live_speed" => 0, "live_time" => $time, "live_relative_position" => 0, "live_section" => $currentSection, "live_is_speed_change" => true, "live_target_reached" => false, "id" => $id, "wendet" => false, "betriebsstelle" => 'Notbremsung', "live_all_targets_reached" => null));
+		}
+	}
+
+	var_dump($returnArray);
+
+	$allTimes[$allUsedTrains[$id]["adresse"]] = $returnArray;
+	array_push($allUsedTrains[$allUsedTrains[$id]]["error"], 3);
+	return 0;
+}
+
+function getTargetBrakeSpeedWithDistanceAndStartSpeed (float $distance, float $verzoegerung, int $speed) {
+	return sqrt((-2 * $verzoegerung * $distance) + (pow(($speed / 3.6), 2)))*3.6;
 }

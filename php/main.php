@@ -92,21 +92,27 @@ checkIfFahrstrasseIsCorrrect();
 
 // Calculate driving curve
 calculateFahrverlauf();
-
 $unusedTrains = array_keys($allTimes);
 $timeCheckAllTrainsInterval = 3;
 $timeCheckAllTrains = $timeCheckAllTrainsInterval + microtime(true);
+$timeCheckAllTrainErrorsInterval = 30;
+$timeCheckAllTrainErrors = $timeCheckAllTrainErrorsInterval + microtime(true);
 $sleeptime = 0.03;
+$sleeptime = 1;
 while (true) {
 	foreach ($allTimes as $timeIndex => $timeValue) {
 		if (sizeof($timeValue) > 0) {
 			$id = $timeValue[0]["id"];
 			if ((microtime(true) + $timeDifference) > $timeValue[0]["live_time"]) {
-
 				if ($timeValue[0]["live_is_speed_change"]) {
-					sendFahrzeugbefehl($timeValue[0]["id"], intval($timeValue[0]["live_speed"]));
-					echo "Der Zug mit der Adresse ", $timeIndex, " hat auf der Fahrt nach ", $timeValue[0]["betriebsstelle"],
-					" seine Geschwindigkeit auf ", $timeValue[0]["live_speed"], " km/h angepasst.\n";
+					if ($timeValue[0]["betriebsstelle"] == 'Notbremsung') {
+						sendFahrzeugbefehl($timeValue[0]["id"], intval($timeValue[0]["live_speed"]));
+						echo "Der Zug mit der Adresse ", $timeIndex, " leitet gerade eine Gefahrenbremsung ein und hat seine Geschwindigkeit auf ", $timeValue[0]["live_speed"], " km/h angepasst.\n";
+					} else {
+						sendFahrzeugbefehl($timeValue[0]["id"], intval($timeValue[0]["live_speed"]));
+						echo "Der Zug mit der Adresse ", $timeIndex, " hat auf der Fahrt nach ", $timeValue[0]["betriebsstelle"],
+						" seine Geschwindigkeit auf ", $timeValue[0]["live_speed"], " km/h angepasst.\n";
+					}
 				}
 
 				$allUsedTrains[$id]["current_position"] = $timeValue[0]["live_relative_position"];
@@ -168,7 +174,6 @@ while (true) {
 				}
 				if (sizeof($timeValue) == 1 && !in_array($timeIndex, $unusedTrains)) {
 					array_push($unusedTrains, $timeIndex);
-					var_dump($allUsedTrains);
 				}
 				array_shift($allTimes[$timeIndex]);
 			}
@@ -178,19 +183,22 @@ while (true) {
 	if (microtime(true) > $timeCheckAllTrains) {
 		foreach ($unusedTrains as $unusedTrainsIndex => $unusedTrainsValue) {
 			$id = $cacheAdresseToID[$unusedTrainsValue];
+			if ($id == 65) {
+				var_dump($allUsedTrains[78]["current_section"]);
+			}
 			compareTwoNaechsteAbschnitte($id);
+			if ($id == 65) {
+				var_dump($allUsedTrains[78]["current_section"]);
+			}
 		}
-
 		// Search new trains.
 		// added to allUsedTrains and to unusedTrains
 		$prevTrains = array_keys($allUsedTrains);
 		findTrainsOnTheTracks();
 		$nextTrains = array_keys($allUsedTrains);
-
 		if (sizeof($prevTrains) != sizeof($nextTrains)) {
 			echo "Neu hinzugefügte Züge:\n\n";
 		}
-
 		foreach ($nextTrains as $nextTrainID) {
 			if (!in_array($nextTrainID, $prevTrains)) {
 				consoleCheckIfStartDirectionIsCorrect($nextTrainID);
@@ -205,6 +213,9 @@ while (true) {
 			}
 		}
 		$timeCheckAllTrains = $timeCheckAllTrains + $timeCheckAllTrainsInterval;
+	}
+	if (microtime(true) > $timeCheckAllTrainErrors) {
+		//$timeCheckAllTrainErrors = $timeCheckAllTrainErrors + $timeCheckAllTrainErrorsInterval;
 	}
 	sleep($sleeptime);
 }
