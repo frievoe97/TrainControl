@@ -739,6 +739,8 @@ function checkIfFahrstrasseIsCorrrect($id = false) {
 				$allUsedTrains[$trainIndex]["fahrstrasse_is_correct"] = false;
 				foreach ($trainValue["next_betriebsstellen_data"] as $stopIndex => $stopValue) {
 					if (!$stopValue["angekommen"]) {
+						$allUsedTrains[$trainIndex]["next_betriebsstellen_data"][$stopIndex]["is_on_fahrstrasse"] = false;
+						$allUsedTrains[$trainIndex]["next_betriebsstellen_data"][$stopIndex]["used_haltepunkt"] = array();
 						$indexSection = 0;
 						for ($i = 0; $i < sizeof($trainValue["next_sections"]); $i++) {
 							if ($stopValue["haltepunkte"] != null) {
@@ -753,6 +755,8 @@ function checkIfFahrstrasseIsCorrrect($id = false) {
 								}
 							}
 						}
+					} else {
+						$allUsedTrains[$trainIndex]["next_betriebsstellen_data"][$stopIndex]["is_on_fahrstrasse"] = true;
 					}
 				}
 			} else {
@@ -818,7 +822,6 @@ function calculateFahrverlauf($id = false) {
 									array_push($allreachedInfras, array("index" => $i, "infra" => $trainValue["next_betriebsstellen_data"][$i]["used_haltepunkt"]));
 								}
 							}
-
 							$targetSection = $trainValue["next_betriebsstellen_data"][$nextBetriebsstelleIndex]["used_haltepunkt"];
 							$targetPosition = $cacheInfraLaenge[$targetSection];
 							$startTime = null;

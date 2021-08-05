@@ -180,6 +180,7 @@ while (true) {
 	}
 
 	if (microtime(true) > $timeCheckAllTrains) {
+		//var_dump($allUsedTrains[65]["current_section"]);
 		foreach ($unusedTrains as $unusedTrainsIndex => $unusedTrainsValue) {
 			$id = $cacheAdresseToID[$unusedTrainsValue];
 			compareTwoNaechsteAbschnitte($id);
@@ -208,7 +209,12 @@ while (true) {
 		$timeCheckAllTrains = $timeCheckAllTrains + $timeCheckAllTrainsInterval;
 	}
 	if (microtime(true) > $timeCheckAllTrainErrors) {
-		//$timeCheckAllTrainErrors = $timeCheckAllTrainErrors + $timeCheckAllTrainErrorsInterval;
+		foreach ($allUsedTrains as $trainKey => $trainValue) {
+			if (sizeof($trainValue["error"]) != 0 && !in_array(3, $trainValue["error"])) {
+				//var_dump($trainValue["id"]);
+			}
+		}
+		$timeCheckAllTrainErrors = $timeCheckAllTrainErrors + $timeCheckAllTrainErrorsInterval;
 	}
 	sleep($sleeptime);
 }

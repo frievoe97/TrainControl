@@ -1746,7 +1746,7 @@ function emergencyBreak ($id, $distanceToNextStop = 0) {
 	}
 
 	$allTimes[$allUsedTrains[$id]["adresse"]] = $returnArray;
-	array_push($allUsedTrains[$allUsedTrains[$id]]["error"], 3);
+	array_push($allUsedTrains[$id]["error"], 3);
 	return 0;
 }
 
