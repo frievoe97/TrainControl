@@ -586,9 +586,8 @@ function calculateNextSections($id = false, $writeResultToTrain = true) {
 			}
 			$return = getNaechsteAbschnitte($currentSectionComp, $dir);
 			$allUsedTrains[$trainIndex]["last_get_naechste_abschnitte"] = $return;
-			//$currentVMax = $globalSpeedInCurrentSection; // max speed for a train in the current section
-			if (isset($lastMaxSpeedForInfraAndDir[$trainValue["id"]][$trainValue["current_section"]])) {
-				$currentVMax = $lastMaxSpeedForInfraAndDir[$trainValue["id"]][$trainValue["current_section"]];
+			if (isset($lastMaxSpeedForInfraAndDir[$trainValue["dir"]][$trainValue["current_section"]])) {
+				$currentVMax = $lastMaxSpeedForInfraAndDir[$trainValue["dir"]][$trainValue["current_section"]];
 			} else {
 				$currentVMax = $globalSpeedInCurrentSection;
 			}

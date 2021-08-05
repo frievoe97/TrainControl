@@ -98,7 +98,6 @@ $timeCheckAllTrains = $timeCheckAllTrainsInterval + microtime(true);
 $timeCheckAllTrainErrorsInterval = 30;
 $timeCheckAllTrainErrors = $timeCheckAllTrainErrorsInterval + microtime(true);
 $sleeptime = 0.03;
-$sleeptime = 1;
 while (true) {
 	foreach ($allTimes as $timeIndex => $timeValue) {
 		if (sizeof($timeValue) > 0) {
@@ -183,13 +182,7 @@ while (true) {
 	if (microtime(true) > $timeCheckAllTrains) {
 		foreach ($unusedTrains as $unusedTrainsIndex => $unusedTrainsValue) {
 			$id = $cacheAdresseToID[$unusedTrainsValue];
-			if ($id == 65) {
-				var_dump($allUsedTrains[78]["current_section"]);
-			}
 			compareTwoNaechsteAbschnitte($id);
-			if ($id == 65) {
-				var_dump($allUsedTrains[78]["current_section"]);
-			}
 		}
 		// Search new trains.
 		// added to allUsedTrains and to unusedTrains

@@ -1714,8 +1714,9 @@ function emergencyBreak ($id, $distanceToNextStop = 0) {
 
 	global $allUsedTrains;
 	global $timeDifference;
+	global $allTimes;
 
-	$time = time() + $timeDifference;
+	$time = microtime(true) + $timeDifference;
 	$currentSpeed = $allUsedTrains[$id]["current_speed"];
 	$targetSpeed = 0;
 	$notverzoegerung = $allUsedTrains[$id]["notverzoegerung"];
@@ -1743,8 +1744,6 @@ function emergencyBreak ($id, $distanceToNextStop = 0) {
 			array_push($returnArray, array("live_position" => 0, "live_speed" => 0, "live_time" => $time, "live_relative_position" => 0, "live_section" => $currentSection, "live_is_speed_change" => true, "live_target_reached" => false, "id" => $id, "wendet" => false, "betriebsstelle" => 'Notbremsung', "live_all_targets_reached" => null));
 		}
 	}
-
-	var_dump($returnArray);
 
 	$allTimes[$allUsedTrains[$id]["adresse"]] = $returnArray;
 	array_push($allUsedTrains[$allUsedTrains[$id]]["error"], 3);
