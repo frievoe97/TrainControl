@@ -349,9 +349,10 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $t
 				// und speichert zu dem Index alle möglichen Anpassungen
 				$possibleSpeedRange = null;
 				$returnSpeedDecrease = checkIfTheSpeedCanBeDecreased();
+				$count = 0;
 				while ($returnSpeedDecrease["possible"] && !$finish) {
 					$possibleSpeedRange = findMaxSpeed($returnSpeedDecrease);
-					if ($possibleSpeedRange["min_speed"] == 10 && $possibleSpeedRange["max_speed"] == 10) {
+					if ($possibleSpeedRange["min_speed"] == $possibleSpeedRange["max_speed"]) {
 						break;
 					}
 					$localKeyPoints = $keyPoints;    //lokale Kopie der KeyPoints
@@ -401,6 +402,10 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $t
 						}
 						// TODO: KeyPoints löschen, bei denen speed_0 == speed_1 gilt
 						$newKeyPoints = $localKeyPoints;
+						$count = $count + 1;
+						if ($count == 10) {
+							break;
+						}
 					}
 					$keyPointsPreviousStep = $localKeyPoints;
 					if ($newKeyPoints != null) {
