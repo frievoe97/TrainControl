@@ -6,7 +6,7 @@ $globalSpeedInCurrentSection = 60; // Maximale Geschwindigkeit im aktuellen Absc
 $globalFirstHaltMinTime = 20; // calculateFahrverlauf -> Zeit fürs Wenden...
 $globalIndexBetriebsstelleFreieFahrt = 9999999999999;
 $globalFloatingPointNumbersRoundingError = 0.0000000001;
-$globalTimeOnOneSpeed = 10;
+$globalTimeOnOneSpeed = 20;
 
 $useSpeedFineTuning = true;
 
@@ -14,3 +14,5 @@ $useMinTimeOnSpeed = true;
 $errorMinTimeOnSpeed = false;
 
 $slowDownIfTooEarly = true;
+
+$useRecalibration = true;

@@ -10,7 +10,6 @@ require 'functions/cache_functions.php';
 require 'functions/cache_functions_own.php';
 require 'functions/ebuef_functions.php';
 require 'functions/fahrtverlauf_functions.php';
-require 'define_multicast.php';
 require 'globalVariables.php';
 
 // Set timezone
@@ -21,6 +20,9 @@ date_default_timezone_set("Europe/Berlin");
 
 // Reports only errors
 error_reporting(1);
+
+// Global Variables
+global $useRecalibration;
 
 // Define own train errors
 $trainErrors = array();
@@ -97,13 +99,18 @@ $timeCheckAllTrainsInterval = 3;
 $timeCheckAllTrains = $timeCheckAllTrainsInterval + microtime(true);
 $timeCheckAllTrainErrorsInterval = 30;
 $timeCheckAllTrainErrors = $timeCheckAllTrainErrorsInterval + microtime(true);
+$timeCheckCalibrationInterval = 3;
+$timeCheckCalibration = $timeCheckCalibrationInterval + microtime(true);
 $sleeptime = 0.03;
+
 while (true) {
 	foreach ($allTimes as $timeIndex => $timeValue) {
 		if (sizeof($timeValue) > 0) {
 			$id = $timeValue[0]["id"];
 			if ((microtime(true) + $timeDifference) > $timeValue[0]["live_time"]) {
 				if ($timeValue[0]["live_is_speed_change"]) {
+					$allUsedTrains[$id]["calibrate_section_one"] = null;
+					$allUsedTrains[$id]["calibrate_section_two"] = null;
 					if ($timeValue[0]["betriebsstelle"] == 'Notbremsung') {
 						sendFahrzeugbefehl($timeValue[0]["id"], intval($timeValue[0]["live_speed"]));
 						echo "Der Zug mit der Adresse ", $timeIndex, " leitet gerade eine Gefahrenbremsung ein und hat seine Geschwindigkeit auf ", $timeValue[0]["live_speed"], " km/h angepasst.\n";
@@ -112,6 +119,13 @@ while (true) {
 						echo "Der Zug mit der Adresse ", $timeIndex, " hat auf der Fahrt nach ", $timeValue[0]["betriebsstelle"],
 						" seine Geschwindigkeit auf ", $timeValue[0]["live_speed"], " km/h angepasst.\n";
 					}
+				} else {
+					if (isset($allUsedTrains[$id]["calibrate_section_one"])) {
+						if ($allUsedTrains[$id]["calibrate_section_one"] != $timeValue[0]["live_section"]) {
+							$allUsedTrains[$id]["calibrate_section_two"] = $timeValue[0]["live_section"];
+						}
+					}
+					$allUsedTrains[$id]["calibrate_section_one"] = $timeValue[0]["live_section"];
 				}
 
 				$allUsedTrains[$id]["current_position"] = $timeValue[0]["live_relative_position"];
@@ -179,8 +193,34 @@ while (true) {
 		}
 	}
 
+
+	if ($useRecalibration) {
+		if (microtime(true) > $timeCheckCalibration) {
+			// Neu Kalibrierung
+
+			foreach ($allUsedTrains as $trainKey => $trainValue) {
+				if (isset($allUsedTrains[$trainKey]["calibrate_section_two"])) {
+					echo "Die Position des Fahrzeugs mit der ID: ", $trainKey, " wird neu ermittelt.\n";
+					$newPosition = getCalibratedPosition($trainKey, $allUsedTrains[$trainKey]["current_speed"]);
+					$position = $newPosition["position"];
+					$section = $newPosition["section"];
+					//echo "Die alte Position war Abschnitt: ", $allUsedTrains[$trainKey]["current_section"], " (", number_format($allUsedTrains[$trainKey]["current_position"], 2), " m) und die neue Position ist Abschnitt: ", $section, " (", number_format($position, 2), " m).\n";
+					if ($position > $cacheInfraLaenge[$section] && false) {
+						echo "Position konnte nicht neu kalibriert werden, da die aktuelle Position im Abschnitt größer ist, als die Länge des Abschnitts.\n";
+					} else {
+						//$allUsedTrains[$trainKey]["current_section"] = $section;
+						//$allUsedTrains[$trainKey]["current_position"] = $position;
+						calculateNextSections($trainKey);
+						checkIfFahrstrasseIsCorrrect($trainKey);
+						calculateFahrverlauf($trainKey, true);
+						echo "Die Position des Fahrzeugs mit der ID: ", $trainKey, " wurde neu ermittelt.\n";
+					}
+				}
+			}
+			$timeCheckCalibration = $timeCheckCalibration + $timeCheckCalibrationInterval;
+		}
+	}
 	if (microtime(true) > $timeCheckAllTrains) {
-		//var_dump($allUsedTrains[65]["current_section"]);
 		foreach ($unusedTrains as $unusedTrainsIndex => $unusedTrainsValue) {
 			$id = $cacheAdresseToID[$unusedTrainsValue];
 			compareTwoNaechsteAbschnitte($id);
@@ -209,6 +249,19 @@ while (true) {
 		$timeCheckAllTrains = $timeCheckAllTrains + $timeCheckAllTrainsInterval;
 	}
 	if (microtime(true) > $timeCheckAllTrainErrors) {
+
+		echo "###################################################################################\n";
+		foreach ($allUsedTrains as $trainKey => $trainValue) {
+			echo  "# Zug ID:\t", $trainKey, "\tInfra-Abschnitt:\t", $trainValue["current_section"], "\tPosition:\t", number_format($trainValue["current_position"], 2), " m\t\tRichtung:\t", $trainValue["dir"], " #\n";
+		}
+		echo "###################################################################################\n";
+
+
+
+
+
+
+
 		foreach ($allUsedTrains as $trainKey => $trainValue) {
 			if (sizeof($trainValue["error"]) != 0 && !in_array(3, $trainValue["error"])) {
 				//var_dump($trainValue["id"]);

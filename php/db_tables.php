@@ -44,7 +44,6 @@ define ("DB_TABLE_FAHRSTRASSEN_ELEMENTTYPEN", "fahrstrassen_elementtypen");
 define ("DB_TABLE_FAHRSTRASSEN_FOLGEN", "fahrstrassen_folgen");
 define ("DB_TABLE_FAHRZEUGE", "fahrzeuge");
 define ("DB_TABLE_FAHRZEUGE_ABSCHNITTE", "fahrzeuge_abschnitte");
-define ("DB_TABLE_FAHRZEUGE_AKTUELL", "fahrzeuge_aktuell");				// Added by Friedrich V.
 define ("DB_TABLE_FAHRZEUGE_BAUREIHEN", "fahrzeuge_baureihen");
 define ("DB_TABLE_FAHRZEUGE_BAUREIHE_GRUPPE", "fahrzeuge_baureihe_gruppe");
 define ("DB_TABLE_FAHRZEUGE_DATEN", "fahrzeuge_daten");
