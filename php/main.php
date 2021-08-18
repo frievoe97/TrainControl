@@ -102,7 +102,6 @@ $timeCheckAllTrainErrors = $timeCheckAllTrainErrorsInterval + microtime(true);
 $timeCheckCalibrationInterval = 3;
 $timeCheckCalibration = $timeCheckCalibrationInterval + microtime(true);
 $sleeptime = 0.03;
-
 while (true) {
 	foreach ($allTimes as $timeIndex => $timeValue) {
 		if (sizeof($timeValue) > 0) {
@@ -192,19 +191,16 @@ while (true) {
 			}
 		}
 	}
-
-
+	// Neukalibrierung
 	if ($useRecalibration) {
 		if (microtime(true) > $timeCheckCalibration) {
-			// Neu Kalibrierung
-
 			foreach ($allUsedTrains as $trainKey => $trainValue) {
 				if (isset($allUsedTrains[$trainKey]["calibrate_section_two"])) {
 					echo "Die Position des Fahrzeugs mit der ID: ", $trainKey, " wird neu ermittelt.\n";
 					$newPosition = getCalibratedPosition($trainKey, $allUsedTrains[$trainKey]["current_speed"]);
 					$position = $newPosition["position"];
 					$section = $newPosition["section"];
-					//echo "Die alte Position war Abschnitt: ", $allUsedTrains[$trainKey]["current_section"], " (", number_format($allUsedTrains[$trainKey]["current_position"], 2), " m) und die neue Position ist Abschnitt: ", $section, " (", number_format($position, 2), " m).\n";
+					echo "Die alte Position war Abschnitt: ", $allUsedTrains[$trainKey]["current_section"], " (", number_format($allUsedTrains[$trainKey]["current_position"], 2), " m) und die neue Position ist Abschnitt: ", $section, " (", number_format($position, 2), " m).\n";
 					if ($position > $cacheInfraLaenge[$section] && false) {
 						echo "Position konnte nicht neu kalibriert werden, da die aktuelle Position im Abschnitt größer ist, als die Länge des Abschnitts.\n";
 					} else {
@@ -220,13 +216,12 @@ while (true) {
 			$timeCheckCalibration = $timeCheckCalibration + $timeCheckCalibrationInterval;
 		}
 	}
+	// Überprüfung, ob die Fahrstraße sich geändert hat und ob neue Fahrzeuge auf das Netz gesetzt wurden
 	if (microtime(true) > $timeCheckAllTrains) {
 		foreach ($unusedTrains as $unusedTrainsIndex => $unusedTrainsValue) {
 			$id = $cacheAdresseToID[$unusedTrainsValue];
 			compareTwoNaechsteAbschnitte($id);
 		}
-		// Search new trains.
-		// added to allUsedTrains and to unusedTrains
 		$prevTrains = array_keys($allUsedTrains);
 		findTrainsOnTheTracks();
 		$nextTrains = array_keys($allUsedTrains);
@@ -248,25 +243,20 @@ while (true) {
 		}
 		$timeCheckAllTrains = $timeCheckAllTrains + $timeCheckAllTrainsInterval;
 	}
+	// Ausgabe aller aktuellen Daten der Fahrzeuge
 	if (microtime(true) > $timeCheckAllTrainErrors) {
-
-		echo "###################################################################################\n";
+		echo "#######################################################################################\n";
 		foreach ($allUsedTrains as $trainKey => $trainValue) {
-			echo  "# Zug ID:\t", $trainKey, "\tInfra-Abschnitt:\t", $trainValue["current_section"], "\tPosition:\t", number_format($trainValue["current_position"], 2), " m\t\tRichtung:\t", $trainValue["dir"], " #\n";
+			echo  "# Zug ID:\t", $trainKey, "\tInfra-Abschnitt:\t", $trainValue["current_section"], "\tPosition:\t", number_format($trainValue["current_position"], 2), "\tm\t\tRichtung:\t", $trainValue["dir"], " #\n";
 		}
-		echo "###################################################################################\n";
-
-
-
-
-
-
-
+		echo "#######################################################################################\n";
+		/*
 		foreach ($allUsedTrains as $trainKey => $trainValue) {
 			if (sizeof($trainValue["error"]) != 0 && !in_array(3, $trainValue["error"])) {
 				//var_dump($trainValue["id"]);
 			}
 		}
+		*/
 		$timeCheckAllTrainErrors = $timeCheckAllTrainErrors + $timeCheckAllTrainErrorsInterval;
 	}
 	sleep($sleeptime);

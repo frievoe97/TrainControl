@@ -81,7 +81,10 @@ end
 for i = 1:length(val_it)
     legend_name = string(i) + '. Iteration';
     plot(val_it{i}(:,1),val_it{i}(:,2),'.','markersize',8,'Color', [0.6 0.6 0.6],'DisplayName',legend_name);
+    
 end
+
+%plot(val_it(1,:,1),val_it(1,:,2),'.','markersize',8,'Color', [0.6 0.6 0.6],'DisplayName',legend_name);
 
 % PLot Fahrtverlauf
 plot(speedOverPosition_x_v1,speedOverPosition_y_v1,'LineWidth',4,'Color', [0.25 0.80 0.54],'DisplayName','Fahrtverlauf');
@@ -89,13 +92,19 @@ plot(speedOverPosition_x_v1,speedOverPosition_y_v1,'LineWidth',4,'Color', [0.25 
 %% Füllobjekte
 
 % Plot failed sections
-%{
-fill([1640, 1640, 2040, 2040, 1640], [0, 200, 200, 0, 0], 'b','facealpha',.2,'LineStyle','none');
-%}
+
+%fill([0, 0, 1090, 1090, 0], [0, 200, 200, 0, 0], 'b','facealpha',.2,'LineStyle','none');
+%fill([1090, 1090, 3480, 3480, 1090], [0, 200, 200, 0, 0], 'y','facealpha',.2,'LineStyle','none');
+
 
 %% Text hinzufügen
 
-%text(750,10,'Beispiel','fontsize', 30)<
+text(2100,73,'$s_3, v_1, t_3$','Interpreter','latex','fontsize', 40);
+text(2830,57,'$s_4, v_2, t_4$','Interpreter','latex','fontsize', 40);
+
+%% Braces
+
+
 
 %% Plot formatieren
 
@@ -111,6 +120,7 @@ y0=10;
 width=1100;
 height=600;
 axis([-80 max(vmaxOverPosition_Position)+80 0 max(vmaxOverPosition_v_max)+10]);
+axis([1550 3480 30 100]);
 set(gcf,'position',[x0,y0,width,height]);
 set(gca, 'FontSize', 18);
 set(gca, 'Linewidth', 2);

@@ -39,7 +39,7 @@
 %\usepackage{xcolor}
 \hypersetup{hidelinks}
 
-
+\usepackage{makecell}
 
 \renewcommand{\lstlistingname}{Code-Beispiel}% Listing -> Algorithm
 
@@ -93,7 +93,7 @@
   columns=fullflexible,
   frame=single,
   numbers=left,
-  tabsize=3, % sets default tabsize to 2 spaces
+  tabsize=2, % sets default tabsize to 2 spaces
   breaklines=true,
   breakatwhitespace=true,
   postbreak=\mbox{\textcolor{blue}{$\hookrightarrow$}\space},
@@ -147,17 +147,11 @@
 \newpage
 \input{grundlagen} % implement chapter .tex file from the same folder
 \newpage
-\input{todo}
+\input{fahrtverlauf}
 \newpage
 \input{formula}
-\newpage
-\input{code}
-\newpage
-\input{struktur}
-\newpage
-\input{methodik}
-\newpage
-\input{ablaufplan}
+%\input{struktur}
+%\newpage
 \appendix
 \newpage
 \input{anhang}

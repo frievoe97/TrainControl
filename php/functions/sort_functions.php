@@ -920,7 +920,6 @@ function calculateFahrverlauf($id = false, $recalibrate = false) {
 
 function compareTwoNaechsteAbschnitte(int $id) {
 
-	//global $allTrains;
 	global $allUsedTrains;
 	global $allTimes;
 
@@ -928,6 +927,7 @@ function compareTwoNaechsteAbschnitte(int $id) {
 		$newData = calculateNextSections($id, false);
 		$newNextSection = $newData[0];
 		$newNextLenghts = $newData[1];
+		$newNextVMax = $newData[2];
 		$oldNextSections = $allUsedTrains[$id]["next_sections"];
 		$oldLenghts = $allUsedTrains[$id]["next_lenghts"];
 		$oldNextVMax = $allUsedTrains[$id]["next_v_max"];
@@ -949,7 +949,7 @@ function compareTwoNaechsteAbschnitte(int $id) {
 			$dataIsIdentical = false;
 		} else {
 			for ($i = 0; $i < $keyLatestSection - $keyCurrentSection; $i++) {
-				if ($newNextSection[$i] != $compareNextSections[$i] || $newNextLenghts[$i] != $compareNextLenghts[$i]) {
+				if ($newNextSection[$i] != $compareNextSections[$i] || $newNextLenghts[$i] != $compareNextLenghts[$i] || $newNextVMax[$i] != $compareNextVMax[$i]) {
 					$dataIsIdentical = false;
 					break;
 				}

@@ -235,6 +235,10 @@ function getFahrzeugZugIds ($fahrzeug_ids = array())  {
 
 	$zug_ids = array();
 
+	if (in_array(65, $fahrzeug_ids)) {
+		return $zug_ids;
+	}
+
 	// Wenn nichts übergeben wird, werden alle Zuordnungen Fahrzeug-ID <-> [Zug-ID,position] zurückgegeben
 	if (!isset($fahrzeug_ids) || count($fahrzeug_ids) == 0) {
 		debugMessage("Es wurden keine Fahrzeug-IDs übergeben. Ermittele alle Fahrzeuge, die im Einsatzstehen (Zustand <= ".FZS_FZGZUSTAND_AUFGERUESTET.").");

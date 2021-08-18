@@ -134,7 +134,6 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $t
 	}
 
 	$distanceToNextStop = $cumulativeSectionLengthEnd[$indexTargetSection];
-
 	if (getBrakeDistance($currentSpeed, $targetSpeed, $verzoegerung)> $distanceToNextStop && $currentSpeed != 0) {
 		if (!isset($distanceToNextStop)) {
 			emergencyBreak($train["id"]);
@@ -411,7 +410,7 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $t
 					$returnSpeedDecrease = checkIfTheSpeedCanBeDecreased();
 				}
 				$keyPoints = calculateTimeFromKeyPoints();
-				if ($useSpeedFineTuning) {
+				if ($useSpeedFineTuning && $returnSpeedDecrease["possible"]) {
 					$trainChangeReturn = createTrainChanges(true);
 					$trainPositionChange = $trainChangeReturn[0];
 					$trainSpeedChange = $trainChangeReturn[1];

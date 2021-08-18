@@ -1,12 +1,16 @@
 \section{Formeln}
 \subsection{Weg-Zeit Berechnung}
+\begin{flushleft}
 Für die im folgenden Abschnitt verwendeten Gleichungen gilt:
+\end{flushleft}
+\begin{centering}
 \begin{conditions}
 a     &  Bremsverzoegerung [$m/s^{2}$] \\
 v     &  Geschwindigkeit [$m/s$] \\
 s     &  Strecke [$m$] \\
 t     &  Zeit [$s$]
 \end{conditions}
+\end{centering}
 \noindent Bei einer konstanten Beschleunigung gilt:
 \begin{equation}
 a(t) = a
@@ -26,7 +30,7 @@ s(t) = \int v(t) \,dt
 \begin{equation}
 s(t) =\frac{1}{2} \cdot a \cdot t^{2} + v_{0}  \cdot t + s_{0}
 \end{equation}
-Bei der Verwendung dieser Gleichung werden die Integrationskonstanten $v_{0}$ und $s_{0}$ gleich $0$ gesetzt, damit die Gleichungen allgemein gültig sind. Für die Berechnung des Beschleuniguns- und Abbremsverhalten der Fahrzeuge ist es notwendig zu wissen, welche Strecke ein Fahrzeug zurücklegen muss, um von einer Startgeschwindigkeit $v_{0}$ auf eine Zielgeschwindigkeit $v_{1}$ zu beschleunigen bzw. abzubremsen. Dafür wird die Gleichung für die Geschwindigkeit $v(t)$ nach $t$ umgestellt und und in die Gleichung $s(t)$ eingesetzt. Daraus ergibt sich folgende Gleichung für die Strecke in Abhängigkeit von der Geschwindigkeit:
+Bei der Verwendung dieser Gleichung werden die Integrationskonstanten $v_{0}$ und $s_{0}$ gleich $0$ gesetzt, damit die Gleichungen allgemein gültig sind. Für die Berechnung des Beschleuniguns- und Abbremsverhalten der Fahrzeuge ist es notwendig zu wissen, welche Strecke ein Fahrzeug zurücklegen muss, um von einer Startgeschwindigkeit $v_{0}$ auf eine Zielgeschwindigkeit $v_{1}$ zu beschleunigen bzw. abzubremsen. Dafür wird die Gleichung für die Geschwindigkeit $v(t)$ nach $t(v)$ umgestellt und und in die Gleichung $s(t)$ eingesetzt. Daraus ergibt sich folgende Gleichung für die Strecke in Abhängigkeit von der Geschwindigkeit:
 \begin{equation}
 t(v) = \frac{v}{a}
 \end{equation}
@@ -69,113 +73,21 @@ function getBrakeTime (float $v_0, float $v_1, float $verzoegerung) {
 	}
 }
 \end{lstlisting}
+Für die Berechnung einer Gefahrenbremsung ist es notwendig zu wissen, welche Geschwindigkeit das Fahrzeug an der Stelle der Gefahrenstelle hat. Dafür wird die Gleichung \eqref{eq:s_v_ges} nach $v_{2}$ umgestellt.
+\begin{equation}
+v_{2}(v_{1}, s) = \sqrt{-2 \cdot s \cdot a} + v_{1}
+\end{equation}
 \subsection{Teil 2}
-\begin{table}[]
-\begin{center}
-\renewcommand{\arraystretch}{1.2}
-\begin{tabular}[h]{c| C{3cm} |c}
-Infrastrukturabschnitts-ID & Länge & zulässige Höchstgeschwindigkeit \\ \hline
-1000                   &   300 $m$    & 120 $km/h$                        \\ \hline
-1001                  &    400 $m$   & 120 $km/h$                        \\ \hline
-1002                   &   300 $m$    &        120 $km/h$                         \\ \hline
-1003                   &    400 $m$   &         90 $km/h$                        \\ \hline
-1004                   &    300 $m$   &            60 $km/h$                     \\ \hline
-1005                   &   200 $m$    &           60 $km/h$                      \\ \hline
-1006                   &  400 $m$     &      90 $km/h$                           \\ \hline
-1007                   &  500 $m$     &      120 $km/h$                           \\ \hline
-1008                   &   300 $m$    &      120 $km/h$                           \\ \hline
-1009                   &   400 $m$    &      100 $km/h$                           \\ \hline
-1010                   &   300 $m$    &      60 $km/h$                           \\ \hline
-1011                   &   300 $m$    &         40 $km/h$                        \\ 
-\end{tabular}
-\renewcommand{\arraystretch}{1}
-\caption{Beispiel Infrastrukturabschnitte}
-\end{center}
-\end{table}
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-\begin{table}[]
-\begin{center}
-\renewcommand{\arraystretch}{1.2}
-\begin{tabular}[h]{r L{3cm}}
-
-relative Startposition                   &   10 $m$                         \\ 
-relative Zielposition                  &    290 $m$                         \\ 
-aktueller Infrastrukturabschnitt                   &   1001                         \\ 
-Ziel-Infrastrukturabschnitt                  &    1010                         \\ 
-Startgeschwindigkeit                   &   0 $km/h$                          \\ 
-Zielgeschwindigkeit                   &    0 $km/h$                        \\ 
-Zuglänge                   &    50 $m$                        \\ 
-Bremsverzögerung                   &    0,8 $m/s^{2}$                        \\ 
-Fahrplan vorhanden                   &    ja                        \\ 
-Zeit bis zur nächsten Betriebsstelle                   &    210 $s$                        \\ 
-
-\end{tabular}
-\renewcommand{\arraystretch}{1}
-\caption{Beispiel Zugdaten}
-\end{center}
-\end{table}
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. In der nächsten Darstellung sind die beispielhaften Infrastruktabschnitte bildlich dargestellt. Auf der x-Achse ist die Strecke in Metern angegeben und auf der y-Achse die zulässige Höchstgeschwindigkeit.
-\begin{figure}[H]
-  \includegraphics[width=\linewidth]{../matlab/it_0_1.pdf}
-  \caption{Darstellung der Geschwindigkeit des Fahrzeugs über die Strecke}
-\end{figure}
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-\begin{figure}[H]
-  \includegraphics[width=\linewidth]{../matlab/it_0_2.pdf}
-  \caption{Darstellung der Geschwindigkeit des Fahrzeugs über die Strecke}
-\end{figure}
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-\begin{figure}[H]
-  \includegraphics[width=\linewidth]{../matlab/it_1.pdf}
-  \caption{Darstellung der Geschwindigkeit des Fahrzeugs über die Strecke}
-\end{figure}
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-\begin{figure}[H]
-  \includegraphics[width=\linewidth]{../matlab/it_2.pdf}
-  \caption{Darstellung der Geschwindigkeit des Fahrzeugs über die Strecke}
-\end{figure}
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-\begin{figure}[H]
-  \includegraphics[width=\linewidth]{../matlab/it_3.pdf}
-  \caption{Darstellung der Geschwindigkeit des Fahrzeugs über die Strecke}
-\end{figure}
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-\begin{figure}[H]
-  \includegraphics[width=\linewidth]{../matlab/it_4.pdf}
-  \caption{Darstellung der Geschwindigkeit des Fahrzeugs über die Strecke}
-\end{figure}
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-\begin{figure}[H]
-  \includegraphics[width=\linewidth]{../matlab/it_5.pdf}
-  \caption{Darstellung der Geschwindigkeit des Fahrzeugs über die Strecke}
-\end{figure}
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-\begin{figure}[H]
-  \includegraphics[width=\linewidth]{../matlab/it_6.pdf}
-  \caption{Darstellung der Geschwindigkeit des Fahrzeugs über die Strecke}
-\end{figure}
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-\begin{figure}[H]
-  \includegraphics[width=\linewidth]{../matlab/it_7.pdf}
-  \caption{Darstellung der Geschwindigkeit des Fahrzeugs über die Strecke}
-\end{figure}
-
-
-
 \subsection{speedFineTuning}
-
 Es gilt:
-
 \begin{equation}
 \label{eq:t_ges}
 t_{ges} = t_{1} + t_{2}
 \end{equation}
-
 \begin{equation}
 \label{eq:s_ges}
 s_{ges} = s_{1} + s_{2}
 \end{equation}
-
 \begin{equation}
 \label{eq:s_v_t}
 s = v \cdot t
@@ -189,6 +101,8 @@ Durch das Umstellen der Gleichung \eqref{eq:t_ges} nach $t_{2}$ und dem Einsetze
 \begin{equation}
 t_{1} = \frac{s_{ges} - v_{2} \cdot t_{ges}}{v_{1} - v_{2}}
 \end{equation}
+
+
 
 
 
