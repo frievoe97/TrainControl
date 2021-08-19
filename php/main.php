@@ -242,6 +242,7 @@ while (true) {
 			echo "\n";
 		}
 		foreach ($newTrains as $newTrain) {
+			$allTrains = getAllTrains();
 			$id = $cacheDecoderToID[$newTrain];
 			prepareTrainForRide($newTrain);
 			consoleCheckIfStartDirectionIsCorrect($id);
@@ -258,6 +259,7 @@ while (true) {
 			foreach ($removeTrains as $removeTrain) {
 				$id = $cacheDecoderToID[$removeTrain];
 				unset($allUsedTrains[$id]);
+				// DELETE FROM ALLTIMES
 				echo "\tID:\t", $id, "\tAdresse:\t", $removeTrain;
 			}
 			echo "\n";

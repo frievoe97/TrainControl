@@ -225,6 +225,7 @@ function prepareTrainForRide(int $adresse) {
 	$allUsedTrains[$trainID]["error"] = array();
 	$allUsedTrains[$trainID]["operates_on_timetable"] = false;
 	$allUsedTrains[$trainID]["fahrstrasse_is_correct"] = false;
+	// TODO: Update speed
 	$allUsedTrains[$trainID]["current_speed"] = intval($allTrains[$trainID]["speed"]);
 	$allUsedTrains[$trainID]["current_position"] = null;
 	$allUsedTrains[$trainID]["current_section"] = null;
