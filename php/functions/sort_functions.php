@@ -527,18 +527,20 @@ function changeDirection (int $id) {
 		echo "\tDie Zuglänge beträgt:\t", $length, " m\n\tDie Distanz zwischen Zugende und dem auf Halt stehenden Signal beträgt:\t", ($cumLength - ($cacheInfraLaenge[$section] - $position)), " m\n\n";
 		array_push($allUsedTrains[$id]["error"], 0);
 	}  else {
-		echo "Die Richtung des Zugs mit der ID: ", $id, " wurde geändert.\n";
+		echo "Die Richtung des Zugs mit der ID: ", $id, " wurde auf ", $newDirection, " geändert.\n";
 		$allUsedTrains[$id]["current_section"] = $newSection;
 		$allUsedTrains[$id]["current_position"] = $newPosition;
 		$allUsedTrains[$id]["dir"] = $newDirection;
 		$allUsedTrains[$id]["earliest_possible_start_time"] = FZS_WARTEZEIT_WENDEN + time() + $timeDifference;
 		sendFahrzeugbefehl($id, -4);
+		/*
 		$DB = new DB_MySQL();
 		$DB->select("UPDATE `".DB_TABLE_FAHRZEUGE."`
                             SET `".DB_TABLE_FAHRZEUGE."`.`dir` = $newDirection
                             WHERE `".DB_TABLE_FAHRZEUGE."`.`adresse` = $adress
                            ");
 		unset($DB);
+		*/
 	}
 }
 
