@@ -232,7 +232,7 @@ function createCacheGbtToInfra () {
 	return $returnArray;
 }
 
-function createCacheFmaToInfra() {
+function createCacheFmaToInfra () {
 
 	$DB = new DB_MySQL();
 	$returnArray = array();
@@ -266,6 +266,45 @@ function createCacheToBetriebsstelle() {
 		$returnArray[intval($value->id)] = $value->betriebsstelle;
 	}
 
+	return $returnArray;
+}
+
+function createCacheFahrzeugeAbschnitte () {
+
+	$DB = new DB_MySQL();
+
+	$returnArray = array();
+
+	$fahrzeugeAbschnitte = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE_ABSCHNITTE."`.`fahrzeug_id`,
+                                `".DB_TABLE_FAHRZEUGE_ABSCHNITTE."`.`infra_id`,
+                                 `".DB_TABLE_FAHRZEUGE_ABSCHNITTE."`.`unixtimestamp`
+                                FROM `".DB_TABLE_FAHRZEUGE_ABSCHNITTE."`
+                                ");
+	unset($DB);
+
+	foreach ($fahrzeugeAbschnitte as $fahrzeug) {
+		$returnArray[intval($fahrzeug->fahrzeug_id)]["infra_id"] = intval($fahrzeug->infra_id);
+		$returnArray[intval($fahrzeug->fahrzeug_id)]["unixtimestamp"] = intval($fahrzeug->unixtimestamp);
+	}
+
+	return $returnArray;
+
+}
+
+function createCacheDecoderToAdresse () {
+
+	$DB = new DB_MySQL();
+	$returnArray = array();
+
+	$decoderToAdresse = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE."`.`id`,
+                                `".DB_TABLE_FAHRZEUGE."`.`adresse`
+                                FROM `".DB_TABLE_FAHRZEUGE."`
+                                ");
+	unset($DB);
+
+	foreach ($decoderToAdresse as $fahrzeug) {
+		$returnArray[intval($fahrzeug->id)] = intval($fahrzeug->adresse);
+	}
 	return $returnArray;
 }
 

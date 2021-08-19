@@ -1,30 +1,13 @@
 <?php
 
 // Prozess zur Überwachung der Gleisfreimeldeabschnitte für die Fahrzeugsteuerung
-/*
-define ("PRAEFIX",dirname(__FILE__).'/../../');
-@session_start();
-
-require_once PRAEFIX.'config/server_ebuef.php';
-require_once PRAEFIX.'config/db_tables.php';
-require_once PRAEFIX.'config/config.php';
-require_once PRAEFIX.'includes/classes/mysql.php';
-
-require_once PRAEFIX.'config/multicast.php';
-
-$u = 0;
-*/
-
 require 'vorbelegung.php';
 require 'functions/sort_functions.php';
-require 'functions/cache_functions.php';
 require 'functions/cache_functions_own.php';
 require 'functions/ebuef_functions.php';
 require 'functions/fahrtverlauf_functions.php';
 require 'globalVariables.php';
 require 'config/multicast.php';
-
-
 
 // --------------------------------------------------------------------------------------------------------
 // Vorabfrage von Daten zur Ablage in Arrays / EBuEf-Funktionen
