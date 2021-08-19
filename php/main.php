@@ -237,17 +237,6 @@ while (true) {
 			}
 			echo "\n";
 		}
-
-		if (sizeof($removeTrains) > 0) {
-			echo "Entfernte  Züge: \n";
-			foreach ($removeTrains as $removeTrain) {
-				$id = $cacheDecoderToID[$removeTrain];
-				unset($allUsedTrains[$id]);
-				echo "\tID:\t", $id, "\tAdresse:\t", $removeTrain;
-			}
-			echo "\n";
-		}
-
 		foreach ($newTrains as $newTrain) {
 			$id = $cacheDecoderToID[$newTrain];
 			prepareTrainForRide($newTrain);
@@ -256,9 +245,18 @@ while (true) {
 			addStopsectionsForTimetable($id);
 			initalFirstLiveData($id);
 			calculateNextSections($id);
-			//checkIfTrainReachedHaltepunkt($id);
+			checkIfTrainReachedHaltepunkt($id);
 			checkIfFahrstrasseIsCorrrect($id);
 			calculateFahrverlauf($id);
+		}
+		if (sizeof($removeTrains) > 0) {
+			echo "Entfernte  Züge: \n";
+			foreach ($removeTrains as $removeTrain) {
+				$id = $cacheDecoderToID[$removeTrain];
+				unset($allUsedTrains[$id]);
+				echo "\tID:\t", $id, "\tAdresse:\t", $removeTrain;
+			}
+			echo "\n";
 		}
 		$timeCheckAllTrains = $timeCheckAllTrains + $timeCheckAllTrainsInterval;
 	}

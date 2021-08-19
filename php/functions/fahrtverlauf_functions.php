@@ -62,7 +62,6 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $t
 	$targetBetriebsstelle = null;
 	$indexReachedBetriebsstelle = $targetSignal;
 
-
 	/*
 	$targetTime = $startTime + 210;
 	$next_sections = array(100, 1189, 101, 102, 103, 104, 105, 106, 107, 108, 1182, 107);
@@ -75,9 +74,6 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $t
 	$train_v_max = 120;
 	$train_length = 50;
 	*/
-
-
-	// TODO: Zug länger als bis zum nächsten ZIEL?! Was dann?
 
 	if (!$freieFahrt) {
 		$targetBetriebsstelle = $train["next_betriebsstellen_data"][$indexReachedBetriebsstelle]["betriebstelle"];
@@ -161,6 +157,7 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $t
 		$next_v_max_mod = $next_v_max;
 		$indexCurrentSectionMod = $indexCurrentSection;
 		$indexTargetSectionMod = $indexTargetSection;
+		$next_lengths_mod[$indexTargetSectionMod] = $targetPosition;
 	} else {
 		$startPosition = 0;
 		$indexStartPosition = null;
@@ -200,12 +197,11 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $t
 			array_push($next_v_max_mod, $current_v_max);
 			$startPosition = $endPosition;
 		} while (!$reachedTargetSection);
+		$indexCurrentSectionMod = array_key_first($next_lengths_mod);
+		$indexTargetSectionMod = array_key_last($next_lengths_mod);
 	}
 
-	$indexCurrentSectionMod = array_key_first($next_lengths_mod);
-	$indexTargetSectionMod = array_key_last($next_lengths_mod);
-
-	$returnCumulativeSectionsMod = createCumulativeSections($indexCurrentSectionMod,$indexTargetSectionMod,$currentPosition, $next_lengths_mod[$indexTargetSectionMod], $next_lengths_mod);
+	$returnCumulativeSectionsMod = createCumulativeSections($indexCurrentSectionMod, $indexTargetSectionMod, $currentPosition, $next_lengths_mod[$indexTargetSectionMod], $next_lengths_mod);
 
 	global $cumulativeSectionLengthStartMod;
 	global $cumulativeSectionLengthEndMod;
