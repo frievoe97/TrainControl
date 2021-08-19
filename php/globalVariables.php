@@ -9,10 +9,7 @@ $globalFloatingPointNumbersRoundingError = 0.0000000001;
 $globalTimeOnOneSpeed = 20;
 
 $useSpeedFineTuning = true;
-
 $useMinTimeOnSpeed = true;
 $errorMinTimeOnSpeed = false;
-
 $slowDownIfTooEarly = true;
-
 $useRecalibration = true;

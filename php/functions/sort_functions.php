@@ -735,6 +735,9 @@ function checkIfTrainReachedHaltepunkt ($id = false) {
 			for ($i = 0; $i < sizeof($trainValue["next_betriebsstellen_data"]); $i++) {
 				if (sizeof(array_intersect($trainValue["next_betriebsstellen_data"][$i]["haltepunkte"], $allInfraSections)) != 0) {
 					$allUsedTrains[$trainIndex]["next_betriebsstellen_data"][$i]["angekommen"] = true;
+					for ($j = 0; $j < $i; $j++) {
+						$allUsedTrains[$trainIndex]["next_betriebsstellen_data"][$j]["angekommen"] = true;
+					}
 				} else {
 					$allUsedTrains[$trainIndex]["next_betriebsstellen_data"][$i]["angekommen"] = false;
 				}

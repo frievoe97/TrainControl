@@ -60,6 +60,8 @@ $realStartTime = time();
 $realEndTime = $realStartTime + $simulationDuration;
 $timeDifference = $simulationStartTimeToday - $realStartTime;
 
+var_dump($cacheInfraLaenge);
+
 // Start Message
 startMessage();
 
