@@ -1,11 +1,13 @@
 <?php
 // Load all required external files
+require 'config/multicast.php';
 require 'vorbelegung.php';
 require 'functions/sort_functions.php';
 require 'functions/cache_functions_own.php';
 require 'functions/ebuef_functions.php';
 require 'functions/fahrtverlauf_functions.php';
 require 'globalVariables.php';
+
 
 // Set timezone
 date_default_timezone_set("Europe/Berlin");
