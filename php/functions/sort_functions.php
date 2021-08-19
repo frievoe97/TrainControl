@@ -463,8 +463,21 @@ function consoleCheckIfStartDirectionIsCorrect($id = false) {
 	foreach ($allUsedTrains as $train) {
 		if ($checkAllTrains || $train["id"] == $id) {
 			if ($train["operates_on_timetable"]) {
-				if ($train["dir"] != $train["next_betriebsstellen_data"][0]["zeiten"]["fahrtrichtung"][1]) {
-					changeDirection($train["id"]);
+				for ($i = 0; $i < sizeof($train["next_betriebsstellen_data"]); $i++) {
+					$endLoop = 0;
+					/*
+					if (!$train["next_betriebsstellen_data"][$i]["angekommen"]) {
+						if ($train["dir"] != $train["next_betriebsstellen_data"][$i]["zeiten"]["fahrtrichtung"][1]) {
+							changeDirection($train["id"]);
+						}
+					}
+					*/
+					if ($train["next_betriebsstellen_data"][$i]["angekommen"]) {
+						$endLoop = $i;
+					}
+					if ($train["dir"] != $train["next_betriebsstellen_data"][$endLoop]["zeiten"]["fahrtrichtung"][1]) {
+						changeDirection($train["id"]);
+					}
 				}
 			}
 		}
