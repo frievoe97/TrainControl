@@ -65,11 +65,13 @@ function addFahrzeugbelegung(int $infra_id, int $decoder_adresse = NULL) {
 
 
   // Ermittele die Fahrzeug-ID
-  $fahrzeug_id = getFahrzeugimInfraAbschnitt($infra_id);    
+  $fahrzeug_id = getFahrzeugimInfraAbschnitt($infra_id);  
+  echo "Fahrzeug-ID aus Abschnitt gefunden: ".$fahrzeug_id."\n";  
  } else {
-  $fahrzeug_id = array_keys($fahrzeuge,$decoder_adresse);
-  
-  if (!$fahrzeug_id) { return false; }
+  $fahrzeug_id = array_search($decoder_adresse,$fahrzeuge);
+ 
+  echo "Fahrzeug-ID aus Array gefunden: ".$fahrzeug_id."\n";
+  if (!$fahrzeug_id) { echo "Keine Fahrzeug-ID!\n"; return false; }
  }
 
 
@@ -83,6 +85,10 @@ function addFahrzeugbelegung(int $infra_id, int $decoder_adresse = NULL) {
    $DB->query("INSERT INTO `".DB_TABLE_FAHRZEUGE_ABSCHNITTE."` (`fahrzeug_id`, `infra_id`, `unixtimestamp`) 
                VALUES ('".$fahrzeug_id."', '".$infra_id."', '".time()."') 
                ON DUPLICATE KEY UPDATE `infra_id` = '".$infra_id."', `unixtimestamp` = '".time()."' ");
+
+/*echo "INSERT INTO `".DB_TABLE_FAHRZEUGE_ABSCHNITTE."` (`fahrzeug_id`, `infra_id`, `unixtimestamp`) 
+               VALUES ('".$fahrzeug_id."', '".$infra_id."', '".time()."') 
+               ON DUPLICATE KEY UPDATE `infra_id` = '".$infra_id."', `unixtimestamp` = '".time()."' "; */
    unset($DB);
   }
  }
