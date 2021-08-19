@@ -407,6 +407,49 @@ function consoleAllTrainsPositionAndFahrplan($id = false) {
 	echo "\n";
 }
 
+function showFahrplan ($id = false) {
+
+	global $allUsedTrains;
+	$checkAllTrains = true;
+
+	if ($id != false) {
+		$checkAllTrains = false;
+	} else {
+		echo "Alle vorhandenen Fahrpläne:\n\n";
+	}
+
+	foreach ($allUsedTrains as $train) {
+		if ($checkAllTrains || $train["id"] == $id) {
+			$fahrplan = null;
+			$error = null;
+			$zugId = null;
+			if ($train["operates_on_timetable"]) {
+				if (!isset($train["zug_id"])) {
+					$zugId = '-----';
+				} else {
+					$zugId = $train["zug_id"];
+				}
+				$nextStations = '';
+				$lastStation = '';
+				//var_dump($train["next_betriebsstellen_data"]);
+				foreach ($train["next_betriebsstellen_data"] as $bs) {
+					if (!$bs["angekommen"]) {
+						$nextStations = $nextStations . $bs["betriebstelle"] . ' ';
+
+					} else {
+						$lastStation = $bs["betriebstelle"];
+					}
+				}
+				if ($lastStation == '') {
+					$lastStation = '---';
+				}
+				echo "Zug ID: ", $train["id"], " (Adresse: ", $train["adresse"], ", Zug ID: ", $zugId, ")\t Letzte Station: ", $lastStation, " \tNächste Stationen: ", $nextStations, "\n";
+			}
+		}
+	}
+	echo "\n";
+}
+
 function consoleCheckIfStartDirectionIsCorrect($id = false) {
 	global $allUsedTrains;
 

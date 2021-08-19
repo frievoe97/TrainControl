@@ -91,7 +91,8 @@ checkIfFahrstrasseIsCorrrect();
 
 // Calculate driving curve
 calculateFahrverlauf();
-$unusedTrains = array_keys($allTimes);
+
+//$unusedTrains = array_keys($allTimes);
 $timeCheckAllTrainsInterval = 3;
 $timeCheckAllTrains = $timeCheckAllTrainsInterval + microtime(true);
 $timeCheckAllTrainErrorsInterval = 30;
@@ -180,9 +181,11 @@ while (true) {
 						}
 					}
 				}
+				/*
 				if (sizeof($timeValue) == 1 && !in_array($timeIndex, $unusedTrains)) {
 					array_push($unusedTrains, $timeIndex);
 				}
+				*/
 				array_shift($allTimes[$timeIndex]);
 			}
 		}
@@ -253,7 +256,7 @@ while (true) {
 			addStopsectionsForTimetable($id);
 			initalFirstLiveData($id);
 			calculateNextSections($id);
-			checkIfTrainReachedHaltepunkt($id);
+			//checkIfTrainReachedHaltepunkt($id);
 			checkIfFahrstrasseIsCorrrect($id);
 			calculateFahrverlauf($id);
 		}
@@ -262,6 +265,7 @@ while (true) {
 	// Ausgabe aller aktuellen Daten der Fahrzeuge
 	if (microtime(true) > $timeCheckAllTrainErrors) {
 		consoleAllTrainsPositionAndFahrplan();
+		showFahrplan();
 		$timeCheckAllTrainErrors = $timeCheckAllTrainErrors + $timeCheckAllTrainErrorsInterval;
 	}
 	sleep($sleeptime);
