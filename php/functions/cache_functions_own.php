@@ -3,14 +3,8 @@
 function createcacheInfraLaenge() {
 	$DB = new DB_MySQL();
 	$returnArray = array();
-
-	$infralaenge = $DB->select("SELECT `".DB_TABLE_INFRAZUSTAND."`.`id`,
-                                `".DB_TABLE_INFRAZUSTAND."`.`laenge`
-                                FROM `".DB_TABLE_INFRAZUSTAND."`
-                                WHERE `".DB_TABLE_INFRAZUSTAND."`.`type` = '"."gleis"."'
-                                ");
+	$infralaenge = $DB->select("SELECT `".DB_TABLE_INFRAZUSTAND."`.`id`, `".DB_TABLE_INFRAZUSTAND."`.`laenge` FROM `".DB_TABLE_INFRAZUSTAND."` WHERE `".DB_TABLE_INFRAZUSTAND."`.`type` = '"."gleis"."'");
 	unset($DB);
-
 	foreach ($infralaenge as $data) {
 		if ($data->laenge != null) {
 			$returnArray[$data->id] = intval($data->laenge);
@@ -24,10 +18,7 @@ function createCacheHaltepunkte() : array{
 	$DB = new DB_MySQL();
 	$returnArray = array();
 
-	$betriebsstellen = $DB->select("SELECT `".DB_TABLE_BETRIEBSSTELLEN_DATEN."`.`parent_kuerzel`
-                                FROM `".DB_TABLE_BETRIEBSSTELLEN_DATEN."`
-                                WHERE `".DB_TABLE_BETRIEBSSTELLEN_DATEN."`.`parent_kuerzel` IS NOT NULL
-                                ");
+	$betriebsstellen = $DB->select("SELECT `".DB_TABLE_BETRIEBSSTELLEN_DATEN."`.`parent_kuerzel` FROM `".DB_TABLE_BETRIEBSSTELLEN_DATEN."` WHERE `".DB_TABLE_BETRIEBSSTELLEN_DATEN."`.`parent_kuerzel` IS NOT NULL");
 	unset($DB);
 
 	foreach ($betriebsstellen as $betriebsstelle) {
@@ -43,49 +34,17 @@ function createCacheHaltepunkte() : array{
 		$bksig = "BkSig";
 		$vsig = "VSig";
 		$ja = "ja";
-
 		if ($betriebsstelleKey == 'XAB' || $betriebsstelleKey == "XBL") {
-
-			$haltepunkte = $DB->select("SELECT `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id`, 
-                                `".DB_TABLE_SIGNALE_STANDORTE."`.`wirkrichtung`
-                                FROM `".DB_TABLE_SIGNALE_STANDORTE."`
-                                WHERE `".DB_TABLE_SIGNALE_STANDORTE."`.`betriebsstelle` LIKE '$name'
-                                AND `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id` IS NOT NULL
-                                AND `".DB_TABLE_SIGNALE_STANDORTE."`.`fahrplanhalt` = '$ja'
-                                ");
+			$haltepunkte = $DB->select("SELECT `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id`, `".DB_TABLE_SIGNALE_STANDORTE."`.`wirkrichtung` FROM `".DB_TABLE_SIGNALE_STANDORTE."` WHERE `".DB_TABLE_SIGNALE_STANDORTE."`.`betriebsstelle` LIKE '$name' AND `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id` IS NOT NULL AND `".DB_TABLE_SIGNALE_STANDORTE."`.`fahrplanhalt` = '$ja'");
 			unset($DB);
-
 		} else if ($betriebsstelleKey == 'XTS') {
-
-			$haltepunkte = $DB->select("SELECT `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id`, 
-                                `".DB_TABLE_SIGNALE_STANDORTE."`.`wirkrichtung`
-                                FROM `".DB_TABLE_SIGNALE_STANDORTE."`
-                                WHERE `".DB_TABLE_SIGNALE_STANDORTE."`.`betriebsstelle` LIKE '$name'
-                                AND `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id` IS NOT NULL
-                                AND `" . DB_TABLE_SIGNALE_STANDORTE . "`.`signaltyp` = '$bksig'
-                                ");
+			$haltepunkte = $DB->select("SELECT `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id`, `".DB_TABLE_SIGNALE_STANDORTE."`.`wirkrichtung` FROM `".DB_TABLE_SIGNALE_STANDORTE."` WHERE `".DB_TABLE_SIGNALE_STANDORTE."`.`betriebsstelle` LIKE '$name' AND `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id` IS NOT NULL AND `" . DB_TABLE_SIGNALE_STANDORTE . "`.`signaltyp` = '$bksig'");
 			unset($DB);
-
 		} else if ($betriebsstelleKey == 'XLG') {
-
-			$haltepunkte = $DB->select("SELECT `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id`, 
-                                `".DB_TABLE_SIGNALE_STANDORTE."`.`wirkrichtung`
-                                FROM `".DB_TABLE_SIGNALE_STANDORTE."`
-                                WHERE `".DB_TABLE_SIGNALE_STANDORTE."`.`betriebsstelle` LIKE '$name'
-                                AND `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id` IS NOT NULL
-                                AND `" . DB_TABLE_SIGNALE_STANDORTE . "`.`signaltyp` != '$vsig'
-                                ");
+			$haltepunkte = $DB->select("SELECT `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id`, `".DB_TABLE_SIGNALE_STANDORTE."`.`wirkrichtung` FROM `".DB_TABLE_SIGNALE_STANDORTE."` WHERE `".DB_TABLE_SIGNALE_STANDORTE."`.`betriebsstelle` LIKE '$name' AND `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id` IS NOT NULL AND `" . DB_TABLE_SIGNALE_STANDORTE . "`.`signaltyp` != '$vsig'");
 			unset($DB);
-
 		} else {
-
-			$haltepunkte = $DB->select("SELECT `" . DB_TABLE_SIGNALE_STANDORTE . "`.`freimelde_id`, 
-                                `" . DB_TABLE_SIGNALE_STANDORTE . "`.`wirkrichtung`
-                                FROM `" . DB_TABLE_SIGNALE_STANDORTE . "`
-                                WHERE `" . DB_TABLE_SIGNALE_STANDORTE . "`.`betriebsstelle` LIKE '$name'
-                                AND `" . DB_TABLE_SIGNALE_STANDORTE . "`.`freimelde_id` IS NOT NULL
-                                AND `" . DB_TABLE_SIGNALE_STANDORTE . "`.`signaltyp` = '$asig'
-                                ");
+			$haltepunkte = $DB->select("SELECT `" . DB_TABLE_SIGNALE_STANDORTE . "`.`freimelde_id`, `" . DB_TABLE_SIGNALE_STANDORTE . "`.`wirkrichtung` FROM `" . DB_TABLE_SIGNALE_STANDORTE . "` WHERE `" . DB_TABLE_SIGNALE_STANDORTE . "`.`betriebsstelle` LIKE '$name' AND `" . DB_TABLE_SIGNALE_STANDORTE . "`.`freimelde_id` IS NOT NULL AND `" . DB_TABLE_SIGNALE_STANDORTE . "`.`signaltyp` = '$asig'");
 			unset($DB);
 		}
 
@@ -98,98 +57,47 @@ function createCacheHaltepunkte() : array{
 		}
 	}
 	$returnArray["XSC"][1] = array(734, 732, 735, 733, 692); // In der Datenbank ist für Richtung 1 für diese Abschnitte fahrplanhalt auf nein eingestellt
-	//var_dump($returnArray);
-	//sleep(10);
 	return $returnArray;
 }
 
 function createChacheZwischenhaltepunkte() {
-
 	$DB = new DB_MySQL();
 	$allZwischenhalte = array();
 	$returnArray = array();
-
-	$zwischenhalte = $DB->select("SELECT DISTINCT `".DB_TABLE_SIGNALE_STANDORTE."`.`betriebsstelle`
-                                FROM `".DB_TABLE_SIGNALE_STANDORTE."`
-                                WHERE `".DB_TABLE_SIGNALE_STANDORTE."`.`betriebsstelle` IS NOT NULL
-                                ");
+	$zwischenhalte = $DB->select("SELECT DISTINCT `".DB_TABLE_SIGNALE_STANDORTE."`.`betriebsstelle` FROM `".DB_TABLE_SIGNALE_STANDORTE."` WHERE `".DB_TABLE_SIGNALE_STANDORTE."`.`betriebsstelle` IS NOT NULL");
 	unset($DB);
-
-
-
 	foreach ($zwischenhalte as $halt) {
 		array_push($allZwischenhalte, $halt->betriebsstelle);
 	}
-
-
-
-
 	foreach ($allZwischenhalte as $halt) {
-
 		$DB = new DB_MySQL();
-
-		$zwischenhalte = $DB->select("SELECT `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id`
-                                FROM `".DB_TABLE_SIGNALE_STANDORTE."`
-                                WHERE `".DB_TABLE_SIGNALE_STANDORTE."`.`betriebsstelle` = '$halt'
-                                AND `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id` IS NOT NULL
-                                ");
+		$zwischenhalte = $DB->select("SELECT `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id` FROM `".DB_TABLE_SIGNALE_STANDORTE."` WHERE `".DB_TABLE_SIGNALE_STANDORTE."`.`betriebsstelle` = '$halt' AND `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id` IS NOT NULL");
 		unset($DB);
-
-
-
 		if (sizeof($zwischenhalte) == 1) {
-			$returnArray[$halt] = intval($zwischenhalte[0]->freimelde_id);
+			if (sizeof(explode("_", $halt)) == 2) {
+				$returnArray[$halt] = intval($zwischenhalte[0]->freimelde_id);
+			}
 		}
-
 	}
-
 	return $returnArray;
-
-
-
-
-
 }
 
 function createCacheInfraToGbt () {
-
 	$DB = new DB_MySQL();
-
 	$infraArray = array();
 	$returnArray = array();
-
-	$allInfra = $DB->select("SELECT  `".DB_TABLE_FMA_GBT."`.`infra_id`
-                                FROM `".DB_TABLE_FMA_GBT."`
-                                WHERE `".DB_TABLE_FMA_GBT."`.`infra_id` IS NOT NULL
-                                ");
+	$allInfra = $DB->select("SELECT  `".DB_TABLE_FMA_GBT."`.`infra_id` FROM `".DB_TABLE_FMA_GBT."` WHERE `".DB_TABLE_FMA_GBT."`.`infra_id` IS NOT NULL");
 	unset($DB);
-
-
-
 	foreach ($allInfra as $infra) {
 		array_push($infraArray, intval($infra->infra_id));
 	}
-
-
-
 	foreach ($infraArray as  $infra) {
 		$DB = new DB_MySQL();
-
-		$gbt = $DB->select("SELECT  `".DB_TABLE_FMA_GBT."`.`gbt_id`
-                                FROM `".DB_TABLE_FMA_GBT."`
-                                WHERE `".DB_TABLE_FMA_GBT."`.`infra_id` = '$infra'
-                                ")[0]->gbt_id;
+		$gbt = $DB->select("SELECT  `".DB_TABLE_FMA_GBT."`.`gbt_id` FROM `".DB_TABLE_FMA_GBT."` WHERE `".DB_TABLE_FMA_GBT."`.`infra_id` = '$infra'")[0]->gbt_id;
 		unset($DB);
-
 		$returnArray[$infra] = intval($gbt);
-
-
-
 	}
-
-
 	return $returnArray;
-
 }
 
 function createCacheGbtToInfra () {
@@ -198,110 +106,61 @@ function createCacheGbtToInfra () {
 
 	$returnArray = array();
 
-	$allGbt = $DB->select("SELECT DISTINCT `".DB_TABLE_FMA_GBT."`.`gbt_id`
-                                FROM `".DB_TABLE_FMA_GBT."`
-                                WHERE `".DB_TABLE_FMA_GBT."`.`gbt_id` IS NOT NULL
-                                ");
+	$allGbt = $DB->select("SELECT DISTINCT `".DB_TABLE_FMA_GBT."`.`gbt_id` FROM `".DB_TABLE_FMA_GBT."` WHERE `".DB_TABLE_FMA_GBT."`.`gbt_id` IS NOT NULL");
 	unset($DB);
-
-
 
 	foreach ($allGbt as  $gbt) {
 		$DB = new DB_MySQL();
-
 		$gbt = $gbt->gbt_id;
-
-		$infras = $DB->select("SELECT  `".DB_TABLE_FMA_GBT."`.`infra_id`
-                                FROM `".DB_TABLE_FMA_GBT."`
-                                WHERE `".DB_TABLE_FMA_GBT."`.`gbt_id` = '$gbt'
-                                ");
+		$infras = $DB->select("SELECT  `".DB_TABLE_FMA_GBT."`.`infra_id` FROM `".DB_TABLE_FMA_GBT."` WHERE `".DB_TABLE_FMA_GBT."`.`gbt_id` = '$gbt'");
 		unset($DB);
-
 		$returnArray[$gbt] = array();
-
 		foreach ($infras as $infra) {
 			array_push($returnArray[$gbt], intval($infra->infra_id));
 		}
-
-
-
-
-
 	}
-
 	return $returnArray;
 }
 
 function createCacheFmaToInfra () {
-
 	$DB = new DB_MySQL();
 	$returnArray = array();
-
-	$fmaToInfra = $DB->select("SELECT `".DB_TABLE_FMA_GBT."`.`infra_id`,
-                                `".DB_TABLE_FMA_GBT."`.`fma_id`
-                                FROM `".DB_TABLE_FMA_GBT."`
-                                WHERE `".DB_TABLE_FMA_GBT."`.`fma_id` IS NOT NULL
-                                ");
+	$fmaToInfra = $DB->select("SELECT `".DB_TABLE_FMA_GBT."`.`infra_id`, `".DB_TABLE_FMA_GBT."`.`fma_id` FROM `".DB_TABLE_FMA_GBT."` WHERE `".DB_TABLE_FMA_GBT."`.`fma_id` IS NOT NULL");
 	unset($DB);
-
 	foreach ($fmaToInfra as $value) {
 		$returnArray[intval($value->fma_id)] = intval($value->infra_id);
 	}
-
 	return $returnArray;
 }
 
 function createCacheToBetriebsstelle() {
-
 	$DB = new DB_MySQL();
 	$returnArray = array();
-
-	$fmaToInfra = $DB->select("SELECT `".DB_TABLE_SIGNALE_STANDORTE."`.`id`,
-                                `".DB_TABLE_SIGNALE_STANDORTE."`.`betriebsstelle`
-                                FROM `".DB_TABLE_SIGNALE_STANDORTE."`
-                                ");
+	$fmaToInfra = $DB->select("SELECT `".DB_TABLE_SIGNALE_STANDORTE."`.`id`, `".DB_TABLE_SIGNALE_STANDORTE."`.`betriebsstelle` FROM `".DB_TABLE_SIGNALE_STANDORTE."`");
 	unset($DB);
-
 	foreach ($fmaToInfra as $value) {
 		$returnArray[intval($value->id)] = $value->betriebsstelle;
 	}
-
 	return $returnArray;
 }
 
 function createCacheFahrzeugeAbschnitte () {
-
 	$DB = new DB_MySQL();
-
 	$returnArray = array();
-
-	$fahrzeugeAbschnitte = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE_ABSCHNITTE."`.`fahrzeug_id`,
-                                `".DB_TABLE_FAHRZEUGE_ABSCHNITTE."`.`infra_id`,
-                                 `".DB_TABLE_FAHRZEUGE_ABSCHNITTE."`.`unixtimestamp`
-                                FROM `".DB_TABLE_FAHRZEUGE_ABSCHNITTE."`
-                                ");
+	$fahrzeugeAbschnitte = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE_ABSCHNITTE."`.`fahrzeug_id`, `".DB_TABLE_FAHRZEUGE_ABSCHNITTE."`.`infra_id`, `".DB_TABLE_FAHRZEUGE_ABSCHNITTE."`.`unixtimestamp` FROM `".DB_TABLE_FAHRZEUGE_ABSCHNITTE."`");
 	unset($DB);
-
 	foreach ($fahrzeugeAbschnitte as $fahrzeug) {
 		$returnArray[intval($fahrzeug->fahrzeug_id)]["infra_id"] = intval($fahrzeug->infra_id);
 		$returnArray[intval($fahrzeug->fahrzeug_id)]["unixtimestamp"] = intval($fahrzeug->unixtimestamp);
 	}
-
 	return $returnArray;
-
 }
 
 function createCacheDecoderToAdresse () {
-
 	$DB = new DB_MySQL();
 	$returnArray = array();
-
-	$decoderToAdresse = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE."`.`id`,
-                                `".DB_TABLE_FAHRZEUGE."`.`adresse`
-                                FROM `".DB_TABLE_FAHRZEUGE."`
-                                ");
+	$decoderToAdresse = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE."`.`id`, `".DB_TABLE_FAHRZEUGE."`.`adresse` FROM `".DB_TABLE_FAHRZEUGE."`");
 	unset($DB);
-
 	foreach ($decoderToAdresse as $fahrzeug) {
 		$returnArray[intval($fahrzeug->id)] = intval($fahrzeug->adresse);
 	}
@@ -310,11 +169,7 @@ function createCacheDecoderToAdresse () {
 
 function createCacheFahrplanSession() {
 	$DB = new DB_MySQL();
-
-	$fahrplanData = $DB->select("SELECT *
-                            FROM `".DB_TABLE_FAHRPLAN_SESSION."`
-                            WHERE `".DB_TABLE_FAHRPLAN_SESSION."`.`status` = '"."1"."'
-                           ");
+	$fahrplanData = $DB->select("SELECT * FROM `".DB_TABLE_FAHRPLAN_SESSION."` WHERE `".DB_TABLE_FAHRPLAN_SESSION."`.`status` = '"."1"."'");
 	unset($DB);
 
 	return $fahrplanData[0];

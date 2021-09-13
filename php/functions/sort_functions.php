@@ -79,10 +79,7 @@ function getAllAdresses () : array {
 	echo "Alle Züge, die den Zustand ", implode(", ", $zustand), " haben, werden eingelesen.\n\n";
 	$returnAdresses = array();
 	$DB = new DB_MySQL();
-	$adresses = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE."`.`adresse`,
-										`".DB_TABLE_FAHRZEUGE."`.`zustand`
-                            FROM `".DB_TABLE_FAHRZEUGE."`
-                           ");
+	$adresses = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE."`.`adresse`, `".DB_TABLE_FAHRZEUGE."`.`zustand` FROM `".DB_TABLE_FAHRZEUGE."`");
 	unset($DB);
 
 	foreach ($adresses as $adressIndex => $adressValue) {
@@ -105,71 +102,40 @@ function getAllTrains () : array {
 	$id = null;
 
 	foreach ($allAdresses as $adress) {
-		$train_fahrzeuge = get_object_vars($DB->select("SELECT `".DB_TABLE_FAHRZEUGE."`.`id`, 
-							`".DB_TABLE_FAHRZEUGE."`.`adresse`,
-							`".DB_TABLE_FAHRZEUGE."`.`speed`, 
-							`".DB_TABLE_FAHRZEUGE."`.`dir`, 
-							`".DB_TABLE_FAHRZEUGE."`.`zugtyp`, 
-							`".DB_TABLE_FAHRZEUGE."`.`zuglaenge`,
-							`".DB_TABLE_FAHRZEUGE."`.`verzoegerung`, 
-							`".DB_TABLE_FAHRZEUGE."`.`zustand`        
-                            FROM `".DB_TABLE_FAHRZEUGE."`
-                            WHERE `".DB_TABLE_FAHRZEUGE."`.`adresse` = $adress
-                           ")[0]);
-
+		$train_fahrzeuge = get_object_vars($DB->select("SELECT `".DB_TABLE_FAHRZEUGE."`.`id`, `".DB_TABLE_FAHRZEUGE."`.`adresse`, `".DB_TABLE_FAHRZEUGE."`.`speed`, `".DB_TABLE_FAHRZEUGE."`.`dir`, `".DB_TABLE_FAHRZEUGE."`.`zugtyp`, `".DB_TABLE_FAHRZEUGE."`.`zuglaenge`, `".DB_TABLE_FAHRZEUGE."`.`verzoegerung`, `".DB_TABLE_FAHRZEUGE."`.`zustand` FROM `".DB_TABLE_FAHRZEUGE."` WHERE `".DB_TABLE_FAHRZEUGE."`.`adresse` = $adress")[0]);
 		$id = $train_fahrzeuge["id"];
-
-
-		$train_daten = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE_DATEN."`.`baureihe`
-                            FROM `".DB_TABLE_FAHRZEUGE_DATEN."`
-                            WHERE `".DB_TABLE_FAHRZEUGE_DATEN."`.`id` = $id
-                           ")[0]->baureihe;
-
-		$train_baureihe = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`vmax`
-                            FROM `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`
-                            WHERE `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`nummer` = $train_daten
-                           ");
-
+		$train_daten = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE_DATEN."`.`baureihe` FROM `".DB_TABLE_FAHRZEUGE_DATEN."` WHERE `".DB_TABLE_FAHRZEUGE_DATEN."`.`id` = $id")[0]->baureihe;
+		$train_baureihe = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`vmax` FROM `".DB_TABLE_FAHRZEUGE_BAUREIHEN."` WHERE `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`nummer` = $train_daten");
 		if (sizeof($train_baureihe) != 0) {
 			$train_baureihe_return["v_max"] = intval($train_baureihe[0]->vmax);
 		} else {
 			$train_baureihe_return["v_max"] = $globalMinSpeed;
 		}
-
 		$id = intval($train_fahrzeuge["id"]);
 		$cacheAdresseToID[intval($train_fahrzeuge["adresse"])] = intval($id);
 		$returnArray = array_merge($train_fahrzeuge, $train_baureihe_return);
 		$allTrains[$id] = $returnArray;
 	}
-
 	unset($DB);
 	$cacheIDToAdresse = array_flip($cacheAdresseToID);
 	return $allTrains;
 }
 
 function updateAllTrainsOnTheTrack () {
-
 	global $allTrainsOnTheTrack;
-
 	$newTrains = array();
 	$removedTrains = array();
 	$allTrains = array();
 
 	$DB = new DB_MySQL();
-	$foundTrains = $DB->select("SELECT DISTINCT `".DB_TABLE_FMA."`.`decoder_adresse`  
-                            FROM `".DB_TABLE_FMA."`
-                            WHERE `".DB_TABLE_FMA."`.`decoder_adresse` IS NOT NULL
-                            AND `".DB_TABLE_FMA."`.`decoder_adresse` <> '"."0"."'
-                           ");
+	$foundTrains = $DB->select("SELECT DISTINCT `".DB_TABLE_FMA."`.`decoder_adresse` FROM `".DB_TABLE_FMA."` WHERE `".DB_TABLE_FMA."`.`decoder_adresse` IS NOT NULL AND `".DB_TABLE_FMA."`.`decoder_adresse` <> '"."0"."'");
 	unset($DB);
-
 	foreach ($foundTrains as $train) {
 		array_push($allTrains, intval($train->decoder_adresse));
 		if (!in_array($train->decoder_adresse, $allTrainsOnTheTrack)) {
 			array_push($newTrains, intval($train->decoder_adresse));
 		}
 	}
-
 	foreach ($allTrainsOnTheTrack as $train) {
 		if (!in_array($train, $allTrains)) {
 			array_push($removedTrains, $train);
@@ -184,17 +150,11 @@ function findTrainsOnTheTracks () {
 	global $allTrainsOnTheTrack;
 
 	$DB = new DB_MySQL();
-	$foundTrains = $DB->select("SELECT DISTINCT `".DB_TABLE_FMA."`.`decoder_adresse`  
-                            FROM `".DB_TABLE_FMA."`
-                            WHERE `".DB_TABLE_FMA."`.`decoder_adresse` IS NOT NULL
-                            AND `".DB_TABLE_FMA."`.`decoder_adresse` <> '"."0"."'
-                           ");
+	$foundTrains = $DB->select("SELECT DISTINCT `".DB_TABLE_FMA."`.`decoder_adresse` FROM `".DB_TABLE_FMA."` WHERE `".DB_TABLE_FMA."`.`decoder_adresse` IS NOT NULL AND `".DB_TABLE_FMA."`.`decoder_adresse` <> '"."0"."'");
 	unset($DB);
-
 	foreach ($foundTrains as $train) {
 		if (!in_array($train->decoder_adresse, $allTrainsOnTheTrack)) {
 			array_push($allTrainsOnTheTrack, intval($train->decoder_adresse));
-			// Prepare train for the ride
 			prepareTrainForRide($train->decoder_adresse);
 		}
 	}
@@ -225,7 +185,6 @@ function prepareTrainForRide(int $adresse) {
 	$allUsedTrains[$trainID]["error"] = array();
 	$allUsedTrains[$trainID]["operates_on_timetable"] = false;
 	$allUsedTrains[$trainID]["fahrstrasse_is_correct"] = false;
-	// TODO: Update speed
 	$allUsedTrains[$trainID]["current_speed"] = intval($allTrains[$trainID]["speed"]);
 	$allUsedTrains[$trainID]["current_position"] = null;
 	$allUsedTrains[$trainID]["current_section"] = null;
@@ -315,15 +274,10 @@ function prepareTrainForRide(int $adresse) {
 }
 
 function getPosition(int $adresse) {
-
 	$returnPosition = array();
 	$DB = new DB_MySQL();
-	$position = $DB->select("SELECT `".DB_TABLE_FMA."`.`fma_id`
-                                            FROM `".DB_TABLE_FMA."`
-                                            WHERE `".DB_TABLE_FMA."`.`decoder_adresse` = $adresse
-                                            ");
+	$position = $DB->select("SELECT `".DB_TABLE_FMA."`.`fma_id` FROM `".DB_TABLE_FMA."` WHERE `".DB_TABLE_FMA."`.`decoder_adresse` = $adresse");
 	unset($DB);
-
 	if (sizeof($position) != 0) {
 		for ($i = 0; $i < sizeof($position); $i++) {
 			array_push($returnPosition, intval(get_object_vars($position[$i])["fma_id"]));
@@ -349,16 +303,9 @@ function getFrontPosition(array $infra, int $dir) : int {
 }
 
 function getNextBetriebsstellen (int $id) : array {
-
 	$DB = new DB_MySQL();
 	$returnBetriebsstellen = array();
-
-	$betriebsstellen = $DB->select("SELECT `".DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`.`betriebsstelle`
-                            FROM `".DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`
-                            WHERE `".DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`.`zug_id` = $id
-                            ORDER BY `".DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`.`id` ASC
-                           ");
-
+	$betriebsstellen = $DB->select("SELECT `".DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`.`betriebsstelle` FROM `".DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."` WHERE `".DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`.`zug_id` = $id ORDER BY `".DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`.`id` ASC");
 	unset($DB);
 	foreach ($betriebsstellen as $betriebsstellenIndex => $betriebsstellenValue) {
 		array_push($returnBetriebsstellen, $betriebsstellenValue->betriebsstelle);
@@ -371,15 +318,12 @@ function getNextBetriebsstellen (int $id) : array {
 
 function consoleAllTrainsPositionAndFahrplan($id = false) {
 	global $allUsedTrains;
-
 	$checkAllTrains = true;
-
 	if ($id != false) {
 		$checkAllTrains = false;
 	} else {
 		echo "Alle vorhandenen Züge:\n\n";
 	}
-
 	foreach ($allUsedTrains as $train) {
 		if ($checkAllTrains || $train["id"] == $id) {
 			$fahrplan = null;
@@ -451,29 +395,20 @@ function showFahrplan ($id = false) {
 	echo "\n";
 }
 
-function consoleCheckIfStartDirectionIsCorrect($id = false) {
+function checkIfStartDirectionIsCorrect($id = false) {
 	global $allUsedTrains;
-
 	$checkAllTrains = true;
-
 	if ($id != false) {
 		$checkAllTrains = false;
+		echo "Für den Fall, dass die Fahrtrichtung der Züge nicht mit dem Fahrplan übereinstimmt, wird die Richtung verändert:\n\n";
+	} else {
+		echo "Für den Fall, dass die Fahrtrichtung des Zuges nicht mit dem Fahrplan übereinstimmt, wird die Richtung verändert:\n\n";
 	}
-
-	echo "Für den Fall, dass die Fahrtrichtung der Züge nicht mit dem Fahrplan übereinstimmt, wird die Richtung verändert:\n\n";
 	foreach ($allUsedTrains as $train) {
 		if ($checkAllTrains || $train["id"] == $id) {
 			if ($train["operates_on_timetable"]) {
 				$endLoop = 0;
 				for ($i = 0; $i < sizeof($train["next_betriebsstellen_data"]); $i++) {
-					//$endLoop = 0;
-					/*
-					if (!$train["next_betriebsstellen_data"][$i]["angekommen"]) {
-						if ($train["dir"] != $train["next_betriebsstellen_data"][$i]["zeiten"]["fahrtrichtung"][1]) {
-							changeDirection($train["id"]);
-						}
-					}
-					*/
 					if ($train["next_betriebsstellen_data"][$i]["angekommen"]) {
 						$endLoop = $i;
 					}
@@ -488,32 +423,27 @@ function consoleCheckIfStartDirectionIsCorrect($id = false) {
 }
 
 function changeDirection (int $id) {
-
 	global $allUsedTrains;
 	global $cacheInfraLaenge;
 	global $timeDifference;
-
+	global $allTrains;
 	$section = $allUsedTrains[$id]["current_section"];
 	$position = $allUsedTrains[$id]["current_position"];
 	$direction = $allUsedTrains[$id]["dir"];
 	$length = $allUsedTrains[$id]["zuglaenge"];
-	$adress = intval($allUsedTrains[$id]["adresse"]);
 	$newTrainLength = $length + ($cacheInfraLaenge[$section] - $position);
 	$newDirection = null;
 	$newSection = null;
 	$cumLength = 0;
-
 	if ($direction == 0) {
 		$newDirection = 1;
 	} else {
 		$newDirection = 0;
 	}
-
 	$newPosition = null;
 	$nextSections = getNaechsteAbschnitte($section, $newDirection);
 	$currentData = array(0 => array("laenge" => $cacheInfraLaenge[$section], "infra_id" => $section));
 	$mergedData = array_merge($currentData, $nextSections);
-
 	foreach ($mergedData as $sectionValue) {
 		$cumLength += $sectionValue["laenge"];
 		if ($newTrainLength <= $cumLength) {
@@ -522,7 +452,6 @@ function changeDirection (int $id) {
 			break;
 		}
 	}
-
 	if ($newPosition == null) {
 		echo "Die Richtung des Zugs mit der ID ", $id, " lässt sich nicht ändern, weil das Zugende auf einem auf Halt stehenden Signal steht.\n";
 		echo "\tDie Zuglänge beträgt:\t", $length, " m\n\tDie Distanz zwischen Zugende und dem auf Halt stehenden Signal beträgt:\t", ($cumLength - ($cacheInfraLaenge[$section] - $position)), " m\n\n";
@@ -533,15 +462,11 @@ function changeDirection (int $id) {
 		$allUsedTrains[$id]["current_position"] = $newPosition;
 		$allUsedTrains[$id]["dir"] = $newDirection;
 		$allUsedTrains[$id]["earliest_possible_start_time"] = FZS_WARTEZEIT_WENDEN + time() + $timeDifference;
-		sendFahrzeugbefehl($id, -4);
-		/*
+		$allTrains[$id]["dir"] = $newDirection;
 		$DB = new DB_MySQL();
-		$DB->select("UPDATE `".DB_TABLE_FAHRZEUGE."`
-                            SET `".DB_TABLE_FAHRZEUGE."`.`dir` = $newDirection
-                            WHERE `".DB_TABLE_FAHRZEUGE."`.`adresse` = $adress
-                           ");
+		$DB->select("UPDATE `".DB_TABLE_FAHRZEUGE."` SET `".DB_TABLE_FAHRZEUGE."`.`dir` = $newDirection WHERE `".DB_TABLE_FAHRZEUGE."`.`id` = $id");
 		unset($DB);
-		*/
+		sendFahrzeugbefehl($id, -4);
 	}
 }
 
@@ -574,17 +499,13 @@ function showErrors() {
 // Adds for all trains (if no ID is passed) or for one train (if an ID is passed)
 // the stops of the schedule (if the train runs according to schedule)
 function addStopsectionsForTimetable($id = false) {
-
 	global $allUsedTrains;
 	global $cacheHaltepunkte;
 	global $cacheZwischenhaltepunkte;
-
 	$checkAllTrains = true;
-
 	if ($id != false) {
 		$checkAllTrains = false;
 	}
-
 	foreach ($allUsedTrains as $trainIndex => $trainValue) {
 		if ($checkAllTrains || $trainValue["id"] == $id) {
 			if (sizeof($trainValue["error"]) == 0) {
@@ -717,14 +638,8 @@ function calculateNextSections($id = false, $writeResultToTrain = true) {
 
 // Determines the associated signal (if there is one) for a section and a direction.
 function getSignalForSectionAndDirection(int $section, int $dir) {
-
 	$DB = new DB_MySQL();
-	$signal = $DB->select("SELECT `".DB_TABLE_SIGNALE_STANDORTE."`.`id`    
-                            FROM `".DB_TABLE_SIGNALE_STANDORTE."`
-                            WHERE `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id` = $section
-                            AND `".DB_TABLE_SIGNALE_STANDORTE."`.`wirkrichtung` = $dir
-                           ");
-
+	$signal = $DB->select("SELECT `".DB_TABLE_SIGNALE_STANDORTE."`.`id` FROM `".DB_TABLE_SIGNALE_STANDORTE."` WHERE `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id` = $section AND `".DB_TABLE_SIGNALE_STANDORTE."`.`wirkrichtung` = $dir");
 	unset($DB);
 	if ($signal != null) {
 		$signal = intval(get_object_vars($signal[0])["id"]);
@@ -769,11 +684,8 @@ function checkIfTrainReachedHaltepunkt ($id = false) {
 //
 // For trains without timetable the route is always correct.
 function checkIfFahrstrasseIsCorrrect($id = false) {
-
 	global $allUsedTrains;
-
 	$checkAllTrains = true;
-
 	if ($id != false) {
 		$checkAllTrains = false;
 	}
@@ -901,11 +813,12 @@ function calculateFahrverlauf($id = false, $recalibrate = false) {
 							}
 							$verapetung = updateNextSpeed($trainValue, $startTime, $endTime, $targetSection, $targetPosition, $reachedBetriebsstele, $nextBetriebsstelleIndex, $wendet, false, $allreachedInfras);
 							if ($nextBetriebsstelleIndex != 0) {
+								// TODO: Reicht nicht einer der Einträge aus? Wenn ja, welcher?
 								$allUsedTrains[$trainIndex]["next_betriebsstellen_data"][$nextBetriebsstelleIndex]["zeiten"]["verspaetung"] = $verapetung;
 								$trainValue["next_betriebsstellen_data"][$nextBetriebsstelleIndex]["zeiten"]["verspaetung"] = $verapetung;
 							} else {
 								$end = $allUsedTrains[$trainIndex]["next_betriebsstellen_data"][$nextBetriebsstelleIndex]["zeiten"]["abfahrt_soll_timestamp"];
-								$start = $simulationStartTimeToday;
+								$start = $startTime;
 								if ($start + $verapetung + $globalFirstHaltMinTime < $end) {
 									$allUsedTrains[$trainIndex]["next_betriebsstellen_data"][$nextBetriebsstelleIndex]["zeiten"]["verspaetung"] = 0;
 									$trainValue["next_betriebsstellen_data"][$nextBetriebsstelleIndex]["zeiten"]["verspaetung"] = 0;
@@ -922,12 +835,12 @@ function calculateFahrverlauf($id = false, $recalibrate = false) {
 					}
 				} else {
 					$startTime = microtime(true) + $timeDifference;
-					$endTime = $startTime;
 					if (isset($trainValue["earliest_possible_start_time"])) {
 						if ($startTime < $trainValue["earliest_possible_start_time"]) {
 							$startTime = $trainValue["earliest_possible_start_time"];
 						}
 					}
+					$endTime = $startTime;
 					$targetSection = null;
 					$targetPosition = null;
 					$reachedBetriebsstele = true;
@@ -942,10 +855,7 @@ function calculateFahrverlauf($id = false, $recalibrate = false) {
 					}
 					if (!isset($signalId)) {
 						// gibt kein nächstes Signal
-						if ($trainValue["current_speed"] == 0) {
-							//
-						} else {
-							// Notbremsung!
+						if ($trainValue["current_speed"] != 0) {
 							emergencyBreak($trainValue["id"]);
 						}
 					} else {
@@ -957,20 +867,22 @@ function calculateFahrverlauf($id = false, $recalibrate = false) {
 					}
 				}
 			}
+		} else {
+			if ($trainValue["current_speed"] != 0) {
+				emergencyBreak($trainValue["id"]);
+			}
 		}
 	}
 }
 
 function compareTwoNaechsteAbschnitte(int $id) {
-
 	global $allUsedTrains;
 	global $allTimes;
-
 	if (sizeof($allUsedTrains[$id]["error"]) == 0) {
-		$newData = calculateNextSections($id, false);
-		$newNextSection = $newData[0];
-		$newNextLenghts = $newData[1];
-		$newNextVMax = $newData[2];
+		$newSections = calculateNextSections($id, false);
+		$newNextSection = $newSections[0];
+		$newNextLenghts = $newSections[1];
+		$newNextVMax = $newSections[2];
 		$oldNextSections = $allUsedTrains[$id]["next_sections"];
 		$oldLenghts = $allUsedTrains[$id]["next_lenghts"];
 		$oldNextVMax = $allUsedTrains[$id]["next_v_max"];
@@ -982,7 +894,6 @@ function compareTwoNaechsteAbschnitte(int $id) {
 		$compareNextSections = array();
 		$compareNextLenghts = array();
 		$compareNextVMax = array();
-
 		for($i = $keyCurrentSection; $i <= $keyLatestSection; $i++) {
 			array_push($compareNextSections, $oldNextSections[$i]);
 			array_push($compareNextLenghts, $oldLenghts[$i]);
@@ -1010,25 +921,16 @@ function compareTwoNaechsteAbschnitte(int $id) {
 }
 
 function getCalibratedPosition ($id, $speed) {
-
 	global $cacheFahrzeugeAbschnitte;
-
 	$DB = new DB_MySQL();
-	$positionReturn = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE_ABSCHNITTE."`.`infra_id`,
-										`".DB_TABLE_FAHRZEUGE_ABSCHNITTE."`.`unixtimestamp`
-                            FROM `".DB_TABLE_FAHRZEUGE_ABSCHNITTE."`
-                            WHERE `".DB_TABLE_FAHRZEUGE_ABSCHNITTE."`.`fahrzeug_id` = $id
-                           ")[0];
+	$positionReturn = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE_ABSCHNITTE."`.`infra_id`,`".DB_TABLE_FAHRZEUGE_ABSCHNITTE."`.`unixtimestamp` FROM `".DB_TABLE_FAHRZEUGE_ABSCHNITTE."` WHERE `".DB_TABLE_FAHRZEUGE_ABSCHNITTE."`.`fahrzeug_id` = $id")[0];
 	unset($DB);
-
 	if (in_array($id, array_keys($cacheFahrzeugeAbschnitte))) {
 		if ($positionReturn->unixtimestamp == $cacheFahrzeugeAbschnitte[$id]["unixtimestamp"]) {
 			return array("possible" => false);
 		}
 	}
-
 	$timeDiff = time() - $positionReturn->unixtimestamp;
 	$position = ($speed / 3.6) * $timeDiff;
-
-	return array("possible" => true, "section" => $positionReturn->infra_id, "position" => $position);
+	return array("section" => $positionReturn->infra_id, "position" => $position);
 }

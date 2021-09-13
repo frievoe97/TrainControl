@@ -11,10 +11,11 @@
 \usepackage{apacite}
 \usepackage[document]{ragged2e}
 \usepackage{enumitem}
-\usepackage{acronym}
+\usepackage{acronym} %
 \usepackage{scrpage2}
 \usepackage{array}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \pagestyle{scrheadings}
 \usepackage{wasysym}
 \usepackage{xcolor}   % for \textcolor
@@ -22,8 +23,37 @@
 \usepackage{subfig}
 \usepackage{comment}
 \usepackage{forest}
+\forestset{
+  dir node/.style={
+    parent anchor=south west,
+    child anchor=west,
+    anchor=west,
+    inner ysep=-3pt,
+    align=left,
+  },
+  dir tree/.style={
+    for tree={
+      grow'=0,
+      dir node,
+      edge path={
+        \noexpand\path [draw, \forestoption{edge}] (!u.parent anchor) ++(1em,0) |- node[fill,inner sep=1.25pt] {} (.child anchor)\forestoption{edge label};
+      },
+      if n children=0{}{
+        delay={
+          prepend={[text 1, dir node, phantom, calign with current]}
+        }
+      },
+      fit=band,
+      before computing xy={
+        l=2em,
+      }
+    },
+  }
+}
 \usepackage{float}
 \usepackage[authoryear]{natbib}
+\usepackage{diagbox}
+\usepackage{slashbox}
 
 \setlength{\footnotemargin}{4mm}
 
@@ -31,7 +61,32 @@
 \let\oldfootnote\footnote
 \renewcommand\footnote[1]{%
 \oldfootnote{\hspace{2mm}#1}}
- 
+
+\let\oldfootnotetext\footnotetext
+\renewcommand\footnotetext[1]{%
+\oldfootnotetext{\hspace{2mm}#1}}
+
+
+
+\usepackage[nopostdot,   nonumberlist, toc]{glossaries}
+\makeglossaries
+\newglossaryentry{fahrtverlauf}{
+name=Fahrtverlauf,
+description={Der Fahrtverlauf beschreibt die Positionen, Zeiten und Geschwindigkeiten für alle Beschleunigungs- und Bremsvorgänge und den Fahrten auf einer konstanten Geschwindigkeit eines Fahrzeugs von der aktuellen Position bis zum nächsten Halt.},
+plural={Fahrtverläufe}
+}
+\newglossaryentry{echtzeitdaten}{
+name=Echtzeitdaten,
+description={Die Echtzeitdaten beschreiben für jedes Fahrzeug die Position und Geschwindigkeit bei Beschleunigungen und Verzögerungen in 2$km/h$-Schritten und bei konstanter Geschwindigkeit in in regelmäßigen Distanz-Intervallen in Abhängigkeit von der Simulationszeit.}
+}
+\newglossaryentry{simulationszeit}{
+name=Simulationszeit,
+description={Die Simulationszeit beschreibt die aktuelle Zeit, an der sich die Fahrzeuge orientieren (Startzeit, Ankunfts- und Abfahrtszeiten etc.)}
+}
+\newglossaryentry{realzeit}{
+name=Realzeit,
+description={Die Realzeit beschreibt die Zeit des Rechners/Servers, auf dem die Fahrzeuzgsteuerung ausfegührt wird.}
+}
 
 
 
@@ -42,18 +97,21 @@
 \usepackage{makecell}
 
 \renewcommand{\lstlistingname}{Code-Beispiel}% Listing -> Algorithm
+\renewcommand\lstlistlistingname{Code-Beispiele}
 
 \usepackage{inconsolata}
 
 \definecolor{dkgreen}{rgb}{0.7,0,0.5}
 \definecolor{dkblue}{rgb}{0,0,.6}
-\definecolor{dkyellow}{rgb}{1,0.5,0}
+\definecolor{dkyellow}{rgb}{1, 0.4, 0}
 \definecolor{textblue}{cmyk}{1,.3,0,0}
 
 \usepackage{array}
 \newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 \newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 \newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+\newcommand{\abs}[1]{\ensuremath{\left\vert#1\right\vert}}
 
 
 \usepackage{tikz}
@@ -95,7 +153,8 @@
   numbers=left,
   tabsize=2, % sets default tabsize to 2 spaces
   breaklines=true,
-  breakatwhitespace=true,
+  breakatwhitespace=false,
+  showstringspaces=false,
   postbreak=\mbox{\textcolor{blue}{$\hookrightarrow$}\space},
   language        = php,
   basicstyle      = \small\ttfamily,
@@ -105,13 +164,26 @@
   commentstyle    = \color{gray},
   emph            =[1]{php},
   emphstyle       =[1]\color{black},
-  emph            =[2]{if,and,or,else},
+  emph            =[2]{if,and,or,else, foreach, as, break},
   emphstyle       =[2]\color{dkyellow},
-  emph            =[3]{global, function, as, null, return, int, float, bool},
-  emphstyle       =[3]\color{dkblue}
+  emph            =[3]{global, function, as, null, return, int, float, bool, end,DB_MySQL,new},
+  emphstyle       =[3]\color{dkblue},
+  rulecolor=\color{black}
 }
+
+
+
+
 \usepackage{siunitx}
 \clearscrheadfoot
+
+\usepackage{float}
+\usepackage{threeparttable}
+\usepackage{url}
+
+
+
+
 
 \cfoot{\pagemark}
 
@@ -125,7 +197,7 @@
  
 \bibliographystyle{apacite} % set the referencepage 
   
-
+\usepackage{tablefootnote}
 
 % document
 \begin{document}
@@ -140,18 +212,29 @@
 \listoffigures % set the table of figures
 \listoftables % set the table of tables
 \newpage
+\lstlistoflistings
+\newpage
+\section*{Abkürzungsverzeichnis}
 \input{acronym}
 \newpage
-\pagenumbering{arabic} % arabic pagenumbers
-\input{inhalt} % implement chapter .tex file from the same folder
+\printglossaries
 \newpage
-\input{grundlagen} % implement chapter .tex file from the same folder
+\pagenumbering{arabic} % arabic pagenumbers
+\input{einleitung}
+\newpage
+\input{grundlagen}
+\newpage
+\input{hauptprogramm}
 \newpage
 \input{fahrtverlauf}
 \newpage
+\input{beispielrechnung}
+\newpage
+\input{visualisierung}
+\newpage
 \input{formula}
-%\input{struktur}
-%\newpage
+\newpage
+\input{fazit}
 \appendix
 \newpage
 \input{anhang}

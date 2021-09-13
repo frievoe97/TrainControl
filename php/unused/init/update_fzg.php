@@ -918,7 +918,7 @@ function checkIfTrainIsToFastInSection(array $tempTimesChanges, array $tempSpeed
 		$speedOverPosition = array_map('toArr', $newPositionChange, $newSpeedChange);
 		$speedOverPosition = json_encode($speedOverPosition);
 
-		$fp = fopen('../json/speedOverPosition_v1.json', 'w');
+		$fp = fopen('../json/speedOverPosition.json', 'w');
 		fwrite($fp, $speedOverPosition);
 		fclose($fp);
 	}

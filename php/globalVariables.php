@@ -7,6 +7,7 @@ $globalFirstHaltMinTime = 20; // calculateFahrverlauf -> Zeit fürs Wenden...
 $globalIndexBetriebsstelleFreieFahrt = 9999999999999;
 $globalFloatingPointNumbersRoundingError = 0.0000000001;
 $globalTimeOnOneSpeed = 20;
+$globalDistanceUpdateInterval = 1;
 
 $useSpeedFineTuning = true;
 $useMinTimeOnSpeed = true;

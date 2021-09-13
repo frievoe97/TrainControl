@@ -1,8 +1,8 @@
-\section{Formeln}
-\subsection{Weg-Zeit Berechnung}
+\section{Formeln} \label{formula}
 \begin{flushleft}
-Für die im folgenden Abschnitt verwendeten Gleichungen gilt:
+Für die im folgenden Abschnitt verwendeten Einheiten gilt:
 \end{flushleft}
+
 \begin{centering}
 \begin{conditions}
 a     &  Bremsverzoegerung [$m/s^{2}$] \\
@@ -11,7 +11,8 @@ s     &  Strecke [$m$] \\
 t     &  Zeit [$s$]
 \end{conditions}
 \end{centering}
-\noindent Bei einer konstanten Beschleunigung gilt:
+\subsection{Formeln für gleichmäßig beschleunigte Bewegungen} \label{formulaBeschleunigung}
+\noindent Bei einer gleichmäßig beschleunigten Bewegung gilt:
 \begin{equation}
 a(t) = a
 \end{equation}
@@ -22,8 +23,8 @@ v(t) = \int a(t) \,dt
 Daraus ergibt sich folgende Gleichung für die Geschwindigkeit in Abhängigkeit der Zeit. Die bei der Integration entstehende Integrationskonstante $v_{0}$ gibt dabei die Startgeschwindigkeit an.
 \begin{equation}
 v(t) = a \cdot t + v_{0}
-\end{equation}
-Für die Bestimmung der benötigten Zeit muss die Geschwindigkeit erneut integriert werden.\footnote{ebd. (S. 20)} Die dabei entstehende Integrationskonstante $s_{0}$ gibt dabei die bereits zurückgelegte Strecke an.
+\end{equation} %\footnote{ebd. (S. 20)}
+Für die Bestimmung der benötigten Zeit muss die Geschwindigkeit erneut integriert werden.\footnote{\citet[S. 20]{richard2011technische}} Die dabei entstehende Integrationskonstante $s_{0}$ gibt die bereits zurückgelegte Strecke an.
 \begin{equation}
 s(t) = \int v(t) \,dt
 \end{equation}
@@ -39,14 +40,15 @@ s(v) =\frac{1}{2} \cdot \frac{v^{2}}{a}
 \end{equation}
 Durch die Festlegung von $v_{0} = 0$ wird so die benötigte Strecke ermittelt, welche ein Fahrzeug bei einer gegebenen Bremsverzögerung $a$ benötigt, um von 0 $m/s$ auf eine gegebenen Zielgeschwindigkeit $v_{1}$ zu beschleunigen. Bei der Berechnung des Beschleuniguns- und Abbremsverhalten wird es aber auch zu Situationen kommen, bei denen ein Fahrzeug eine Startgeschwindigkeit hat, für die gilt $v_{0} \neq 0$. Um eine allgemein gültige Gleichung aufzustellen, wird für die Ermittlung der benötigten Strecke bei einer gegebenen Start- und Zielgeschwindigkeit die Strecke berechnet, die das Fahrzeug benötigt um von 0 $m/s$ auf $v_{1}$ zu beschleunigen und von 0 $m/s$ auf $v_{0}$. Für die gesuchte Strecke gilt dann: 
 \begin{equation}
-s(v_{0}, v_{1}) = s(v_{1}) - s(v_{0}) 
+s(v_{0}, v_{1}) = \abs{s(v_{1}) - s(v_{0})} 
 \end{equation}
 \begin{equation}
 \label{eq:s_v_ges}
-s(v_{0}, v_{1}) =\frac{1}{2} \cdot \frac{v_{1}^{2} - v_{0}^{2}}{a}
+s(v_{0}, v_{1}) =\frac{1}{2} \cdot\abs{\frac{v_{1}^{2} - v_{0}^{2}}{a}}
 \end{equation}
 In dem Programm übernimmt diese Berechnung die Funktion \textit{getBrakeDistance()}. Damit keine negativen Rückgabewerte entstehen, wird im Falle einer Bremsung ($v_{1} \textless v_{0}$) das Ergebnis mit $-1$ multipliziert. Beispiel eines Querverweis \eqref{eq:s_v_ges}.
-\begin{lstlisting}
+\begin{figure}
+\begin{lstlisting}[caption={\textit{getBrakeDistance$($$)$}},captionpos=b,label={lst:getBrakeDistance}]
 function getBrakeDistance (float $v_0, float $v_1, float $verzoegerung) {
 	if ($v_0 > $v_1) {
 		return $bremsweg = 0.5 * ((pow($v_0/3.6,2)-pow($v_1/3.6, 2))/($verzoegerung));
@@ -57,12 +59,15 @@ function getBrakeDistance (float $v_0, float $v_1, float $verzoegerung) {
 	}
 }
 \end{lstlisting}
+\end{figure}
 Neben der Berechnung der Strecke ist auch die benötigte Zeit essenziell. Dafür wird mittels $t(v)$ die Zeit berechnet, die das Fahrzeug benötigt, um von $v_{0}$ auf $v_{1}$ zu beschleunigen bzw. abzubremsen und aus der Differenz die benötigte Zeit berechnet.
 \begin{equation}
-t(v_{0}, v_{1}) = \frac{v_{1} - v_{0}}{a}
+\label{eq:t_v_ges}
+t(v_{0}, v_{1}) = \abs{\frac{v_{1} - v_{0}}{a}}
 \end{equation}
 In dem Programm übernimmt diese Berechnung die Funktion \textit{getBrakeTime()}. Damit keine negativen Rückgabewerte entstehen, wird im Falle einer Bremsung ($v_{1} \textless v_{0}$) das Ergebnis mit $-1$ multipliziert.
-\begin{lstlisting}
+\begin{figure}
+\begin{lstlisting}[caption={\textit{getBrakeTime$($$)$}},captionpos=b,label={lst:getBrakeTime}]
 function getBrakeTime (float $v_0, float $v_1, float $verzoegerung) {
 	if ($v_0 < $v_1) {
 		return (($v_1/3.6)/$verzoegerung) - (($v_0/3.6)/$verzoegerung);
@@ -73,13 +78,30 @@ function getBrakeTime (float $v_0, float $v_1, float $verzoegerung) {
 	}
 }
 \end{lstlisting}
+\end{figure}
 Für die Berechnung einer Gefahrenbremsung ist es notwendig zu wissen, welche Geschwindigkeit das Fahrzeug an der Stelle der Gefahrenstelle hat. Dafür wird die Gleichung \eqref{eq:s_v_ges} nach $v_{2}$ umgestellt.
 \begin{equation}
+\label{eq:gefahrenbremsung}
 v_{2}(v_{1}, s) = \sqrt{-2 \cdot s \cdot a} + v_{1}
 \end{equation}
-\subsection{Teil 2}
-\subsection{speedFineTuning}
-Es gilt:
+\subsection{Formeln für gleichförmige Bewegungen} \label{formulaGleichfoermig}
+Bei einer gleichförmigen Bewegung gilt der Grundsatz:
+\begin{equation}
+v(t) = v
+\end{equation}
+Für die Berechnung der Strecke gilt wie bei der gleichmäßig beschleunigten Bewegung:
+\begin{equation}
+s(t) = \int v(t) \,dt
+\end{equation}
+\begin{equation}
+s(t) =v \cdot t + s_{0}
+\end{equation}
+Damit die Gleichung allgemeingültig ist, wird die Integrationskonstante $s_{0}$ gleich 0 gesetzt.
+\begin{equation}
+s(t) =v \cdot t
+\label{eq:s_v_t}
+\end{equation}
+Für die Einhaltung der exakten Ankunftszeit, muss errechnet werden, wie lange das Fahrzeug bei zwei gegebenen Geschwindigkeiten ($v_1$ und $v_2$) auf den jeweiligen Geschwindigkeiten fahren muss, um die Gesamtstrecke ($s_{ges}$) und die Gesamtzeit ($t_{ges}$) einzuhalten. Für die Zeiten und Strecken gilt:
 \begin{equation}
 \label{eq:t_ges}
 t_{ges} = t_{1} + t_{2}
@@ -88,10 +110,6 @@ t_{ges} = t_{1} + t_{2}
 \label{eq:s_ges}
 s_{ges} = s_{1} + s_{2}
 \end{equation}
-\begin{equation}
-\label{eq:s_v_t}
-s = v \cdot t
-\end{equation}
 Durch das Einsetzen der Gleichung \eqref{eq:s_v_t} in die Gleichung \eqref{eq:s_ges} erhält man folgende Gleichung:
 \begin{equation}
 \label{eq:s_ges_2}
@@ -99,19 +117,6 @@ s_{ges} = v_{1} \cdot t_{1} + v_{2} \cdot t_{2}
 \end{equation}
 Durch das Umstellen der Gleichung \eqref{eq:t_ges} nach $t_{2}$ und dem Einsetzen in Gleichung \eqref{eq:s_ges_2} gilt für $t_{1}$:
 \begin{equation}
+\label{eq:t_1_tuning}
 t_{1} = \frac{s_{ges} - v_{2} \cdot t_{ges}}{v_{1} - v_{2}}
 \end{equation}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
