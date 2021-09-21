@@ -188,7 +188,7 @@ function compareTwoNaechsteAbschnitte(int $id) {
 			$adresse = $allTrains[$id]["adresse"];
 			$allTimes[$adresse] = array();
 			checkIfFahrstrasseIsCorrrect($id);
-			calculateFahrverlauf($id);
+			calculateFahrtverlauf($id);
 			//var_dump($allTimes[6464]);
 			//var_dump($allTimes[$adresse]);
 		}

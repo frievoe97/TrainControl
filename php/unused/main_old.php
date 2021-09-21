@@ -118,7 +118,7 @@ foreach ($allTrains as $trainIndex => $trainValue) {
 	$allTrains[$trainIndex]["last_get_naechste_abschnitte"] = getNaechsteAbschnitte($trainValue["current_infra_section"], $trainValue["dir"]);
 }
 
-calculateFahrverlauf();
+calculateFahrtverlauf();
 
 
 
@@ -192,7 +192,7 @@ while (true) {
 							calculateNextSections($id);
 							addNextStopForAllTrains($id);
 							checkIfFahrstrasseIsCorrrect($id);
-							calculateFahrverlauf($id);
+							calculateFahrtverlauf($id);
 
 						} elseif ($currentZugId == null && $newZugId != null) {
 							// fährt jetzt nach fahrplan
@@ -202,13 +202,13 @@ while (true) {
 							calculateNextSections($id);
 							addNextStopForAllTrains($id);
 							checkIfFahrstrasseIsCorrrect($id);
-							calculateFahrverlauf($id);
+							calculateFahrtverlauf($id);
 
 						} elseif ($currentZugId != null && $newZugId == null) {
 							// fährt jetzt auf freier strecke
 							$allTrains[$id]["operates_on_timetable"] = 0;
 							calculateNextSections($id);
-							calculateFahrverlauf($id);
+							calculateFahrtverlauf($id);
 						}
 					}
 				}

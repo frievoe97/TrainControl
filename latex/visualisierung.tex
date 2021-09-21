@@ -1,26 +1,32 @@
 \section{Visualisierung der Fahrtverläufe} \label{visualisierungFahrtverlaeufe}
 Für die Visualisierung der Fahrtverläufe wurde ein MATLAB-Skript geschrieben, welches aus den Arrays \textit{\$cumulativeSectionLengthStart}, \textit{\$cumulativeSectionLengthEnd}, \textit{\$cumulativeSectionLengthStartMod}, \textit{\$cumulativeSectionLengthEndMod}, \textit{\$trainSpeedChange} und \textit{\$trainPositionChange} eines Fahrtverlaufs den kompletten Fahrtverlauf darstellt. Dieses Skript wurde auch verwendet, um die einzelnen Schritte bei der Kalkulation des Fahrtverlaufs in dieser Arbeit darzustellen (wie z. B. in Abbildung \ref{fig:it13}). 
 
-Damit die Daten aus der Berechnung des Fahrtverlaufs von MATLAB eingelesen werden können, wurde die Funktion \textit{safeTrainChangeToJSONFile$($$)$} (Code-Beispiel \ref{lst:safeTrainChangeToJSONFile}) geschrieben, welche die Daten aus den Arrays als JSON-Datei speichert. Für eine bessere Verdeutlichung des Prozesses bei der Ermittlung des Fahrtverlaufs, werden neben dem Ergebnis auch alle vorherigen Iterationsschritte abgebildet.
-\begin{lstlisting}[caption={\textit{safeTrainChangeToJSONFile$($$)$}},captionpos=b,label={lst:safeTrainChangeToJSONFile}]
+Damit die Daten aus der Berechnung des Fahrtverlaufs von MATLAB eingelesen werden können, wurde die Funktion \textit{safe\-Train\-Change\-To\-JSON\-File$($$)$} (\textit{func\-tions\_""fahrtverlauf.php}) (Code-Beispiel \ref{lst:safeTrainChangeToJSONFile}) geschrieben, welche die Daten aus den Arrays als JSON-Datei speichert. Für eine bessere Verdeutlichung des Prozesses bei der Ermittlung des Fahrtverlaufs, werden neben dem Ergebnis auch alle vorherigen Iterationsschritte abgebildet.
+
+Das MATLAB-Skript ist im Anhang (siehe \ref{anhangMatlab}) dieser Arbeit angehängt und auf weitere Details bezüglich der Funktionsweise wird im Rahmen dieser Arbeit nicht weiter eingegangen.
+\begin{lstlisting}[caption={\textit{safeTrainChangeToJSONFile$($$)$} (\textit{functions\_fahrtverlauf.php})},captionpos=b,label={lst:safeTrainChangeToJSONFile}]
+// Wandelt die Daten der Infra-Abschnitte und der Iterationsschritte der
+// Fahrtverlaufsberechnung in JSON-Dateien um, damit die Fahrtverläufe
+// visuell dargestellt werden können.
 function safeTrainChangeToJSONFile(int $indexCurrentSection, int $indexTargetSection, int $indexCurrentSectionMod, int $indexTargetSectionMod, array $speedOverPositionAllIterations) {
+
 	global $trainPositionChange;
 	global $trainSpeedChange;
 	global $next_v_max;
 	global $cumulativeSectionLengthEnd;
 	global $next_v_max_mod;
 	global $cumulativeSectionLengthEndMod;
-
 	$speedOverPosition = array_map('toArr', $trainPositionChange, $trainSpeedChange);
 	$speedOverPosition = json_encode($speedOverPosition);
 	$fp = fopen('../json/speedOverPosition.json', 'w');
 	fwrite($fp, $speedOverPosition);
 	fclose($fp);
-
 	$v_maxFromUsedSections = array();
+
 	for ($i = $indexCurrentSection; $i <= $indexTargetSection; $i++) {
 		array_push($v_maxFromUsedSections, $next_v_max[$i]);
 	}
+
 	$VMaxOverCumulativeSections = array_map('toArr', $cumulativeSectionLengthEnd, $v_maxFromUsedSections);
 	$VMaxOverPositionsJSon = json_encode($VMaxOverCumulativeSections);
 	$fp = fopen('../json/VMaxOverCumulativeSections.json', 'w');
@@ -28,9 +34,11 @@ function safeTrainChangeToJSONFile(int $indexCurrentSection, int $indexTargetSec
 	fclose($fp);
 
 	$v_maxFromUsedSections = array();
+
 	for ($i = $indexCurrentSectionMod; $i <= $indexTargetSectionMod; $i++) {
 		array_push($v_maxFromUsedSections, $next_v_max_mod[$i]);
 	}
+
 	$VMaxOverCumulativeSectionsMod = array_map('toArr', $cumulativeSectionLengthEndMod, $v_maxFromUsedSections);
 	$VMaxOverPositionsJSon = json_encode($VMaxOverCumulativeSectionsMod);
 	$fp = fopen('../json/VMaxOverCumulativeSectionsMod.json', 'w');
@@ -38,14 +46,15 @@ function safeTrainChangeToJSONFile(int $indexCurrentSection, int $indexTargetSec
 	fclose($fp);
 
 	$jsonReturn = array();
+
 	for ($i = 0; $i < sizeof($speedOverPositionAllIterations); $i++) {
 		$iteration = array_map('toArr', $speedOverPositionAllIterations[$i][0], $speedOverPositionAllIterations[$i][1]);
 		array_push($jsonReturn, $iteration);
 	}
+
 	$speedOverPosition = json_encode($jsonReturn);
 	$fp = fopen('../json/speedOverPosition_prevIterations.json', 'w');
 	fwrite($fp, $speedOverPosition);
 	fclose($fp);
 }
 \end{lstlisting}
-Das MATLAB-Skript ist im Anhang (siehe \ref{anhangMatlab}) dieser Arbeit angehängt und auf weitere Details bezüglich der Funktionsweise wird im Rahmen dieser Arbeit nicht weiter eingegangen.

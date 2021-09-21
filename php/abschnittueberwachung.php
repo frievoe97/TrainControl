@@ -2,11 +2,11 @@
 
 // Prozess zur Überwachung der Gleisfreimeldeabschnitte für die Fahrzeugsteuerung
 require 'vorbelegung.php';
-require 'functions/sort_functions.php';
-require 'functions/cache_functions_own.php';
-require 'functions/ebuef_functions.php';
-require 'functions/fahrtverlauf_functions.php';
-require 'globalVariables.php';
+require 'functions/functions.php';
+require 'functions/functions_cache.php';
+require 'functions/functions_ebuef.php';
+require 'functions/functions_fahrtverlauf.php';
+require 'global_variables.php';
 require 'config/multicast.php';
 
 // --------------------------------------------------------------------------------------------------------

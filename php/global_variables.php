@@ -1,9 +1,9 @@
 <?php
 
 $globalNotverzoegerung = 2; // Bremsverzögerung bei einer Notbremsung
-$globalMinSpeed = 10; // Maximale Geschwindigkeit, wenn keine vorgegeben ist
+$globalTrainVMax = 10; // Maximale Geschwindigkeit, wenn keine vorgegeben ist
 $globalSpeedInCurrentSection = 60; // Maximale Geschwindigkeit im aktuellen Abschnitt
-$globalFirstHaltMinTime = 20; // calculateFahrverlauf -> Zeit fürs Wenden...
+$globalFirstHaltMinTime = 20; // Mindesthaltezeit am ersten fahrplanmäßigen Halt
 $globalIndexBetriebsstelleFreieFahrt = 9999999999999;
 $globalFloatingPointNumbersRoundingError = 0.0000000001;
 $globalTimeOnOneSpeed = 20;

@@ -1,5 +1,5 @@
 % loading packages
-\documentclass[a4paper,11pt]{article}
+\documentclass[a4paper,12pt]{article}
 \usepackage[a4paper,left=2.6cm, right=2.9cm,top=3.5cm, bottom=3.5cm]{geometry}
 \usepackage[utf8]{inputenc} 
 \usepackage[T1]{fontenc}
@@ -22,6 +22,7 @@
 \usepackage{listings}
 \usepackage{subfig}
 \usepackage{comment}
+\usepackage{textcmds}
 \usepackage{forest}
 \forestset{
   dir node/.style={
@@ -68,7 +69,11 @@
 
 
 
-\usepackage[nopostdot,   nonumberlist, toc]{glossaries}
+
+
+
+
+\usepackage[nopostdot,   nonumberlist]{glossaries}
 \makeglossaries
 \newglossaryentry{fahrtverlauf}{
 name=Fahrtverlauf,
@@ -77,17 +82,42 @@ plural={Fahrtverläufe}
 }
 \newglossaryentry{echtzeitdaten}{
 name=Echtzeitdaten,
-description={Die Echtzeitdaten beschreiben für jedes Fahrzeug die Position und Geschwindigkeit bei Beschleunigungen und Verzögerungen in 2$km/h$-Schritten und bei konstanter Geschwindigkeit in in regelmäßigen Distanz-Intervallen in Abhängigkeit von der Simulationszeit.}
+description={Die Echtzeitdaten beschreiben für jedes Fahrzeug die Position und Geschwindigkeit bei Beschleunigungen und Verzögerungen in 2$km/h$-Schritten und bei konstanter Geschwindigkeit in in regelmäßigen Distanz-Intervallen in Abhängigkeit von der \Gls{simulationszeit}.}
 }
 \newglossaryentry{simulationszeit}{
 name=Simulationszeit,
-description={Die Simulationszeit beschreibt die aktuelle Zeit, an der sich die Fahrzeuge orientieren (Startzeit, Ankunfts- und Abfahrtszeiten etc.)}
+description={Die Simulationszeit beschreibt die aktuelle Zeit, an der sich die Fahrzeuge orientieren (Startzeit, Ankunfts- und Abfahrtszeiten etc.). Die Startzeit der Simulation kann in der Session festgelegt werden und beginnt, sobald die Session gestartet wird.}
 }
 \newglossaryentry{realzeit}{
 name=Realzeit,
-description={Die Realzeit beschreibt die Zeit des Rechners/Servers, auf dem die Fahrzeuzgsteuerung ausfegührt wird.}
+description={Die Realzeit beschreibt die Zeit des Rechners/Servers, auf dem die Fahrzeuzgsteuerung ausgeführt wird.}
+}
+\newglossaryentry{beharrungsfahrt}{
+name=Beharrungsfahrt,
+description={Beschreibt den Teil des \Gls{fahrtverlauf}s, bei dem die Geschwindigkeit des Fahrzeugs konstant ist.}
 }
 
+\newglossaryentry{unix}{
+name=Unix-Timestamp,
+description={Die Unixzeit zählt die Sekunden, die seit dem 1. Januar 1970 00:00 (UTC) vergangen sind und wird im Unix-Timestamp-Format angegeben.\footnote{\cite{unixcite}}}
+}
+
+\newglossaryentry{fahrstrasse}{
+name=Fahrstraße,
+description={Beschreibt den Weg, der für das Fahrzeug durch die Stellung der Weichen vorgegeben ist.\footnote{\citet[S. 114]{maschek2018sicherung}}},
+plural={Fahrstraßen}
+}
+
+\newglossaryentry{zugid}{
+name=Zug-ID,
+description={Die Zug-ID ordnet den Fahrzeugen die Fahrpläne zu und ist nicht mit der ID des Fahrzeugs, welche dem Eintrag der \textit{id}-Spalte aus der \textit{MySQL}-Tabelle \textit{fahrzeuge} entspricht, zu verwechseln}
+}
+
+
+
+%\setglossarystyle{alttree}
+%\glssetwidest{Unix-Timestamp}
+%\renewcommand{\glsnamefont}[3]{\textmd{#3}}
 
 
 
@@ -151,7 +181,7 @@ description={Die Realzeit beschreibt die Zeit des Rechners/Servers, auf dem die 
   columns=fullflexible,
   frame=single,
   numbers=left,
-  tabsize=2, % sets default tabsize to 2 spaces
+  tabsize=2, 
   breaklines=true,
   breakatwhitespace=false,
   showstringspaces=false,
@@ -166,8 +196,12 @@ description={Die Realzeit beschreibt die Zeit des Rechners/Servers, auf dem die 
   emphstyle       =[1]\color{black},
   emph            =[2]{if,and,or,else, foreach, as, break},
   emphstyle       =[2]\color{dkyellow},
-  emph            =[3]{global, function, as, null, return, int, float, bool, end,DB_MySQL,new},
+  emph            =[3]{global, function, as, null, return, int, float, bool, end,DB_MySQL,new,<?php},
   emphstyle       =[3]\color{dkblue},
+  commentstyle=\color{black},
+  numberstyle = \tiny,
+  xleftmargin=3.4pt,
+  xrightmargin=3.4pt,
   rulecolor=\color{black}
 }
 
@@ -181,6 +215,14 @@ description={Die Realzeit beschreibt die Zeit des Rechners/Servers, auf dem die 
 \usepackage{threeparttable}
 \usepackage{url}
 
+\usepackage{titlesec}
+
+\titleformat*{\section}{\large\bfseries}
+\titleformat*{\subsection}{\normalsize\bfseries}
+\titleformat*{\subsubsection}{\normalsize\bfseries}
+
+
+\hyphenation{Infra-Ab-schnitt Infra-Ab-schnitte}
 
 
 
@@ -199,6 +241,17 @@ description={Die Realzeit beschreibt die Zeit des Rechners/Servers, auf dem die 
   
 \usepackage{tablefootnote}
 
+%\setlength\LTleft{0pt}
+%\setlength\LTright{0pt}
+%\setlength\glsdescwidth{0.8\hsize}
+
+
+
+
+\usepackage{setspace}
+\setstretch{1.2}
+\setlength{\parskip}{3pt}
+
 % document
 \begin{document}
 \pagenumbering{gobble}  % No Pagenumbers
@@ -206,12 +259,16 @@ description={Die Realzeit beschreibt die Zeit des Rechners/Servers, auf dem die 
 \input{aufgabenstellung}
 \newpage
 \input{zusammenfassung}
+\newpage
+\input{todo}
+\newpage
 \pagenumbering{Roman} % roman pagenumbers
 \tableofcontents % set the table of contents
 \newpage % set new page
 \listoffigures % set the table of figures
-\listoftables % set the table of tables
 \newpage
+\listoftables % set the table of tables
+%\newpage
 \lstlistoflistings
 \newpage
 \section*{Abkürzungsverzeichnis}
@@ -234,6 +291,7 @@ description={Die Realzeit beschreibt die Zeit des Rechners/Servers, auf dem die 
 \newpage
 \input{formula}
 \newpage
+%\addtocontents{toc}{\protect\newpage}
 \input{fazit}
 \appendix
 \newpage
@@ -242,4 +300,6 @@ description={Die Realzeit beschreibt die Zeit des Rechners/Servers, auf dem die 
 \pagenumbering{Roman} % roman pagenumbers
 \setcounter{page}{4}
 \bibliography{paper}  % implement the name of the bibtex.bib file
+\newpage
+\input{eigenstaendigkeitserklaerung}
 \end{document}

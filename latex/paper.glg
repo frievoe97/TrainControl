@@ -1,0 +1,12 @@
+This is makeindex, version 2.15 [TeX Live 2020] (kpathsea + Thai support).
+Scanning style file ./paper.ist.............................done (29 attributes redefined, 0 ignored).
+Scanning input file paper.glo...
+!! Input index error (file = paper.glo, line = 1):
+   -- Illegal page number .
+!! Input index error (file = paper.glo, line = 2):
+   -- Illegal page number .
+.done (129 entries accepted, 2 rejected).
+Sorting entries....done (1112 comparisons).
+Generating output file paper.gls....done (51 lines written, 0 warnings).
+Output written in paper.gls.
+Transcript written in paper.glg.

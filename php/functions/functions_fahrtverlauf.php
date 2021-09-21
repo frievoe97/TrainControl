@@ -1,8 +1,7 @@
 <?php
 
-// TODO: current_speed = 0
-function
-updateNextSpeed (array $train, float $startTime, float $endTime, int $targetSectionPara, int $targetPositionPara, bool $reachedBetriebsstelle, string $targetSignal, bool $wendet, bool $freieFahrt, array $allreachedInfras) {
+// Berechnet den Fahrtverlauf eines Fahrzeugs
+function updateNextSpeed (array $train, float $startTime, float $endTime, int $targetSectionPara, int $targetPositionPara, bool $reachedBetriebsstelle, string $indexReachedBetriebsstelle, bool $wendet, bool $freieFahrt, array $allreachedInfras) {
 
 	global $useSpeedFineTuning;
 	global $next_sections;
@@ -48,63 +47,45 @@ updateNextSpeed (array $train, float $startTime, float $endTime, int $targetSect
 	$currentPosition = $train["current_position"];
 	$currentSpeed = $train["current_speed"];
 	$train_length = $train["zuglaenge"];
-
 	$targetSection = $targetSectionPara;
 	$targetPosition = $targetPositionPara;
-
 	$targetSpeed = 0;
 	$targetTime = $endTime;
-
 	$indexCurrentSection = null;
 	$indexTargetSection = null;
 	$timeToNextStop = null;
 	$maxTimeToNextStop = $targetTime - $startTime;
 	$maxSpeedNextSections = 120;
 
-	$indexReachedBetriebsstelle = $targetSignal;
-
-
-	//$targetBetriebsstelle = null;
-	//$targetTime = $startTime + 210;
-
-	/*
-
-	$currentSection = 1189;
-	$targetSection = 1182;
-
-	$next_sections = array(100, 1189, 101, 102, 103, 104, 105, 106, 107, 108, 1182, 107);
-	//$next_lengths = array(4000, 190, 210, 200, 200, 200, 200, 200, 200, 200);
-	$next_lengths = array(300, 400, 300, 400, 300, 200, 400, 500, 300, 400, 300, 300);
-	$next_v_max = array(120, 120, 120, 90, 60, 60, 90, 120, 120, 100, 60, 40);
-	//$next_v_max = array(100, 90, 80, 70, 60, 50, 40, 40, 80, 100);
-	$currentPosition = 10;
-	$targetPosition = 290;
-	$train_v_max = 120;
-	$train_length = 50;
-	*/
-
-
-
-
 	if (!$freieFahrt) {
 		$targetBetriebsstelle = $train["next_betriebsstellen_data"][$indexReachedBetriebsstelle]["betriebstelle"];
 	} else {
-		$targetBetriebsstelle = $cacheSignalIDToBetriebsstelle[intval($targetSignal)];
+		$targetBetriebsstelle = $cacheSignalIDToBetriebsstelle[intval($indexReachedBetriebsstelle)];
 	}
 
 	// TODO: Zug steht schon am Ziel (ist das nötig?)
 	if ($targetSection == $currentSection && $targetPosition == $currentPosition) {
-		// Freie Fahrt
+		/*
 		if ($indexReachedBetriebsstelle == $globalIndexBetriebsstelleFreieFahrt) {
 			$indexReachedBetriebsstelle = -1;
 		}
+		*/
+		if ($currentSpeed > 0) {
+			emergencyBreak($train["id"]);
+		} else {
+			return 0;
+		}
+		/*
 		$adress = $train["adresse"];
 		$return = array(array("live_position" => $targetPosition, "live_speed" => $targetSpeed, "live_time" => $endTime, "live_relative_position" => $targetPosition, "live_section" => $targetSection, "live_is_speed_change" => false, "live_target_reached" => $reachedBetriebsstelle, "wendet" => $wendet, "id" => $train["id"], "betriebsstelle_name" => $targetBetriebsstelle));
 		$allTimes[$adress] = array_merge($allTimes[$adress], $return);
 		return 0;
+		*/
 	}
 
-	// Wenn ein Abschnitt eine Geschwindigkeit zulässt, die größer als die v_max des Zugs ist, wird die Geschwindigkeit auf die v_max des Zuges beschränkt
+	// Wenn ein Infra-Abschnitt eine Geschwindigkeit zulässt, die größer als die
+	// zulässige Höchstgeschwindigkeit des Fahrzeugs ist, wird die Geschwindigkeit
+	// des Infra-Abschnitts reduziert.
 	if ($train_v_max != null) {
 		foreach ($next_sections as $sectionKey => $sectionValue) {
 			if ($next_v_max[$sectionKey] > $train_v_max) {
@@ -113,24 +94,25 @@ updateNextSpeed (array $train, float $startTime, float $endTime, int $targetSect
 		}
 	}
 
-	// Index des Start- und Zielabschnitts
+	// Ermittlung der Indexe des Start- und Zielabschnitts
 	foreach ($next_sections as $sectionKey => $sectionValue) {
 		if ($sectionValue == $currentSection) {
 			$indexCurrentSection = $sectionKey;
 		}
+
 		if ($sectionValue == $targetSection) {
 			$indexTargetSection = $sectionKey;
 		}
 	}
 
+	// Berechnet die kumulierten Abstände jedes Infra-Abschnitts für den Anfang
+	// und das Ende der Infra-Abschnitt von der aktuellen Fahrzeugposition
 	$returnCumulativeSections = createCumulativeSections($indexCurrentSection, $indexTargetSection, $currentPosition, $targetPosition, $next_lengths);
 	$cumulativeSectionLengthStart = $returnCumulativeSections[0];
 	$cumulativeSectionLengthEnd = $returnCumulativeSections[1];
 	$cumLengthEnd = array();
 	$cumLengthStart = array();
 	$sum = 0;
-
-
 
 	foreach ($next_lengths as $index => $value) {
 		if ($index >= $indexCurrentSection) {
@@ -140,26 +122,29 @@ updateNextSpeed (array $train, float $startTime, float $endTime, int $targetSect
 		}
 	}
 
+	// Ermittlung der Distanz bis zum Ziel
 	$distanceToNextStop = $cumulativeSectionLengthEnd[$indexTargetSection];
 	if (getBrakeDistance($currentSpeed, $targetSpeed, $verzoegerung)> $distanceToNextStop && $currentSpeed != 0) {
 		if (!isset($distanceToNextStop)) {
 			emergencyBreak($train["id"]);
+
 			return 0;
 		} else {
 			emergencyBreak($train["id"], $distanceToNextStop);
+
 			return 0;
 		}
 	}
 
-
-	// TODO: Als Funktion ausgliedern
+	// Ermittlung der Längen und zulässigen Höchstgeschwindigkeiten der
+	// Infra-Abschnitte inkl. Zuglänge
 	global $next_v_max_mod;
 	global $next_lengths_mod;
-	$next_v_max_mod = array();
-	$next_lengths_mod = array();
-
 	global $indexCurrentSectionMod;
 	global $indexTargetSectionMod;
+
+	$next_v_max_mod = array();
+	$next_lengths_mod = array();
 	$indexCurrentSectionMod = null;
 	$indexTargetSectionMod = null;
 
@@ -173,15 +158,19 @@ updateNextSpeed (array $train, float $startTime, float $endTime, int $targetSect
 		$startPosition = 0;
 		$indexStartPosition = null;
 		$indexEndPosition = null;
+
 		do {
 			$reachedTargetSection = false;
+
 			for ($j = $indexCurrentSection; $j <= $indexTargetSection; $j++) {
 				if ($startPosition >= $cumLengthStart[$j] && $startPosition < $cumLengthEnd[$j]) {
 					$indexStartPosition = $j;
 				}
 			}
+
 			$endPosition = $cumLengthEnd[$indexStartPosition] + $train_length;
 			$current_v_max = $next_v_max[$indexStartPosition];
+
 			if ($endPosition >= $cumLengthEnd[$indexTargetSection]) {
 				$indexEndPosition = $indexTargetSection;
 				$endPosition = $cumLengthEnd[$indexTargetSection - 1] + $targetPosition;
@@ -193,35 +182,40 @@ updateNextSpeed (array $train, float $startTime, float $endTime, int $targetSect
 					}
 				}
 			}
+
 			for ($j = $indexStartPosition + 1; $j <= $indexEndPosition; $j++) {
 				if ($next_v_max[$j] < $current_v_max) {
 					$endPosition = $cumLengthStart[$j];
 					$indexEndPosition = $j - 1;
 				}
 			}
+
 			if ($reachedTargetSection) {
 				if (!($endPosition >= $distanceToNextStop)) {
 					$reachedTargetSection = false;
 				}
 			}
+
 			array_push($next_lengths_mod, ($endPosition - $startPosition));
 			array_push($next_v_max_mod, $current_v_max);
 			$startPosition = $endPosition;
 		} while (!$reachedTargetSection);
+
 		$indexCurrentSectionMod = array_key_first($next_lengths_mod);
 		$indexTargetSectionMod = array_key_last($next_lengths_mod);
 	}
 
+	// Berechnet die kumulierten Abstände jedes Infra-Abschnitts für den Anfang
+	// und das Ende der Infra-Abschnitt von der aktuellen Fahrzeugposition
+	// inkl. der Fahrzeuglänge
 	$returnCumulativeSectionsMod = createCumulativeSections($indexCurrentSectionMod, $indexTargetSectionMod, $currentPosition, $next_lengths_mod[$indexTargetSectionMod], $next_lengths_mod);
 
 	global $cumulativeSectionLengthStartMod;
 	global $cumulativeSectionLengthEndMod;
+
 	$cumulativeSectionLengthStartMod = $returnCumulativeSectionsMod[0];
 	$cumulativeSectionLengthEndMod = $returnCumulativeSectionsMod[1];
-
 	$minTimeOnSpeedIsPossible = checkIfItsPossible();
-
-
 	$v_maxFirstIteration = getVMaxBetweenTwoPoints($distanceToNextStop, $currentSpeed, $targetSpeed);
 
 	// Anpassung an die maximale Geschwindigkeit auf der Strecke
@@ -230,7 +224,6 @@ updateNextSpeed (array $train, float $startTime, float $endTime, int $targetSect
 			$maxSpeedNextSections = $next_v_max[$i];
 		}
 	}
-
 	if ($maxSpeedNextSections < $v_maxFirstIteration) {
 		$v_maxFirstIteration = $maxSpeedNextSections;
 	}
@@ -239,30 +232,31 @@ updateNextSpeed (array $train, float $startTime, float $endTime, int $targetSect
 	array_push($keyPoints, createKeyPoint(0, getBrakeDistance($currentSpeed, $v_maxFirstIteration, $verzoegerung), $currentSpeed, $v_maxFirstIteration));
 	array_push($keyPoints, createKeyPoint(($distanceToNextStop - getBrakeDistance($v_maxFirstIteration, $targetSpeed, $verzoegerung)), $distanceToNextStop, $v_maxFirstIteration, $targetSpeed));
 
-	//function keyPoints => trainChangeArrays
-	$trainChange = convertKeyPointsToTrainChangeArray($keyPoints);
+	//$trainChange = convertKeyPointsToTrainChangeArray($keyPoints);
+	$trainChange = createTrainChanges(true);
 	$trainPositionChange = $trainChange[0];
 	$trainSpeedChange = $trainChange[1];
-
 	$speedOverPositionAllIterations = array();
 
+	// Überprüfung, ob das Fahrzeug in Infra-Abschnitten zu schnell ist
 	while (checkIfTrainIsToFastInCertainSections()["failed"]) {
-		// saves the keyPoints local
 		$tempKeyPoints = $keyPoints;
 
-		// berechnet die "live Daten"
+		// Berechnung der Echtzeitdaten
 		$trainChange = createTrainChanges(true);
 		$trainPositionChange = $trainChange[0];
 		$trainSpeedChange = $trainChange[1];
 
+		// Hinzufügen der Echtzeitdaten des vorherigen Iterationsschritt
+		// für die Visualisierung
 		array_push($speedOverPositionAllIterations, array($trainPositionChange, $trainSpeedChange));
 
-		// suche nach Fehlern und neuberechnung...
+		// Überprüfung, ob durch den Fahrtverlauf zulässige Höchst-
+		// geschwindigkeiten überschritten werden
 		$keyPoints = recalculateKeyPoints($tempKeyPoints);
-
 		$localKeyPointsTwo = array();
 
-		// Löschung von zwei aufernanderfolgenden "unnötigen" KeyPoints
+		// Entfernen von doppelten $keyPoints
 		for ($i = 0; $i < sizeof($keyPoints); $i++) {
 			if ($i < sizeof($keyPoints) - 1) {
 				if (!($keyPoints[$i]["speed_0"] == $keyPoints[$i]["speed_1"] && $keyPoints[$i]["speed_0"] == $keyPoints[$i + 1]["speed_0"] && $keyPoints[$i]["speed_0"] == $keyPoints[$i + 1]["speed_1"])) {
@@ -275,48 +269,57 @@ updateNextSpeed (array $train, float $startTime, float $endTime, int $targetSect
 			}
 		}
 
+		// Berechnung der Echtzeitdaten nach der Neukalibrierung
 		$keyPoints = $localKeyPointsTwo;
 		$trainChange = createTrainChanges(true);
 		$trainPositionChange = $trainChange[0];
 		$trainSpeedChange = $trainChange[1];
-		$count++;
 	}
 
-	// Adding time to first KeyPoint
+	// Fügt die aktuelle Zeit zum ersten $keyPoint hinzu
 	$keyPoints[0]["time_0"] = $startTime;
 	$keyPoints = deleteDoubledKeyPoints($keyPoints);
 	$keyPoints = calculateTimeFromKeyPoints();
+
 	if ($useMinTimeOnSpeed && $minTimeOnSpeedIsPossible) {
 		array_push($speedOverPositionAllIterations, array($trainPositionChange, $trainSpeedChange));
 		toShortOnOneSpeed();
 	}
+
+	// Ermittlung der Echtzeitdaten
 	$trainChange = createTrainChanges(true);
 	$trainPositionChange = $trainChange[0];
 	$trainSpeedChange = $trainChange[1];
 	$timeToNextStop = end($keyPoints)["time_1"] - $keyPoints[0]["time_0"];
 
-	// Train arrives at destination with a delay
+	// Überprüfung, ob das Fahrzeug mit einer Verspätung am Ziel ankommt.
+	// Fahrzeuge, die ohne Fahrplan fahren, werden nicht betrachtet.
 	if (!$freieFahrt) {
 		if ($timeToNextStop > $maxTimeToNextStop) {
-			// TODO: Als allgemeine Info am Anfang der Funktion...
 			echo "Der Zug mit der Adresse ", $train["adresse"], " wird mit einer Verspätung von ", number_format($timeToNextStop - $maxTimeToNextStop, 2), " Sekunden im nächsten planmäßigen Halt (", $targetBetriebsstelle,") ankommen.\n";
 		} else {
 			echo "Aktuell benötigt der Zug mit der Adresse ", $train["adresse"], " ", number_format($timeToNextStop, 2), " Sekunden, obwohl er ", number_format($maxTimeToNextStop, 2), " Sekunden zur Verfügung hat.\n";
+
 			if ($slowDownIfTooEarly) {
 				echo "Evtl. könnte der Zug zwischendurch die Geschwindigkeit verringern, um Energie zu sparen.";
+
 				array_push($speedOverPositionAllIterations, array($trainPositionChange, $trainSpeedChange));
 				$keyPointsPreviousStep = array();
 				$finish = false;
 				$possibleSpeedRange = null;
 				$returnSpeedDecrease = checkIfTheSpeedCanBeDecreased();
+
 				while ($returnSpeedDecrease["possible"] && !$finish) {
 					$possibleSpeedRange = findMaxSpeed($returnSpeedDecrease);
+
 					if ($possibleSpeedRange["min_speed"] == $possibleSpeedRange["max_speed"]) {
 						break;
 					}
+
 					$localKeyPoints = $keyPoints;
 					$newCalculatedTime = null;
 					$newKeyPoints = null;
+
 					for ($i = $possibleSpeedRange["max_speed"]; $i >= $possibleSpeedRange["min_speed"]; $i = $i - 10) {
 						$localKeyPoints[$possibleSpeedRange["first_key_point_index"]]["speed_1"] = $i;
 						$localKeyPoints[$possibleSpeedRange["first_key_point_index"] + 1]["speed_0"] = $i;
@@ -324,6 +327,7 @@ updateNextSpeed (array $train, float $startTime, float $endTime, int $targetSect
 						$localKeyPoints[$possibleSpeedRange["first_key_point_index"] + 1]["position_0"] = ($localKeyPoints[$possibleSpeedRange["first_key_point_index"] + 1]["position_1"] - getBrakeDistance($i, $localKeyPoints[$possibleSpeedRange["first_key_point_index"] + 1]["speed_1"], $verzoegerung));
 						$localKeyPoints = calculateTimeFromKeyPoints($localKeyPoints);
 						$newCalculatedTime = $localKeyPoints[array_key_last($localKeyPoints)]["time_1"];
+
 						if ($i == 10) {
 							if ($newCalculatedTime > $maxTimeToNextStop) {
 								$localKeyPoints[$possibleSpeedRange["first_key_point_index"]]["speed_1"] = $i + 10;
@@ -331,6 +335,7 @@ updateNextSpeed (array $train, float $startTime, float $endTime, int $targetSect
 								$localKeyPoints[$possibleSpeedRange["first_key_point_index"]]["position_1"] = (getBrakeDistance($localKeyPoints[$possibleSpeedRange["first_key_point_index"]]["speed_0"], ($i + 10), $verzoegerung) + $localKeyPoints[$possibleSpeedRange["first_key_point_index"]]["position_0"]);
 								$localKeyPoints[$possibleSpeedRange["first_key_point_index"] + 1]["position_0"] = ($localKeyPoints[$possibleSpeedRange["first_key_point_index"] + 1]["position_1"] - getBrakeDistance(($i + 10), $localKeyPoints[$possibleSpeedRange["first_key_point_index"] + 1]["speed_1"], $verzoegerung));
 							}
+
 							$finish = true;
 							$newKeyPoints = $localKeyPoints;
 							break;
@@ -350,6 +355,7 @@ updateNextSpeed (array $train, float $startTime, float $endTime, int $targetSect
 							$newKeyPoints = $localKeyPoints;
 							$finish = true;
 							$keyPoints = $localKeyPoints;
+
 							break;
 						}
 						if ($i == $possibleSpeedRange["min_speed"]) {
@@ -361,13 +367,17 @@ updateNextSpeed (array $train, float $startTime, float $endTime, int $targetSect
 						$newKeyPoints = $localKeyPoints;
 					}
 					$keyPointsPreviousStep = $localKeyPoints;
+
 					if ($newKeyPoints != null) {
 						$keyPoints = $newKeyPoints;
 					}
+
 					$keyPoints = deleteDoubledKeyPoints($keyPoints);
 					$returnSpeedDecrease = checkIfTheSpeedCanBeDecreased();
 				}
+
 				$keyPoints = calculateTimeFromKeyPoints();
+
 				if ($useSpeedFineTuning && $returnSpeedDecrease["possible"]) {
 					$trainChangeReturn = createTrainChanges(true);
 					$trainPositionChange = $trainChangeReturn[0];
@@ -375,9 +385,12 @@ updateNextSpeed (array $train, float $startTime, float $endTime, int $targetSect
 					$newCalculatedTime = $keyPoints[array_key_last($keyPoints)]["time_1"];
 					speedFineTuning(($maxTimeToNextStop - ($newCalculatedTime - $startTime)), $returnSpeedDecrease["range"][array_key_last($returnSpeedDecrease["range"])]["KeyPoint_index"]);
 				}
+
 				$keyPoints = calculateTimeFromKeyPoints();
 				$timeToNextStop = end($keyPoints)["time_1"] - $keyPoints[0]["time_0"];
+
 				echo "\nDurch die Anpassung der Geschwindigkeit benötigt der Zug mit der Adresse ", $train["adresse"], " jetzt ", number_format($timeToNextStop, 2), " Sekunden bis\n";
+
 				if (abs($timeToNextStop - $maxTimeToNextStop) < $globalFloatingPointNumbersRoundingError) {
 					echo "zum nächsten planmäßigen Halt (", $targetBetriebsstelle, ") und wird diesen genau pünktlich erreichen.\n";
 				} else if (($timeToNextStop - $maxTimeToNextStop) > 0) {
@@ -390,9 +403,10 @@ updateNextSpeed (array $train, float $startTime, float $endTime, int $targetSect
 			}
 		}
 	} else {
-		echo "Der Zug mit der Adresse ", $train["adresse"], " fährt aktuell ohne Fahrplan bis zum nächsten auf Halt stehendem Signal (Signal ID: ", $targetSignal, ", Betriebsstelle: ", $targetBetriebsstelle,").\n";
+		echo "Der Zug mit der Adresse ", $train["adresse"], " fährt aktuell ohne Fahrplan bis zum nächsten auf Halt stehendem Signal (Signal ID: ", $indexReachedBetriebsstelle, ", Betriebsstelle: ", $targetBetriebsstelle,").\n";
 	}
 
+	// Berechnung der Echtzeitdaten
 	$returnTrainChanges = createTrainChanges(false);
 	$trainPositionChange = $returnTrainChanges[0];
 	$trainSpeedChange = $returnTrainChanges[1];
@@ -407,10 +421,12 @@ updateNextSpeed (array $train, float $startTime, float $endTime, int $targetSect
 	$allreachedInfrasIndex = array();
 	$allreachedInfrasID = array();
 	$allreachedInfrasUsed = array();
+
 	foreach ($allreachedInfras as $value) {
 		array_push($allreachedInfrasIndex, $value["index"]);
 		array_push($allreachedInfrasID, $value["infra"]);
 	}
+
 	foreach ($trainPositionChange as $key => $value) {
 		$trainBetriebsstelleName[$key] = $targetBetriebsstelle;
 		if (array_key_last($trainPositionChange) != $key) {
@@ -422,6 +438,7 @@ updateNextSpeed (array $train, float $startTime, float $endTime, int $targetSect
 			} else {
 				$trainWendet[$key] = false;
 			}
+
 			if ($reachedBetriebsstelle) {
 				$trainTargetReached[$key] = true;
 			} else {
@@ -429,6 +446,7 @@ updateNextSpeed (array $train, float $startTime, float $endTime, int $targetSect
 			}
 		}
 	}
+
 	for($i = sizeof($trainSection) - 1; $i >= 0; $i--) {
 		if (in_array($trainSection[$i], $allreachedInfrasID) && !in_array($trainSection[$i], $allreachedInfrasUsed)) {
 			array_push($allreachedInfrasUsed, $trainSection[$i]);
@@ -443,9 +461,11 @@ updateNextSpeed (array $train, float $startTime, float $endTime, int $targetSect
 	$adress = $train["adresse"];
 	$trainID = array();
 	$id = $train["id"];
+
 	foreach ($trainPositionChange as $key => $value) {
 		$trainID[$key] = $id;
 	}
+
 	foreach ($trainPositionChange as $trainPositionChangeIndex => $trainPositionChangeValue) {
 		array_push($returnArray, array("live_position" => $trainPositionChangeValue,
 			"live_speed" => $trainSpeedChange[$trainPositionChangeIndex],
@@ -459,53 +479,55 @@ updateNextSpeed (array $train, float $startTime, float $endTime, int $targetSect
 			"betriebsstelle" => $trainBetriebsstelleName[$trainPositionChangeIndex],
 			"live_all_targets_reached" => $allReachedTargets[$trainPositionChangeIndex]));
 	}
+
 	$allTimes[$adress] = $returnArray;
-	var_dump($keyPoints);
-	var_dump($allTimes[$adress]);
 	safeTrainChangeToJSONFile($indexCurrentSection, $indexTargetSection, $indexCurrentSectionMod, $indexTargetSectionMod, $speedOverPositionAllIterations);
+
 	return (end($trainTimeChange) - $trainTimeChange[0]) - ($endTime - $startTime);
 }
 
-function getBrakeDistance (float $v_0, float $v_1, float $verzoegerung) {
-	return abs(0.5 * ((pow($v_0/3.6,2)-pow($v_1/3.6, 2))/($verzoegerung)));
-}
-
-// TODO: Überarbeitung
+// TODO: bei sizeof($v_max) == 0 muss entweder eine Notbresmung passieren oder funktion wird abgebrochen (leere Echtzeitdaten)
+// Ermittelt die maximale Geschwindigkeit zwischen zwei Punkten
 function getVMaxBetweenTwoPoints(float $distance, int $v_0, int $v_1) {
+
 	global $verzoegerung;
 	global $globalFloatingPointNumbersRoundingError;
 
 	$v_max = array();
+
 	for ($i = 0; $i <= 120; $i = $i + 10) {
 		if ((getBrakeDistance($v_0, $i, $verzoegerung) + getBrakeDistance($i, $v_1, $verzoegerung)) < ($distance + $globalFloatingPointNumbersRoundingError)) {
 			array_push($v_max, $i);
 		}
 	}
+
 	if (sizeof($v_max) == 0) {
 		if ($v_0 == 0 && $v_1 == 0 && $distance > 0) {
 			echo "Der zug müsste langsamer als 10 km/h fahren, um das Ziel zu erreichen.";
 		} else {
-			// TODO: Notbremsung
+			//emergencyBreak($id);
 		}
 	} else {
 		if ($v_0 == $v_1 && max($v_max) < $v_0) {
 			$v_max = array($v_0);
 		}
 	}
+
 	return max($v_max);
 }
 
+// Erstellt einen $keyPoint
 function createKeyPoint (float $position_0, float $position_1, int $speed_0, int $speed_1) {
 	return array("position_0" => $position_0, "position_1" => $position_1, "speed_0" => $speed_0, "speed_1" => $speed_1);
 }
 
-// TODO: Funktion doppelt sich... (evtl. hilfreich, weil diese Funktion nur Geschwindigkeit und Position zurückgibt)
+// Ermittelt aus den $keyPoint die Echtzeitdaten (nur Geschwindigkeit und Position)
 function convertKeyPointsToTrainChangeArray (array $keyPoints) {
+
 	global $verzoegerung;
 
 	$trainSpeedChangeReturn = array();
 	$trainPositionChnageReturn = array();
-
 	array_push($trainPositionChnageReturn, $keyPoints[0]["position_0"]);
 	array_push($trainSpeedChangeReturn, $keyPoints[0]["speed_0"]);
 
@@ -536,10 +558,15 @@ function convertKeyPointsToTrainChangeArray (array $keyPoints) {
 			array_push($trainSpeedChangeReturn, ($j - 2));
 		}
 	}
+
 	return array($trainPositionChnageReturn, $trainSpeedChangeReturn);
 }
 
+// Wandelt die Daten der Infra-Abschnitte und der Iterationsschritte der
+// Fahrtverlaufsberechnung in JSON-Dateien um, damit die Fahrtverläufe
+// visuell dargestellt werden können.
 function safeTrainChangeToJSONFile(int $indexCurrentSection, int $indexTargetSection, int $indexCurrentSectionMod, int $indexTargetSectionMod, array $speedOverPositionAllIterations) {
+
 	global $trainPositionChange;
 	global $trainSpeedChange;
 	global $next_v_max;
@@ -554,9 +581,11 @@ function safeTrainChangeToJSONFile(int $indexCurrentSection, int $indexTargetSec
 	fclose($fp);
 
 	$v_maxFromUsedSections = array();
+
 	for ($i = $indexCurrentSection; $i <= $indexTargetSection; $i++) {
 		array_push($v_maxFromUsedSections, $next_v_max[$i]);
 	}
+
 	$VMaxOverCumulativeSections = array_map('toArr', $cumulativeSectionLengthEnd, $v_maxFromUsedSections);
 	$VMaxOverPositionsJSon = json_encode($VMaxOverCumulativeSections);
 	$fp = fopen('../json/VMaxOverCumulativeSections.json', 'w');
@@ -564,9 +593,11 @@ function safeTrainChangeToJSONFile(int $indexCurrentSection, int $indexTargetSec
 	fclose($fp);
 
 	$v_maxFromUsedSections = array();
+
 	for ($i = $indexCurrentSectionMod; $i <= $indexTargetSectionMod; $i++) {
 		array_push($v_maxFromUsedSections, $next_v_max_mod[$i]);
 	}
+
 	$VMaxOverCumulativeSectionsMod = array_map('toArr', $cumulativeSectionLengthEndMod, $v_maxFromUsedSections);
 	$VMaxOverPositionsJSon = json_encode($VMaxOverCumulativeSectionsMod);
 	$fp = fopen('../json/VMaxOverCumulativeSectionsMod.json', 'w');
@@ -574,16 +605,20 @@ function safeTrainChangeToJSONFile(int $indexCurrentSection, int $indexTargetSec
 	fclose($fp);
 
 	$jsonReturn = array();
+
 	for ($i = 0; $i < sizeof($speedOverPositionAllIterations); $i++) {
 		$iteration = array_map('toArr', $speedOverPositionAllIterations[$i][0], $speedOverPositionAllIterations[$i][1]);
 		array_push($jsonReturn, $iteration);
 	}
+
 	$speedOverPosition = json_encode($jsonReturn);
 	$fp = fopen('../json/speedOverPosition_prevIterations.json', 'w');
 	fwrite($fp, $speedOverPosition);
 	fclose($fp);
 }
 
+// Überprüft, ob das Fahrzeug in Infra-Abschnitten die zulässige
+// Höchstgeschwindigkeit überschreitet
 function checkIfTrainIsToFastInCertainSections() {
 
 	global $trainPositionChange;
@@ -600,12 +635,14 @@ function checkIfTrainIsToFastInCertainSections() {
 				if ($trainSpeedChange[$trainPositionChangeKey] > $next_v_max_mod[$cumulativeSectionLengthStartKey - 1]) {
 					array_push($faildSections, ($cumulativeSectionLengthStartKey -1));
 				}
+
 				break;
 			} else if ($cumulativeSectionLengthStartKey == $indexTargetSectionMod) {
 				if ($trainPositionChangeValue > $cumulativeSectionLengthStartValue) {
 					if ($trainSpeedChange[$trainPositionChangeKey] > $next_v_max_mod[$cumulativeSectionLengthStartKey]) {
 						array_push($faildSections, $cumulativeSectionLengthStartKey);
 					}
+
 					break;
 				}
 			}
@@ -619,11 +656,13 @@ function checkIfTrainIsToFastInCertainSections() {
 	}
 }
 
+// Löscht $keyPoint, bei denen Start- und Zielgeschwindigkeit identisch ist.
+// Der erste $keyPoint wird dabei nicht betrachtet.
 function deleteDoubledKeyPoints($temporaryKeyPoints) {
-
 	do {
 		$foundDoubledKeyPoints = false;
 		$doubledIndex = array();
+
 		for ($i = 1; $i < (sizeof($temporaryKeyPoints) - 1); $i++) {
 			if ($temporaryKeyPoints[$i]["speed_0"] == $temporaryKeyPoints[$i]["speed_1"]) {
 				$foundDoubledKeyPoints = true;
@@ -634,11 +673,14 @@ function deleteDoubledKeyPoints($temporaryKeyPoints) {
 		foreach ($doubledIndex as $index) {
 			unset($temporaryKeyPoints[$index]);
 		}
+
 		$temporaryKeyPoints = array_values($temporaryKeyPoints);
 	} while ($foundDoubledKeyPoints);
+
 	return $temporaryKeyPoints;
 }
 
+/*
 function calculateTrainTimeChange() {
 
 	global $keyPoints;
@@ -675,26 +717,14 @@ function calculateTrainTimeChange() {
 	}
 	return $returnAllTimes;
 }
+*/
 
-function getBrakeTime (float $v_0, float $v_1, float $verzoegerung) {
-	if ($v_0 < $v_1) {
-		return (($v_1/3.6)/$verzoegerung) - (($v_0/3.6)/$verzoegerung);
-	} elseif ($v_0 > $v_1) {
-		return (($v_0/3.6)/$verzoegerung) - (($v_1/3.6)/$verzoegerung);
-	} else {
-		return 0;
-	}
-}
-
-// TODO: Darf nichts negatives zurückgeben!
-// TODO: Muss auch was neg. zurück geben für  minTimeOnOneSPeed!
-function distanceWithSpeedToTime (int $v, float $distance) {
-	if ($distance == 0) {
-		return 0;
-	}
-	return (($distance)/($v / 3.6));
-}
-
+// Ermittelt die Zeiten der $keyPoint ausgehend vom ersten $keyPoint. Mit dem
+// Parameter $inputKeyPoints können $keyPoints übergeben werden, bei den die
+// Zeit ermittelt wird. Wenn keine $keyPoints übergeben werden, werden die
+// globalen $keyPoints verwendet. Mit dem Parameter $skippingKeys können
+// $keyPoints übersprungen werden. Das auslassen von $keyPoints ist für die
+// Funktion postponeSubsection() relevant.
 function calculateTimeFromKeyPoints($inputKeyPoints = null, $skippingKeys = null) {
 
 	global $keyPoints;
@@ -705,12 +735,15 @@ function calculateTimeFromKeyPoints($inputKeyPoints = null, $skippingKeys = null
 	} else {
 		$localKeyPoints = $inputKeyPoints;
 	}
+
 	$keys = array_keys($localKeyPoints);
+
 	if ($skippingKeys != null) {
 		foreach ($skippingKeys as $skip) {
 			unset($keys[array_search($skip, $keys)]);
 		}
 	}
+
 	$keys = array_values($keys);
 
 	for ($i = 0; $i < (sizeof($keys) - 1); $i++) {
@@ -719,10 +752,13 @@ function calculateTimeFromKeyPoints($inputKeyPoints = null, $skippingKeys = null
 	}
 
 	$localKeyPoints[end($keys)]["time_1"] = getBrakeTime($localKeyPoints[end($keys)]["speed_0"], $localKeyPoints[end($keys)]["speed_1"], $verzoegerung) + $localKeyPoints[end($keys)]["time_0"];
+
 	return $localKeyPoints;
 }
 
-// TODO: Only Position and Speed
+// Ermittelt die Echtzeitdaten eines Fahrtverlaufs auf Grundlage der $keyPoints.
+// Mit dem Parameter $onlyPositionAndSpeed kann festgelegt werden, ob nur die
+// Position und Geschwindigkeit berechnet werden soll oder alle benötigten Daten.
 function createTrainChanges(bool $onlyPositionAndSpeed) {
 
 	global $keyPoints;
@@ -743,15 +779,14 @@ function createTrainChanges(bool $onlyPositionAndSpeed) {
 	$returnTrainSection = array();
 	$returnIsSpeedChange = array();
 
-	// Alle bis auf den letzten Key Point
-	// Erstellt immer alle Daten zwischen KeyPoint Anfang und dem letzten Wert vor dem nächsten KeyPoint
+	// Ermittelt für alle bis auf den letzten $keyPoint die Echtzeitdaten der
+	// Zeit, Geschwindigkeit und Position
 	for ($i = 0; $i < (sizeof($keyPoints) - 1); $i++) {
 		array_push($returnTrainTimeChange, $keyPoints[$i]["time_0"]);
 		array_push($returnTrainSpeedChange, $keyPoints[$i]["speed_0"]);
 		array_push($returnTrainPositionChange, $keyPoints[$i]["position_0"]);
 		array_push($returnIsSpeedChange, true);
 		if ($keyPoints[$i]["speed_0"] < $keyPoints[$i]["speed_1"]) {
-			// Speichert alle ab dem zweiten Wert bis zum letzten Wert
 			for ($j = ($keyPoints[$i]["speed_0"] + 2); $j <= $keyPoints[$i]["speed_1"]; $j = $j + 2) {
 				array_push($returnTrainPositionChange, (end($returnTrainPositionChange) + getBrakeDistance(($j - 2), $j, $verzoegerung)));
 				array_push($returnTrainSpeedChange, $j);
@@ -766,10 +801,14 @@ function createTrainChanges(bool $onlyPositionAndSpeed) {
 				array_push($returnIsSpeedChange, true);
 			}
 		}
+
+		// Ermittelt für die Strecke zwischen zwei $keyPoints die Echtzeitdaten
+		// der Zeit, Geschwindigkeit und Position
 		$startPosition = $keyPoints[$i]["position_1"];
 		$endPosition =  $keyPoints[$i + 1]["position_0"];
 		$speedToNextKeyPoint = $keyPoints[$i]["speed_1"];
 		$distanceForOneTimeInterval = $speedToNextKeyPoint / 3.6;
+
 		for ($position = $startPosition + $distanceForOneTimeInterval; $position < $endPosition; $position = $position + $distanceForOneTimeInterval) {
 			array_push($returnTrainPositionChange, $position);
 			array_push($returnTrainSpeedChange, $speedToNextKeyPoint);
@@ -781,7 +820,9 @@ function createTrainChanges(bool $onlyPositionAndSpeed) {
 	array_push($returnTrainSpeedChange, $keyPoints[array_key_last($keyPoints)]["speed_0"]);
 	array_push($returnTrainTimeChange, $keyPoints[array_key_last($keyPoints)]["time_0"]);
 	array_push($returnIsSpeedChange, true);
-	// letzter KeyPoint
+
+	// Ermittelt für den letzten $keyPoint die Echtzeitdaten der Zeit,
+	// Geschwindigkeit und Position
 	if ($keyPoints[array_key_last($keyPoints)]["speed_0"] < $keyPoints[array_key_last($keyPoints)]["speed_1"]) {
 		for ($j = ($keyPoints[array_key_last($keyPoints)]["speed_0"] + 2); $j <= $keyPoints[array_key_last($keyPoints)]["speed_1"]; $j = $j + 2) {
 			array_push($returnTrainPositionChange, (end($returnTrainPositionChange) + getBrakeDistance(($j - 2), $j, $verzoegerung)));
@@ -797,10 +838,12 @@ function createTrainChanges(bool $onlyPositionAndSpeed) {
 			array_push($returnIsSpeedChange, true);
 		}
 	}
+
 	if ($onlyPositionAndSpeed) {
 		return array($returnTrainPositionChange, $returnTrainSpeedChange);
 	} else {
-		// Erstellt die relativen Positionen und Abschnitte zu den absoluten Werten. position
+		// Ermittelt die relativen Positionen innerhalb der Infra-Abschnitte
+		// zu den absoluten Positionen
 		foreach ($returnTrainPositionChange as $absolutPositionKey => $absolutPositionValue) {
 			foreach ($cumulativeSectionLengthStart as $sectionStartKey => $sectionStartValue) {
 				if ($absolutPositionValue >= $sectionStartValue && $absolutPositionValue < $cumulativeSectionLengthEnd[$sectionStartKey]) {
@@ -823,7 +866,7 @@ function createTrainChanges(bool $onlyPositionAndSpeed) {
 			}
 		}
 
-		// Erstellt die relativen Positionen und Abschnitte zu den absoluten Werten. section
+		// Ermittelt die Infra-Abschnitte der Echtzeitdaten zu den absoluten Positionen
 		foreach ($returnTrainPositionChange as $absolutPositionKey => $absolutPositionValue) {
 			foreach ($cumulativeSectionLengthStart as $sectionStartKey => $sectionStartValue) {
 				if ($absolutPositionValue >= $sectionStartValue && $absolutPositionValue < $cumulativeSectionLengthEnd[$sectionStartKey]) {
@@ -849,22 +892,27 @@ function createTrainChanges(bool $onlyPositionAndSpeed) {
 	}
 }
 
-// Überprüft immer zwei benachbarte KeyPoints (0+1, 2+3, 4+5, 6+7 etc.)
-// TODO: schöner schreiben die Funktion... sieht hässlich aus!
-// TODO: Sollte auch bei einer ungeraden Anzahl an KeyPoints funktionieren, bitte aber nochmal überprüfen
+// Überprüft, ob es zwischen zwei benachbarten $keyPoints zu einer Geschwindigkeits-
+// überschreitung kommt.
 function recalculateKeyPoints(array $tempKeyPoints) {
+
 	$returnKeyPoints = array();
 	$numberOfPairs = sizeof($tempKeyPoints) / 2;
+
 	for($j = 0; $j < $numberOfPairs; $j++) {
 		$i = $j * 2;
 		$return = checkBetweenTwoKeyPoints($tempKeyPoints, $i);
+
 		foreach ($return as $keyPoint) {
 			array_push($returnKeyPoints, $keyPoint);
 		}
 	}
+
 	return $returnKeyPoints;
 }
 
+// Überprüft, ob zwischen zwei $keyPoints die zulässige Höchstgeschwindigkeit
+// überschritten wird
 function checkBetweenTwoKeyPoints(array $temKeyPoints, int $keyPointIndex) {
 
 	global $trainPositionChange;
@@ -905,13 +953,13 @@ function checkBetweenTwoKeyPoints(array $temKeyPoints, int $keyPointIndex) {
 		}
 	}
 
-	// Alle Sections zwischen denn beiden KeyPoints, bei denen die v_max überschritten wird
+	// Alle Infra_abschnitte zwischen denn beiden KeyPoints, bei denen die
+	// zulässige Höchstgeschwindigkeit überschritten wird
 	$failedSections = array_unique($failedSections);
 
-	// Info: Der Index der failedPositions entspricht dem Index der trainChanges
-
-	// Wenn es kein Fehler gibt, werden die beiden KeyPoints zurückgegeben und wen es einen Fehler gibt, wird der
-	// erste der beiden KeyPoints im $returnKeyPoints gespeichert
+	// Wenn es kein Fehler gibt, werden die beiden KeyPoints zurückgegeben und
+	// wen es einen Fehler gibt, wird der erste der beiden KeyPoints im
+	// $returnKeyPoints gespeichert
 	if (sizeof($failedSections) == 0) {
 		return array($temKeyPoints[$keyPointIndex], $temKeyPoints[$keyPointIndex + 1]);
 	} else {
@@ -930,7 +978,7 @@ function checkBetweenTwoKeyPoints(array $temKeyPoints, int $keyPointIndex) {
 		$previous = $value;
 	}
 
-	// Durch alle Gruppen gehen
+	// Iteration über die zusammenhängenden $failedSections
 	foreach ($groupedFailedSections as $groupSectionsIndex => $groupSectionsValue) {
 		$firstFailedPositionIndex = null;
 		$lastFailedPositionIndex = null;
@@ -939,7 +987,8 @@ function checkBetweenTwoKeyPoints(array $temKeyPoints, int $keyPointIndex) {
 		$lastElement = array_key_last($returnKeyPoints);
 		$failedSection = null;
 
-		// Ermittlung der Section mit der kleinsten v_max von allen failed Sections in der Gruppe
+		// Ermittlung der Section mit der kleinsten v_max von allen $failedSections
+		// in der Gruppe
 		if (sizeof($groupSectionsValue) == 1) {
 			$failedSection = $groupSectionsValue[0];
 		} else {
@@ -955,9 +1004,8 @@ function checkBetweenTwoKeyPoints(array $temKeyPoints, int $keyPointIndex) {
 		// Start- und Endposition der $failedSection
 		$failedSectionStart = $cumulativeSectionLengthStartMod[$failedSection];
 		$failedSectionEnd = $cumulativeSectionLengthEndMod[$failedSection];
-		//$vMaxInFailedSection = $next_v_max[$failedSection];
 
-		// Bestimmung der ersten und letzten Position, in der es in der failed Section
+		// Bestimmung der ersten und letzten Position, in der es in der $failedSection
 		// zu einer Geschwindigkeitsüberschreitung kommt
 		foreach ($failedPositions as $failPositionIndex => $failPositionValue) {
 			if ($failPositionValue > $failedSectionStart && $failPositionValue < $failedSectionEnd) {
@@ -968,9 +1016,13 @@ function checkBetweenTwoKeyPoints(array $temKeyPoints, int $keyPointIndex) {
 			}
 		}
 
-		// Bestimmung des letzten Punktes, bei dem die Geschwindigkeit noch nicht zu schnell war
-		// Wenn der Punkt davor außerhalb der failedSection liegt => Startpunkt = Anfang der Section
-		// Wenn der Punkt davor innnerhalb der failed Section liegt => Startpunkt = der Punkt davor
+		// Bestimmung des letzten Punktes, bei dem die Geschwindigkeit noch
+		// nicht zu schnell war
+		//
+		// Wenn der Punkt davor außerhalb der failedSection liegt
+		// => Startpunkt = Anfang der Section
+		// Wenn der Punkt davor innerhalb der failed Section liegt
+		// => Startpunkt = der Punkt davor
 		if ($firstFailedPositionIndex != 0) {
 			if ($trainPositionChange[$firstFailedPositionIndex - 1] < $failedSectionStart) {
 				$firstFailedPosition = $failedSectionStart;
@@ -981,8 +1033,8 @@ function checkBetweenTwoKeyPoints(array $temKeyPoints, int $keyPointIndex) {
 			$firstFailedPosition = $failedSectionStart;
 		}
 
-		// Bestimmung des ersten Punktes, bei dem die Geschwindigkeit nicht mehr zu schnell war
-		// Beschreibung: siehe $firstFailedPosition Berechnung
+		// Bestimmung der ersten Position, bei dem die Geschwindigkeit nicht
+		// mehr zu hoch war.
 		if ($lastFailedPositionIndex != array_key_last($trainPositionChange)) {
 			if ($trainPositionChange[$lastFailedPositionIndex + 1] > $failedSectionEnd) {
 				$lastFailedPosition = $failedSectionEnd;
@@ -992,31 +1044,36 @@ function checkBetweenTwoKeyPoints(array $temKeyPoints, int $keyPointIndex) {
 		} else {
 			$lastFailedPosition = $failedSectionEnd;
 		}
+
 		$returnKeyPoints[$lastElement + 1]["position_1"] = $firstFailedPosition;
 		$returnKeyPoints[$lastElement + 1]["speed_1"] = $next_v_max_mod[$failedSection];
 		$returnKeyPoints[$lastElement + 2]["position_0"] = $lastFailedPosition;
 		$returnKeyPoints[$lastElement + 2]["speed_0"] = $next_v_max_mod[$failedSection];
 	}
 
-	// Hinzufügen von dem "Ende"
+	// Zielwerte des letzten $keyPoint vom zweiten $keyPoint übernehmen
 	$returnKeyPoints[array_key_last($returnKeyPoints) + 1]["position_1"] = $temKeyPoints[$keyPointIndex + 1]["position_1"];
 	$returnKeyPoints[array_key_last($returnKeyPoints)]["speed_1"] = $temKeyPoints[$keyPointIndex + 1]["speed_1"];
 	$numberOfPairs = sizeof($returnKeyPoints) / 2;
+
 	for($j = 0; $j < $numberOfPairs; $j++) {
 		$i = $j * 2;
 		$distance = $returnKeyPoints[$i + 1]["position_1"] - $returnKeyPoints[$i]["position_0"];
 		$vMax = getVMaxBetweenTwoPoints($distance, $returnKeyPoints[$i]["speed_0"], $returnKeyPoints[$i + 1]["speed_1"]);
 		// TODO: Der Teil kann weg, getVMaxBetweenTwoPoints() kann nicht -10 zurückgeben
+		/*
 		if ($vMax == -10) {
 			$returnKeyPoints[$i]["position_0"] = $returnKeyPoints[$i + 1]["position_1"] - (getBrakeDistance($returnKeyPoints[$i]["speed_0"], $returnKeyPoints[$i + 1]["speed_1"], $verzoegerung));
 			$distance = $returnKeyPoints[$i + 1]["position_1"] - $returnKeyPoints[$i]["position_0"];
 			$vMax = getVMaxBetweenTwoPoints($distance, $returnKeyPoints[$i]["speed_0"], $returnKeyPoints[$i + 1]["speed_1"]);
 		}
+		*/
 		$returnKeyPoints[$i]["speed_1"] = $vMax; //TODO
 		$returnKeyPoints[$i]["position_1"] = $returnKeyPoints[$i]["position_0"] + getBrakeDistance($returnKeyPoints[$i]["speed_0"], $vMax, $verzoegerung);
 		$returnKeyPoints[$i + 1]["speed_0"] = $vMax;
 		$returnKeyPoints[$i + 1]["position_0"] = $returnKeyPoints[$i + 1]["position_1"] - getBrakeDistance($vMax, $returnKeyPoints[$i + 1]["speed_1"], $verzoegerung);
 	}
+
 	return $returnKeyPoints;
 }
 
@@ -1025,18 +1082,23 @@ function checkBetweenTwoKeyPoints(array $temKeyPoints, int $keyPointIndex) {
 // gespeichert und als $v_minBetweenKeyPoints der größere Wert von
 // $keyPoints[$i]["speed_0"] und $keyPoints[$i + 1]["speed_1"]
 function checkIfTheSpeedCanBeDecreased() {
+
 	global $keyPoints;
 	global $returnPossibleSpeed;
+
 	$returnPossibleSpeed = array();
+
 	for ($i = 0; $i < (sizeof($keyPoints) - 1); $i++) {
 		$v_maxBetweenKeyPoints = $keyPoints[$i]["speed_1"];
 		$v_minBetweenKeyPoints = null;
+
 		if ($keyPoints[$i]["speed_0"] < $v_maxBetweenKeyPoints && $keyPoints[$i + 1]["speed_1"] < $v_maxBetweenKeyPoints) {
 			$v_minBetweenKeyPoints = $keyPoints[$i]["speed_0"];
 			if ($keyPoints[$i + 1]["speed_1"] > $v_minBetweenKeyPoints) {
 				$v_minBetweenKeyPoints = $keyPoints[$i + 1]["speed_1"];
 			}
 		}
+
 		if (isset($v_minBetweenKeyPoints)) {
 			if ($v_minBetweenKeyPoints == 0 && $v_maxBetweenKeyPoints >= 10) {
 				$v_minBetweenKeyPoints = 10;
@@ -1044,11 +1106,13 @@ function checkIfTheSpeedCanBeDecreased() {
 				$v_minBetweenKeyPoints = null;
 			}
 		}
+
 		if ($v_minBetweenKeyPoints != null) {
 			if ($v_minBetweenKeyPoints % 10 != 0) {
 				$rest = $v_minBetweenKeyPoints % 10;
 				$v_minBetweenKeyPoints = $v_minBetweenKeyPoints - $rest + 10;
 			}
+
 			array_push($returnPossibleSpeed, array("KeyPoint_index" => $i, "values" => range($v_minBetweenKeyPoints, $v_maxBetweenKeyPoints, 10)));
 		}
 	}
@@ -1059,19 +1123,27 @@ function checkIfTheSpeedCanBeDecreased() {
 	}
 }
 
+// Wenn in 'global_variables.php' der Variablen $useSpeedFineTuning der Wert
+// 'true' zugewiesen ist und das Fahrzeug zu früh an der nächsten Betriebsstelle
+// ankommt, wird überprüft, ob durch eine vorzeitige Einleitung einer Verzögerung
+// die exakte Ankunftszeit eingehalten werden kann.
 function speedFineTuning(float $timeDiff, int $index) {
+
 	global $keyPoints;
 	global $verzoegerung;
 	global $globalTimeOnOneSpeed;
 	global $useMinTimeOnSpeed;
+
 	$speed_0 = $keyPoints[$index]["speed_1"];
 	$speed_1 = null;
 	$availableDistance = $keyPoints[$index + 1]["position_0"] - $keyPoints[$index]["position_1"];
 	$timeBetweenKeyPoints = $keyPoints[$index + 1]["time_0"] - $keyPoints[$index]["time_1"];
 	$availableTime = $timeBetweenKeyPoints + $timeDiff;
+
 	if ($keyPoints[$index + 1]["speed_1"] != 0) {
 		$speed_1 = $keyPoints[$index + 1]["speed_1"];
 		$lengthDifference = calculateDistanceforSpeedFineTuning($keyPoints[$index + 1]["speed_0"], $keyPoints[$index + 1]["speed_1"], $availableDistance, $availableTime);
+
 		if ($useMinTimeOnSpeed) {
 			if (distanceWithSpeedToTime($speed_0, $availableDistance - $lengthDifference) > $globalTimeOnOneSpeed && distanceWithSpeedToTime($speed_1, $lengthDifference) > $globalTimeOnOneSpeed) {
 				$keyPoints[$index + 1]["position_0"] = $keyPoints[$index + 1]["position_0"] - $lengthDifference;
@@ -1084,6 +1156,7 @@ function speedFineTuning(float $timeDiff, int $index) {
 	} else if ($keyPoints[$index + 1]["speed_0"] > 10) {
 		$speed_1 = 10;
 		$lengthDifference = calculateDistanceforSpeedFineTuning($keyPoints[$index + 1]["speed_0"],10, $availableDistance, $availableTime);
+
 		if ($useMinTimeOnSpeed) {
 			if (distanceWithSpeedToTime($speed_0, $availableDistance - $lengthDifference) > $globalTimeOnOneSpeed && distanceWithSpeedToTime($speed_1, $lengthDifference) > $globalTimeOnOneSpeed) {
 				$firstKeyPoint = createKeyPoint(($keyPoints[$index + 1]["position_0"] - $lengthDifference),($keyPoints[$index + 1]["position_0"] - $lengthDifference + getBrakeDistance($keyPoints[$index + 1]["speed_0"],10, $verzoegerung)),$keyPoints[$index + 1]["speed_0"],10);
@@ -1098,10 +1171,6 @@ function speedFineTuning(float $timeDiff, int $index) {
 			array_splice( $keyPoints, ($index + 1), 0, array($firstKeyPoint));
 		}
 	}
-}
-
-function calculateDistanceforSpeedFineTuning(int $v_0, int $v_1, float $distance, float $time) : float {
-	return $distance - (($distance - $time * $v_1 / 3.6)/($v_0 / 3.6 - $v_1 / 3.6)) * ($v_0 / 3.6);
 }
 
 // Sucht den KeyPoint der zu maximalen Geschwindigkeit beschleunigt
@@ -1126,8 +1195,9 @@ function findMaxSpeed(array $speedDecrease) {
 	return array("min_speed" => $minSpeed, "max_speed" => $maxSpeed, "first_key_point_index" => $keyPointIndex);
 }
 
-// Beim Start der Berechnung
+// Überprüft beim Start der Fahrtverlaufsberechnung, ob es möglich ist einen Fahrtverlauf zu ermitteln
 function checkIfItsPossible() {
+
 	global $currentSpeed;
 	global $distanceToNextStop;
 	global $verzoegerung;
@@ -1135,28 +1205,34 @@ function checkIfItsPossible() {
 	global $errorMinTimeOnSpeed;
 
 	$minTimeIsPossible = true;
+
 	if ($currentSpeed == 0) {
 		$distance_0 = getBrakeDistance(0, 10, $verzoegerung);
 		$distance_1 = getBrakeDistance(10, 0, $verzoegerung);
 		$time = distanceWithSpeedToTime(10, $distanceToNextStop - $distance_0 - $distance_1);
+
 		if ($time < $globalTimeOnOneSpeed) {
 			$minTimeIsPossible = false;
+
 			if ($errorMinTimeOnSpeed) {
 				// TODO: Notbremsung einleiten/Zug bekommt Fehler
 			}
+
 			echo "Der Zug schafft es ohne Notbremsung am Ziel anzukommen, kann aber nicht die mind. Zeit einhalten.\n";
 		}
-		// Sollte egal sein, da der Zug schon vor der Berechnung auf v_0 war und somit die Zeit unbekannt ist.
 	} else {
 		if (getBrakeDistance($currentSpeed, 0, $verzoegerung) != $distanceToNextStop) {
 			$distance_0 = getBrakeDistance($currentSpeed, 10, $verzoegerung);
 			$distance_1 = getBrakeDistance(10, 0, $verzoegerung);
 			$time = distanceWithSpeedToTime(10, $distanceToNextStop - $distance_0 - $distance_1);
+
 			if ($time < $globalTimeOnOneSpeed) {
 				$minTimeIsPossible = false;
+
 				if ($errorMinTimeOnSpeed) {
 					// TODO: Notbremsung einleiten/Zug bekommt Fehler
 				}
+
 				echo "Der Zug schafft es, ohne Notbremsung am Ziel anzukommen.\n";
 			}
 		}
@@ -1164,21 +1240,16 @@ function checkIfItsPossible() {
 	return $minTimeIsPossible;
 }
 
-// TODO: General Options:
-// 1. Soll generell überprüft werden, ob der Zug die mind. Zeit auf einer Geschwindigkeit einhält
-// 2. Soll es zu einem Fehler kommen, wenn der Zug diese Bedingung nicht erfüllen kann?
-//	  => Der Zug könnte ein Error-Statement bekommen
+// Überprüft, ob der vorgeschriebene Wert aus der Variablen $globalTimeOnOneSpeed
+// eingehalten wird, falls die Variable $useMinTimeOnSpeed den Wert 'true' hat
 function toShortOnOneSpeed () {
 
 	global $keyPoints;
 	global $verzoegerung;
 
-	$index = 0;
 	$localKeyPoints = $keyPoints;
 	$subsections = createSubsections($localKeyPoints);
-	$breakesOnly = false;
 
-	// Sobald in einer Section die Geschwindigkeit verändert werden müsste, wird erstmal die Geschwindigkeit angepasst und dann neu berechnet...
 	while (toShortInSubsection($subsections)) {
 		$breakesOnly = true;
 		foreach ($subsections as $sectionKey => $sectionValue) {
@@ -1186,7 +1257,9 @@ function toShortOnOneSpeed () {
 				if (!$sectionValue["brakes_only"]) {
 					$breakesOnly = false;
 				}
+
 				$return = postponeSubsection($localKeyPoints, $sectionValue);
+
 				if (!$return["fail"]) {
 					$localKeyPoints = $return["keyPoints"];
 				} else {
@@ -1205,6 +1278,7 @@ function toShortOnOneSpeed () {
 		$localKeyPoints = calculateTimeFromKeyPoints($localKeyPoints);
 		$localKeyPoints = array_values($localKeyPoints);
 		$subsections = createSubsections($localKeyPoints);
+
 		if ($breakesOnly) {
 			break;
 		}
@@ -1213,70 +1287,7 @@ function toShortOnOneSpeed () {
 	$keyPoints = $localKeyPoints;
 }
 
-
-function postponeSubsectionOld (array $localKeyPoints, array $subsection) {
-
-	//global $keyPoints;
-	global $globalTimeOnOneSpeed;
-
-	$keyPoints = $localKeyPoints;
-
-	$indexMaxSection = array_search($subsection["max_index"], $subsection["indexes"]);
-	$indexLastKeyPoint = array_key_last($subsection["indexes"]);
-
-	if ($subsection["is_prev_section"]) {
-		$timeDiff = $keyPoints[$subsection["indexes"][0]]["time_0"] - $keyPoints[$subsection["indexes"][0] - 1]["time_1"] - $globalTimeOnOneSpeed;
-		if ($timeDiff < 0) {
-			$positionDiff = abs($timeDiff) * $keyPoints[$subsection["indexes"][0]]["speed_0"] / 3.6;
-			//$keyPoints[$subsection["indexes"][0]]["time_0"] -= $timeDiff;
-			//$keyPoints[$subsection["indexes"][0]]["time_1"] -= $timeDiff;
-			$keyPoints[$subsection["indexes"][0]]["position_0"] += $positionDiff;
-			$keyPoints[$subsection["indexes"][0]]["position_1"] += $positionDiff;
-			$keyPoints = calculateTimeFromKeyPoints();
-
-		}
-	}
-
-	for ($i = 1; $i <= $indexMaxSection; $i++) {
-		$timeDiff = $keyPoints[$subsection["indexes"][$i]]["time_0"] - $keyPoints[$subsection["indexes"][$i] - 1]["time_1"] - $globalTimeOnOneSpeed;
-		if ($timeDiff < 0) {
-			$positionDiff = abs($timeDiff) * $keyPoints[$subsection["indexes"][$i]]["speed_0"] / 3.6;
-			//$keyPoints[$subsection["indexes"][$i]]["time_0"] -= $timeDiff;
-			//$keyPoints[$subsection["indexes"][$i]]["time_1"] -= $timeDiff;
-			$keyPoints[$subsection["indexes"][$i]]["position_0"] += $positionDiff;
-			$keyPoints[$subsection["indexes"][$i]]["position_1"] += $positionDiff;
-			$keyPoints = calculateTimeFromKeyPoints();
-		}
-	}
-
-	if ($subsection["is_next_section"]) {
-		$timeDiff = $keyPoints[$indexLastKeyPoint + 1]["time_0"] - $keyPoints[$indexLastKeyPoint]["time_1"] - $globalTimeOnOneSpeed;
-		if ($timeDiff < 0) {
-			$positionDiff = abs($timeDiff) * $keyPoints[$indexLastKeyPoint]["speed_1"] / 3.6;
-			//$keyPoints[$indexLastKeyPoint]["time_0"] += $timeDiff;
-			//$keyPoints[$indexLastKeyPoint]["time_1"] += $timeDiff;
-			$keyPoints[$indexLastKeyPoint]["position_0"] -= $positionDiff;
-			$keyPoints[$indexLastKeyPoint]["position_1"] -= $positionDiff;
-			$keyPoints = calculateTimeFromKeyPoints();
-		}
-	}
-
-	for ($i = $indexLastKeyPoint - 1; $i > $indexMaxSection; $i--) {
-		$timeDiff = $keyPoints[$subsection["indexes"][$i + 1]]["time_0"] - $keyPoints[$subsection["indexes"][$i]]["time_1"] - $globalTimeOnOneSpeed;
-		if ($timeDiff < 0) {
-			$positionDiff = abs($timeDiff) * $keyPoints[$indexLastKeyPoint]["speed_1"] / 3.6;
-			//$keyPoints[$subsection["indexes"][$i]]["time_0"] += $timeDiff;
-			//$keyPoints[$subsection["indexes"][$i]]["time_1"] += $timeDiff;
-			$keyPoints[$subsection["indexes"][$i]]["position_0"] -= $positionDiff;
-			$keyPoints[$subsection["indexes"][$i]]["position_1"] -= $positionDiff;
-			$keyPoints = calculateTimeFromKeyPoints();
-		}
-	}
-
-
-	return $keyPoints;
-}
-
+// Überprüft, ob innerhalb einer $subsection Beschleuniguns- und Bremsvorgänge später bzw. früher eingeleitet werden können.
 function postponeSubsection (array $localKeyPoints, array $subsection) {
 
 	global $globalTimeOnOneSpeed;
@@ -1290,12 +1301,10 @@ function postponeSubsection (array $localKeyPoints, array $subsection) {
 	if ($subsection["is_prev_section"]) {
 		$timeDiff = $localKeyPoints[$subsection["indexes"][0]]["time_0"] - $localKeyPoints[$subsection["indexes"][0] - 1]["time_1"] - $globalTimeOnOneSpeed;
 		if ($timeDiff < 0) {
-
 			$positionDiff = abs($timeDiff) * $localKeyPoints[$subsection["indexes"][0]]["speed_0"] / 3.6;
 			if (!($localKeyPoints[$subsection["indexes"][0]]["position_1"] + $positionDiff > $localKeyPoints[$subsection["indexes"][$indexMaxSection + 1]]["position_0"])) {
 				$localKeyPoints[$subsection["indexes"][0]]["position_0"] += $positionDiff;
 				$localKeyPoints[$subsection["indexes"][0]]["position_1"] += $positionDiff;
-				// Es muss einen nächsten KeyPoint geben, da der Zug hier beschleunigt und er Ende der Strecke gilt v = 0
 				if ($localKeyPoints[$subsection["indexes"][0]]["position_1"] > $localKeyPoints[$subsection["indexes"][0] + 1]["position_0"]) {
 					array_push($deletedKeyPoints, $subsection["indexes"][0] + 1);
 					$numberOfKeyPoints -= 1;
@@ -1330,6 +1339,7 @@ function postponeSubsection (array $localKeyPoints, array $subsection) {
 			}
 		}
 	}
+
 	if ($subsection["is_next_section"]) {
 		$timeDiff = $localKeyPoints[$subsection["indexes"][$indexLastKeyPoint] + 1]["time_0"] - $localKeyPoints[$subsection["indexes"][$indexLastKeyPoint]]["time_1"] - $globalTimeOnOneSpeed;
 		if ($timeDiff < 0) {
@@ -1371,45 +1381,50 @@ function postponeSubsection (array $localKeyPoints, array $subsection) {
 			}
 		}
 	}
-	// Info: Erster und letzter KeyPoint aus $subsection["indexes"] sind auf jedenfall noch vorhanden
+
 	$keys = $subsection["indexes"];
+
 	foreach ($deletedKeyPoints as $index) {
 		unset($keys[array_search($index, $keys)]);
 	}
+
+	// Ordnet die Abschnitte zwischen zwei $subsection den $subsections zu
 	$keys = array_values($keys);
 	$failed = false;
+
 	if ($subsection["is_prev_section"]) {
-		// Geht, weil die subsections von hinten nach vorne kontrolliert werden.
-		// Und weil Start- und End-KeyPoint immmer gleich bleiben.
 		if ($localKeyPoints[$keys[0]]["time_0"] - $localKeyPoints[$keys[0] - 1]["time_1"] < $globalTimeOnOneSpeed) {
 			$failed = true;
 		}
 	}
+
 	if ($subsection["is_next_section"]) {
-		// Geht, weil die subsections von hinten nach vorne kontrolliert werden.
-		// Und weil Start- und End-KeyPoint immmer gleich bleiben.
 		if ($localKeyPoints[end($keys) + 1]["time_0"] - $localKeyPoints[end($keys)]["time_1"] < $globalTimeOnOneSpeed) {
 			$failed = true;
 		}
 	}
+
 	for ($i = 1; $i < sizeof($keys); $i++)  {
 		if ($localKeyPoints[$keys[$i]]["time_0"] - $localKeyPoints[$keys[$i - 1]]["time_1"] < $globalTimeOnOneSpeed) {
 			$failed = true;
 			break;
 		}
 	}
+
 	if ($failed) {
 		return array("fail" => true, "keyPoints" => array());
 	} else {
 		foreach ($deletedKeyPoints as $index) {
 			unset($localKeyPoints[$index]);
 		}
+
 		return array("fail" => false, "keyPoints" => $localKeyPoints);
 	}
 }
 
-// Es werden nur "komplette" Subsectionsbetrachtet. Der Zug MUSS beschleunigen und abbremsen!
+// Erstellt mittels der $keyPoints die $subsections
 function createSubsections (array $localKeyPoints) {
+
 	global $globalTimeOnOneSpeed;
 
 	$keyPoints = $localKeyPoints;
@@ -1426,19 +1441,19 @@ function createSubsections (array $localKeyPoints) {
 				if ($i == sizeof($keyPoints) - 1) {
 					array_push($subsection["indexes"], $i);
 				}
+
 				array_push($subsections, $subsection);
 				$subsection["indexes"] = array();
 			}
 		}
+
 		if ($keyPoints[$i]["speed_0"] < $keyPoints[$i]["speed_1"]) {
 			$subsection["max_index"] = $i;
 		}
 		array_push($subsection["indexes"], $i);
 	}
-
 	// Check if middle section failed
 	for ($i = 1; $i < sizeof($subsections); $i++) {
-		//$firstIndex = $subsections[$i]["max_index"] + 1;
 		$firstIndex = $subsections[$i]["indexes"][array_key_first($subsections[$i]["indexes"])];
 		if ($keyPoints[$firstIndex]["time_0"] - $keyPoints[$firstIndex - 1]["time_1"] < $globalTimeOnOneSpeed) {
 			$subsections[$i]["is_prev_section"] = true;
@@ -1455,14 +1470,18 @@ function createSubsections (array $localKeyPoints) {
 		if ($i == 0) {
 			$isFirstSubsection = true;
 		}
+
 		if ($i == sizeof($subsections) - 1) {
 			$isLastSubsection = true;
 		}
+
 		if ($subsections[$i]["failed"] || failOnSubsection($keyPoints, $subsections[$i])) {
 			$subsections[$i]["failed"] = true;
+
 			if (!$isFirstSubsection) {
 				$subsections[$i]["is_prev_section"] = true;
 			}
+
 			if (!$isLastSubsection) {
 				if (!$subsections[$i + 1]["is_prev_section"]) {
 					$subsections[$i]["is_next_section"] = true;
@@ -1473,7 +1492,6 @@ function createSubsections (array $localKeyPoints) {
 		}
 	}
 
-	// $subsections[$i]["max_index"] = null heißt, dass der Zug auf einer subsection nicht beschleunigt!
 	for ($i = 0; $i < sizeof($subsections); $i++) {
 		if (!isset($subsections[$i]["max_index"])) {
 			$subsections[$i]["brakes_only"] = true;
@@ -1482,22 +1500,31 @@ function createSubsections (array $localKeyPoints) {
 			$subsections[$i]["brakes_only"] = false;
 		}
 	}
+
 	$subsections = array_values($subsections);
+
 	return array_reverse($subsections);
 }
 
+// Überprüfung, ob es in einer $subsection zu einer Unterschreitung
+// der Mindestzeit kommt
 function failOnSubsection(array $keyPoints, array $subsection) {
+
 	global $globalTimeOnOneSpeed;
+
 	$failed = false;
+
 	for ($i = 1; $i < sizeof($subsection["indexes"]); $i++)  {
 		if ($keyPoints[$subsection["indexes"][$i]]["time_0"] - $keyPoints[$subsection["indexes"][$i] - 1]["time_1"] < $globalTimeOnOneSpeed) {
 			$failed = true;
 			break;
 		}
 	}
+
 	return $failed;
 }
 
+/*
 function checkForPostponement(array $localKeyPoints, array $subsection) {
 	global $globalTimeOnOneSpeed;
 
@@ -1557,19 +1584,24 @@ function checkForPostponement(array $localKeyPoints, array $subsection) {
 		return false;
 	}
 }
+*/
 
 function toShortInSubsection (array $subsections) {
+
 	$foundError = false;
+
 	foreach ($subsections as $subsection) {
 		if ($subsection["failed"]) {
 			$foundError = true;
 			break;
 		}
 	}
+
 	return $foundError;
 }
 
 function createCumulativeSections ($indexCurrentSection, $indexTargetSection, $currentPosition, $targetPosition, $next_lengths) {
+
 	$cumLength = array();
 	$sum = 0;
 
@@ -1598,72 +1630,30 @@ function createCumulativeSections ($indexCurrentSection, $indexTargetSection, $c
 			}
 		}
 	}
+
 	return array($cumulativeSectionLengthStart, $cumulativeSectionLengthEnd);
-}
-
-function getFahrplanAndPositionForOneTrain (int $trainID, int $zugID) {
-
-	global $cacheZwischenhaltepunkte;
-	global $allUsedTrains;
-
-	$allUsedTrains[$trainID]["next_betriebsstellen_data"] = array();
-	$keysZwischenhalte = array_keys($cacheZwischenhaltepunkte);
-
-	// Get timetable data
-	$nextBetriebsstellen = getNextBetriebsstellen($zugID);
-
-	if ($zugID != null && sizeof($nextBetriebsstellen) != 0) {
-		for ($i = 0; $i < sizeof($nextBetriebsstellen); $i++) {
-			if (sizeof(explode("_", $nextBetriebsstellen[$i])) != 2) {
-				$allUsedTrains[$trainID]["next_betriebsstellen_data"][$i]["is_on_fahrstrasse"] = false;
-				$allUsedTrains[$trainID]["next_betriebsstellen_data"][$i]["betriebstelle"] = $nextBetriebsstellen[$i];
-				$allUsedTrains[$trainID]["next_betriebsstellen_data"][$i]["zeiten"] = getFahrplanzeiten($nextBetriebsstellen[$i], $zugID);
-				$allUsedTrains[$trainID]["next_betriebsstellen_data"][$i]["fahrplanhalt"] = true;
-			} else if(in_array($nextBetriebsstellen[$i], $keysZwischenhalte)) {
-				$allUsedTrains[$trainID]["next_betriebsstellen_data"][$i]["is_on_fahrstrasse"] = false;
-				$allUsedTrains[$trainID]["next_betriebsstellen_data"][$i]["betriebstelle"] = $nextBetriebsstellen[$i];
-				$allUsedTrains[$trainID]["next_betriebsstellen_data"][$i]["zeiten"] = getFahrplanzeiten($nextBetriebsstellen[$i], $zugID);
-				$allUsedTrains[$trainID]["next_betriebsstellen_data"][$i]["fahrplanhalt"] = false;
-			}
-		}
-		$allUsedTrains[$trainID]["next_betriebsstellen_data"] = array_values($allUsedTrains[$trainID]["next_betriebsstellen_data"]);
-	} else {
-		$allUsedTrains[$trainID]["next_betriebsstellen_data"] = array();
-	}
-
-	foreach ($allUsedTrains[$trainID]["next_betriebsstellen_data"] as $betriebsstelleKey => $betriebsstelleValue) {
-		if ($allUsedTrains[$trainID]["next_betriebsstellen_data"][$betriebsstelleKey]["zeiten"]["abfahrt_soll"] != null) {
-			$allUsedTrains[$trainID]["next_betriebsstellen_data"][$betriebsstelleKey]["zeiten"]["abfahrt_soll_timestamp"] = getUhrzeit($betriebsstelleValue["zeiten"]["abfahrt_soll"], "simulationszeit", null, array("inputtyp" => "h:i:s"));
-		} else {
-			$allUsedTrains[$trainID]["next_betriebsstellen_data"][$betriebsstelleKey]["zeiten"]["abfahrt_soll_timestamp"] = null;
-		}
-		if ($allUsedTrains[$trainID]["next_betriebsstellen_data"][$betriebsstelleKey]["zeiten"]["ankunft_soll"] != null) {
-			$allUsedTrains[$trainID]["next_betriebsstellen_data"][$betriebsstelleKey]["zeiten"]["ankunft_soll_timestamp"] = getUhrzeit($betriebsstelleValue["zeiten"]["ankunft_soll"], "simulationszeit", null, array("inputtyp" => "h:i:s"));
-		} else {
-			$allUsedTrains[$trainID]["next_betriebsstellen_data"][$betriebsstelleKey]["zeiten"]["ankunft_soll_timestamp"] = null;
-		}
-		$allUsedTrains[$trainID]["next_betriebsstellen_data"][$betriebsstelleKey]["zeiten"]["verspaetung"] = 0;
-	}
 }
 
 function toArr(){
 	return func_get_args();
 }
 
+// Ermittelt die Echtzeitdaten für eine Gefahrenbremsung
 function emergencyBreak ($id, $distanceToNextStop = 0) {
 
 	global $allUsedTrains;
 	global $timeDifference;
 	global $allTimes;
 
+	$targetSpeed = 0;
+	$returnArray = array();
 	$time = microtime(true) + $timeDifference;
 	$currentSpeed = $allUsedTrains[$id]["current_speed"];
-	$targetSpeed = 0;
 	$notverzoegerung = $allUsedTrains[$id]["notverzoegerung"];
 	$currentSection = $allUsedTrains[$id]["current_section"];
 
 	echo "Der Zug mit der Adresse: ", $allUsedTrains[$id]["adresse"], " leitet jetzt eine Notbremsung ein.\n";
-	$returnArray = array();
+
 	if (getBrakeDistance($currentSpeed, $targetSpeed, $notverzoegerung) <= $distanceToNextStop) {
 		for ($i = $currentSpeed; $i >= 0; $i = $i - 2) {
 			array_push($returnArray, array("live_position" => 0, "live_speed" => $i, "live_time" => $time, "live_relative_position" => 0, "live_section" => $currentSection, "live_is_speed_change" => true, "live_target_reached" => false, "id" => $id, "wendet" => false, "betriebsstelle" => 'Notbremsung', "live_all_targets_reached" => null));
@@ -1672,6 +1662,7 @@ function emergencyBreak ($id, $distanceToNextStop = 0) {
 	} else {
 		$targetSpeedNotbremsung =  getTargetBrakeSpeedWithDistanceAndStartSpeed($distanceToNextStop, $notverzoegerung, $currentSpeed);
 		$speedBeforeStop = intval($targetSpeedNotbremsung / 2) * 2;
+
 		if ($speedBeforeStop >= 10) {
 			for ($i = $currentSpeed; $i >= 10; $i = $i - 2) {
 				array_push($returnArray, array("live_position" => 0, "live_speed" => $i, "live_time" => $time, "live_relative_position" => 0, "live_section" => $currentSection, "live_is_speed_change" => true, "live_target_reached" => false, "id" => $id, "wendet" => false, "betriebsstelle" => 'Notbremsung', "live_all_targets_reached" => null));
@@ -1687,9 +1678,6 @@ function emergencyBreak ($id, $distanceToNextStop = 0) {
 
 	$allTimes[$allUsedTrains[$id]["adresse"]] = $returnArray;
 	array_push($allUsedTrains[$id]["error"], 3);
-	return 0;
-}
 
-function getTargetBrakeSpeedWithDistanceAndStartSpeed (float $distance, float $verzoegerung, int $speed) {
-	return sqrt((-2 * $verzoegerung * $distance) + (pow(($speed / 3.6), 2)))*3.6;
+	return 0;
 }

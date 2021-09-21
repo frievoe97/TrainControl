@@ -1,6 +1,6 @@
 \section{Formeln} \label{formula}
 \begin{flushleft}
-Für die im folgenden Abschnitt verwendeten Einheiten gilt:
+Für die im folgenden Kapitel verwendeten Einheiten gilt:
 \end{flushleft}
 
 \begin{centering}
@@ -12,7 +12,7 @@ t     &  Zeit [$s$]
 \end{conditions}
 \end{centering}
 \subsection{Formeln für gleichmäßig beschleunigte Bewegungen} \label{formulaBeschleunigung}
-\noindent Bei einer gleichmäßig beschleunigten Bewegung gilt:
+\noindent Bei einer gleichmäßig beschleunigten Bewegung gilt:\footnote{\citet[S. 22]{richard2011technische}}
 \begin{equation}
 a(t) = a
 \end{equation}
@@ -46,50 +46,49 @@ s(v_{0}, v_{1}) = \abs{s(v_{1}) - s(v_{0})}
 \label{eq:s_v_ges}
 s(v_{0}, v_{1}) =\frac{1}{2} \cdot\abs{\frac{v_{1}^{2} - v_{0}^{2}}{a}}
 \end{equation}
-In dem Programm übernimmt diese Berechnung die Funktion \textit{getBrakeDistance()}. Damit keine negativen Rückgabewerte entstehen, wird im Falle einer Bremsung ($v_{1} \textless v_{0}$) das Ergebnis mit $-1$ multipliziert. Beispiel eines Querverweis \eqref{eq:s_v_ges}.
-\begin{figure}
-\begin{lstlisting}[caption={\textit{getBrakeDistance$($$)$}},captionpos=b,label={lst:getBrakeDistance}]
+In dem Programm übernimmt diese Berechnung die Funktion \textit{getBrakeDistance()} (Code-Beispiel \ref{lst:getBrakeDistance}). 
+\begin{figure}[H]
+\begin{lstlisting}[caption={\textit{getBrakeDistance$($$)$} (\textit{functions\_math.php})},captionpos=b,label={lst:getBrakeDistance}]
+// Ermittlung der Strecke für eine Beschleunigung bzw. Verzögerung
 function getBrakeDistance (float $v_0, float $v_1, float $verzoegerung) {
-	if ($v_0 > $v_1) {
-		return $bremsweg = 0.5 * ((pow($v_0/3.6,2)-pow($v_1/3.6, 2))/($verzoegerung));
-	} else if ($v_0 < $v_1) {
-		return $bremsweg = -0.5 * ((pow($v_0/3.6,2)-pow($v_1/3.6, 2))/($verzoegerung));
-	} else {
-		return 0;
-	}
+	return abs(0.5 * ((pow($v_0/3.6,2) - pow($v_1/3.6, 2))/($verzoegerung)));
 }
 \end{lstlisting}
 \end{figure}
-Neben der Berechnung der Strecke ist auch die benötigte Zeit essenziell. Dafür wird mittels $t(v)$ die Zeit berechnet, die das Fahrzeug benötigt, um von $v_{0}$ auf $v_{1}$ zu beschleunigen bzw. abzubremsen und aus der Differenz die benötigte Zeit berechnet.
+Neben der Berechnung der Strecke ist auch die benötigte Zeit essenziell. Dafür wird mittels $t(v)$ die Zeit berechnet, die das Fahrzeug benötigt, um von 0 $km/h$ auf $v_{0}$ bzw. $v_{1}$ zu beschleunigen und aus der Differenz wird die benötigte Zeit berechnet.
 \begin{equation}
 \label{eq:t_v_ges}
 t(v_{0}, v_{1}) = \abs{\frac{v_{1} - v_{0}}{a}}
 \end{equation}
-In dem Programm übernimmt diese Berechnung die Funktion \textit{getBrakeTime()}. Damit keine negativen Rückgabewerte entstehen, wird im Falle einer Bremsung ($v_{1} \textless v_{0}$) das Ergebnis mit $-1$ multipliziert.
-\begin{figure}
-\begin{lstlisting}[caption={\textit{getBrakeTime$($$)$}},captionpos=b,label={lst:getBrakeTime}]
+In dem Programm übernimmt diese Berechnung die Funktion \textit{getBrakeTime()} (\textit{func\-tions\_""math\-.php}) (Code-Beispiel \ref{lst:getBrakeTime}).
+\begin{figure}[H]
+\begin{lstlisting}[caption={\textit{getBrakeTime$($$)$} (\textit{functions\_math.php})},captionpos=b,label={lst:getBrakeTime}]
+// Ermittelt die Distanz für Brems- und Verzögerungsvorgänge
 function getBrakeTime (float $v_0, float $v_1, float $verzoegerung) {
-	if ($v_0 < $v_1) {
-		return (($v_1/3.6)/$verzoegerung) - (($v_0/3.6)/$verzoegerung);
-	} else if ($v_0 > $v_1) {
-		return (($v_0/3.6)/$verzoegerung) - (($v_1/3.6)/$verzoegerung);
-	} else {
-		return 0;
-	}
+	return abs((($v_1/3.6)/$verzoegerung) - (($v_0/3.6)/$verzoegerung));
 }
 \end{lstlisting}
 \end{figure}
-Für die Berechnung einer Gefahrenbremsung ist es notwendig zu wissen, welche Geschwindigkeit das Fahrzeug an der Stelle der Gefahrenstelle hat. Dafür wird die Gleichung \eqref{eq:s_v_ges} nach $v_{2}$ umgestellt.
+Für die Berechnung einer Gefahrenbremsung ist es notwendig zu wissen, welche Geschwindigkeit das Fahrzeug an der Position der Gefahrenstelle hat. Dafür wird die Gleichung \eqref{eq:s_v_ges} nach $v_{2}$ umgestellt.
 \begin{equation}
 \label{eq:gefahrenbremsung}
 v_{2}(v_{1}, s) = \sqrt{-2 \cdot s \cdot a} + v_{1}
 \end{equation}
+\begin{figure}[H]
+\begin{lstlisting}[caption={\textit{getTargetBrakeSpeedWithDistanceAndStartSpeed$($$)$} (\textit{func\-tions\_""math\-.php})},captionpos=b,label={lst:getTargetBrakeSpeedWithDistanceAndStartSpeed}]
+// Ermittelt die Geschwindigkeit, die ein Fahrzeug in einem Bremsvorgang
+// nach einer gegebenen Distanz hat.
+function getTargetBrakeSpeedWithDistanceAndStartSpeed (float $distance, float $verzoegerung, int $speed) {
+	return sqrt((-2 * $verzoegerung * $distance) + (pow(($speed / 3.6), 2)))*3.6;
+}
+\end{lstlisting}
+\end{figure}
 \subsection{Formeln für gleichförmige Bewegungen} \label{formulaGleichfoermig}
-Bei einer gleichförmigen Bewegung gilt der Grundsatz:
+Bei einer gleichförmigen Bewegung gilt der Grundsatz:\footnote{\citet[S. 22]{richard2011technische}}
 \begin{equation}
 v(t) = v
 \end{equation}
-Für die Berechnung der Strecke gilt wie bei der gleichmäßig beschleunigten Bewegung:
+Für die Berechnung der Strecke gilt wie bei der gleichmäßig beschleunigten Bewegung:\footnote{\citet[S. 20]{richard2011technische}}
 \begin{equation}
 s(t) = \int v(t) \,dt
 \end{equation}
@@ -101,6 +100,15 @@ Damit die Gleichung allgemeingültig ist, wird die Integrationskonstante $s_{0}$
 s(t) =v \cdot t
 \label{eq:s_v_t}
 \end{equation}
+\begin{figure}[H]
+\begin{lstlisting}[caption={\textit{distanceWithSpeedToTime$($$)$} (\textit{functions\_math.php})},captionpos=b,label={lst:distanceWithSpeedToTime}]
+// Ermittelt die Zeit, die ein Fahrzeug bei einer gegebenen Strecke für
+// eine gegebene Distanz benötigt
+function distanceWithSpeedToTime (int $v, float $distance) {
+	return (($distance)/($v / 3.6));
+}
+\end{lstlisting}
+\end{figure}
 Für die Einhaltung der exakten Ankunftszeit, muss errechnet werden, wie lange das Fahrzeug bei zwei gegebenen Geschwindigkeiten ($v_1$ und $v_2$) auf den jeweiligen Geschwindigkeiten fahren muss, um die Gesamtstrecke ($s_{ges}$) und die Gesamtzeit ($t_{ges}$) einzuhalten. Für die Zeiten und Strecken gilt:
 \begin{equation}
 \label{eq:t_ges}
@@ -120,3 +128,12 @@ Durch das Umstellen der Gleichung \eqref{eq:t_ges} nach $t_{2}$ und dem Einsetze
 \label{eq:t_1_tuning}
 t_{1} = \frac{s_{ges} - v_{2} \cdot t_{ges}}{v_{1} - v_{2}}
 \end{equation}
+\begin{figure}[H]
+\begin{lstlisting}[caption={\textit{calculateDistanceforSpeedFineTuning$($$)$} (\textit{functions\_math.php})},captionpos=b,label={lst:calculateDistanceforSpeedFineTuning}]
+// Ermittelt die Distanz, um die eine Verzögerung "verschoben" werden müsste,
+// damit die exakte Ankunftszeit eingehalten werden kann.
+function calculateDistanceforSpeedFineTuning(int $v_0, int $v_1, float $distance, float $time) : float {
+	return $distance - (($distance - $time * $v_1 / 3.6)/($v_0 / 3.6 - $v_1 / 3.6)) * ($v_0 / 3.6);
+}
+\end{lstlisting}
+\end{figure}
