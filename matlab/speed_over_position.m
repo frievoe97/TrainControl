@@ -71,7 +71,7 @@ end
 
 % Plot all iterationsteps
 for i = 1:length(val_it)
-    plot(val_it{i}(:,1),val_it{i}(:,2),'.','markersize',8,'Color', [0.6 0.6 0.6],'DisplayName',legend_name);
+    %plot(val_it{i}(:,1),val_it{i}(:,2),'.','markersize',8,'Color', [0.6 0.6 0.6],'DisplayName',legend_name);
     
 end
 

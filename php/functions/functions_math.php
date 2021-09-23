@@ -8,7 +8,7 @@ function getTargetBrakeSpeedWithDistanceAndStartSpeed (float $distance, float $v
 
 // Ermittelt die Distanz, um die eine Verzögerung "verschoben" werden müsste,
 // damit die exakte Ankunftszeit eingehalten werden kann.
-function calculateDistanceforSpeedFineTuning(int $v_0, int $v_1, float $distance, float $time) : float {
+function calculateDistanceforSpeedFineTuning(int $v_0, int $v_1, float $distance, float $time) {
 	return $distance - (($distance - $time * $v_1 / 3.6)/($v_0 / 3.6 - $v_1 / 3.6)) * ($v_0 / 3.6);
 }
 

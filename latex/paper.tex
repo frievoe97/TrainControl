@@ -55,6 +55,9 @@
 \usepackage[authoryear]{natbib}
 \usepackage{diagbox}
 \usepackage{slashbox}
+%\bibliographystyle{apacite} % set the referencepage 
+
+%\setcitestyle{authoryear, open={((},close={))}
 
 \setlength{\footnotemargin}{4mm}
 
@@ -66,6 +69,8 @@
 \let\oldfootnotetext\footnotetext
 \renewcommand\footnotetext[1]{%
 \oldfootnotetext{\hspace{2mm}#1}}
+
+
 
 
 
@@ -222,8 +227,6 @@ description={Die Zug-ID ordnet den Fahrzeugen die Fahrpläne zu und ist nicht mi
 \titleformat*{\subsubsection}{\normalsize\bfseries}
 
 
-\hyphenation{Infra-Ab-schnitt Infra-Ab-schnitte}
-
 
 
 
@@ -237,7 +240,7 @@ description={Die Zug-ID ordnet den Fahrzeugen die Fahrpläne zu und ist nicht mi
   {\par\vspace{\abovedisplayskip}\noindent\begin{tabular}{>{$}l<{$} @{${}={}$} l}}
   {\end{tabular}\par\vspace{\belowdisplayskip}}
  
-\bibliographystyle{apacite} % set the referencepage 
+
   
 \usepackage{tablefootnote}
 
@@ -296,11 +299,12 @@ description={Die Zug-ID ordnet den Fahrzeugen die Fahrpläne zu und ist nicht mi
 \input{fazit}
 \appendix
 \newpage
+\bibliography{paper}  % implement the name of the bibtex.bib file
+\newpage
+%\pagenumbering{Roman} % roman pagenumbers
+%\setcounter{page}{8}
 \input{anhang}
 \newpage
-\pagenumbering{Roman} % roman pagenumbers
-\setcounter{page}{4}
-\bibliography{paper}  % implement the name of the bibtex.bib file
 \newpage
 \input{eigenstaendigkeitserklaerung}
 \end{document}

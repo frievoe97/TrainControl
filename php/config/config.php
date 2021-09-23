@@ -34,7 +34,7 @@
 	define ('FZS_VERZOEGERUNG_TZ',2.0);
 
 	// Zustände von Fahrzeugen
-	define ('FZS_FZGZUSTAND', serialize(array(0 => "im Einsatz", 1 => "aufgerüstet", 2 => "einsatzbereit", 3 => "in der Werkstatt", 4 => "defekt", 5 => "ausgemustert")));
+	define ('FZS_FZGZUSTAND', serialize(array(0 => 'im Einsatz', 1 => 'aufgerüstet', 2 => 'einsatzbereit', 3 => 'in der Werkstatt', 4 => 'defekt', 5 => 'ausgemustert')));
 	define ('FZS_FZGZUSTAND_NUTZBAR', 2); // höchster Wert, bis zu dem ein Fahrzeug auf der Anlage steht
 	define ('FZS_FZGZUSTAND_AUFGERUESTET', 1); // höchster Wert, bis zu dem ein Fahrzeug in der laufenden Session aktiviert ist
 	define ('FZS_FZGZUSTAND_AKTIV', 0); // aktiv

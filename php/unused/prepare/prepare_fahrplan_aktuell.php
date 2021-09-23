@@ -10,7 +10,7 @@ DB_TABLE_FAHRZEUGE_AKTUELL
 function deleteFahrzeugeAktuell() {
 
 	$DB_delete = new DB_MySQL();
-	$DB_delete->select("DELETE FROM`". DB_TABLE_FAHRZEUGE_AKTUELL."`");
+	$DB_delete->select('DELETE FROM`'. DB_TABLE_FAHRZEUGE_AKTUELL.'`');
 	unset($DB_delete);
 
 }
@@ -193,7 +193,7 @@ function insertFahrzeugeAktuell() {
 
 	for ($i = 0; $i <= 4; $i++) {
 
-		$DB_insert->select("INSERT INTO `". DB_TABLE_FAHRZEUGE_AKTUELL."`
+		$DB_insert->select('INSERT INTO `'. DB_TABLE_FAHRZEUGE_AKTUELL."`
 									VALUES ('".$id[$i]."','".$verzoegerung[$i]."','".$section_0[$i]."','".$speed_0[$i]."','".$position_0[$i]."',
 									CURRENT_TIMESTAMP, null, null, null, null)
                                    ");

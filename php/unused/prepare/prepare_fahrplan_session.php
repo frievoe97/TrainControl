@@ -29,7 +29,7 @@ function insertSessionFahrplan() {
 
 function deleteSessionFahrplan() {
 	$DB_insert = new DB_MySQL();
-	$DB_insert->select("DELETE FROM`". DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`");
+	$DB_insert->select('DELETE FROM`'. DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN.'`');
 	unset($DB_insert);
 }
 

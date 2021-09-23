@@ -665,10 +665,10 @@ function checkIfTrainIsToFastInSection(array $tempTimesChanges, array $tempSpeed
 	}
 
 	foreach ($keyPoints as $keyPointIndex => $keyPointValue) {
-		if ($keyPointValue["speed_0"] == $keyPointValue["speed_1"]) {
-			$startPosition = $keyPointValue["position_0"];
-			$endPosition = $keyPointValue["position_1"];
-			$speed = $keyPointValue["speed_0"];
+		if ($keyPointValue['speed_0'] == $keyPointValue['speed_1']) {
+			$startPosition = $keyPointValue['position_0'];
+			$endPosition = $keyPointValue['position_1'];
+			$speed = $keyPointValue['speed_0'];
 
 			$startSection = null;
 			$endSection = null;
@@ -837,7 +837,7 @@ function checkIfTrainIsToFastInSection(array $tempTimesChanges, array $tempSpeed
 		$decreaseKeyPoint = array();
 
 		if ($v_0 < $v_max) {
-			$increaseKeyPoint = ["position_0" => end($newPositionChange), "speed_0" => $v_0, "time_0" => end($newTimeChange)];
+			$increaseKeyPoint = ['position_0' => end($newPositionChange), 'speed_0' => $v_0, 'time_0' => end($newTimeChange)];
 			if ($v_0 % 2 != 0) {
 				$tempDistance = getBrakeDistance($v_0, ($v_0 + 1), $verzoegerung);
 				$tempTime = getBrakeTime($v_0, ($v_0 + 1), $verzoegerung);
@@ -853,11 +853,11 @@ function checkIfTrainIsToFastInSection(array $tempTimesChanges, array $tempSpeed
 				array_push($newSpeedChange, ($i + 2));
 				array_push($newPositionChange, end($newPositionChange) + $tempDistance);
 			}
-			$increaseKeyPoint["position_1"] =  end($newPositionChange);
-			$increaseKeyPoint["speed_1"] =  $v_max;
-			$increaseKeyPoint["time_1"] =   end($newTimeChange);
+			$increaseKeyPoint['position_1'] =  end($newPositionChange);
+			$increaseKeyPoint['speed_1'] =  $v_max;
+			$increaseKeyPoint['time_1'] =   end($newTimeChange);
 		} elseif ($v_0 > $v_max) {
-			$increaseKeyPoint = ["position_0" => end($newPositionChange), "speed_0" => $v_0, "time_0" => end($newTimeChange)];
+			$increaseKeyPoint = ['position_0' => end($newPositionChange), 'speed_0' => $v_0, 'time_0' => end($newTimeChange)];
 			if ($v_0 % 2 != 0) {
 				$tempDistance = getBrakeDistance($v_0, ($v_0 - 1), $verzoegerung);
 				$tempTime = getBrakeTime($v_0, ($v_0 - 1), $verzoegerung);
@@ -873,9 +873,9 @@ function checkIfTrainIsToFastInSection(array $tempTimesChanges, array $tempSpeed
 				array_push($newSpeedChange, ($i - 2));
 				array_push($newPositionChange, end($newPositionChange) + $tempDistance);
 			}
-			$increaseKeyPoint["position_1"] =  end($newPositionChange);
-			$increaseKeyPoint["speed_1"] =  $v_max;
-			$increaseKeyPoint["time_1"] =   end($newTimeChange);
+			$increaseKeyPoint['position_1'] =  end($newPositionChange);
+			$increaseKeyPoint['speed_1'] =  $v_max;
+			$increaseKeyPoint['time_1'] =   end($newTimeChange);
 		}
 
 		array_push($newSpeedChange, $v_max);
@@ -883,7 +883,7 @@ function checkIfTrainIsToFastInSection(array $tempTimesChanges, array $tempSpeed
 		array_push($newTimeChange, end($newTimeChange) + (($absolutPositionEnd - getBrakeDistance($v_0, $v_max, $verzoegerung) - getBrakeDistance($v_max, $v_1, $verzoegerung))/$v_max));
 
 		if ($v_1 > $v_max) {
-			$decreaseKeyPoint = ["position_0" => end($newPositionChange), "speed_0" => $v_max, "time_0" => end($newTimeChange)];
+			$decreaseKeyPoint = ['position_0' => end($newPositionChange), 'speed_0' => $v_max, 'time_0' => end($newTimeChange)];
 			for ($i = $v_max; $i <= ($v_1 - 2); $i = $i + 2) {
 				$tempDistance = getBrakeDistance($i, ($i + 2), $verzoegerung);
 				$tempTime = getBrakeTime($i, ($i + 2), $verzoegerung);
@@ -891,11 +891,11 @@ function checkIfTrainIsToFastInSection(array $tempTimesChanges, array $tempSpeed
 				array_push($newSpeedChange, ($i + 2));
 				array_push($newPositionChange, end($newPositionChange) + $tempDistance);
 			}
-			$decreaseKeyPoint["position_1"] =  end($newPositionChange);
-			$decreaseKeyPoint["speed_1"] =  $v_1;
-			$decreaseKeyPoint["time_1"] =   end($newTimeChange);
+			$decreaseKeyPoint['position_1'] =  end($newPositionChange);
+			$decreaseKeyPoint['speed_1'] =  $v_1;
+			$decreaseKeyPoint['time_1'] =   end($newTimeChange);
 		} if ($v_1 < $v_max) {
-			$decreaseKeyPoint = ["position_0" => end($newPositionChange), "speed_0" => $v_max, "time_0" => end($newTimeChange)];
+			$decreaseKeyPoint = ['position_0' => end($newPositionChange), 'speed_0' => $v_max, 'time_0' => end($newTimeChange)];
 			for ($i = $v_max; $i >= ($v_1 + 2); $i = $i - 2) {
 				$tempDistance = getBrakeDistance($i, ($i - 2), $verzoegerung);
 				$tempTime = getBrakeTime($i, ($i - 2), $verzoegerung);
@@ -903,9 +903,9 @@ function checkIfTrainIsToFastInSection(array $tempTimesChanges, array $tempSpeed
 				array_push($newSpeedChange, ($i - 2));
 				array_push($newPositionChange, end($newPositionChange) + $tempDistance);
 			}
-			$decreaseKeyPoint["position_1"] =  end($newPositionChange);
-			$decreaseKeyPoint["speed_1"] =  $v_1;
-			$decreaseKeyPoint["time_1"] =   end($newTimeChange);
+			$decreaseKeyPoint['position_1'] =  end($newPositionChange);
+			$decreaseKeyPoint['speed_1'] =  $v_1;
+			$decreaseKeyPoint['time_1'] =   end($newTimeChange);
 		}
 
 		if (sizeof($increaseKeyPoint) != 0) {

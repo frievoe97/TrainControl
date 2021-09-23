@@ -2,7 +2,7 @@
 Damit die Fahrzeugsteuerung gestarten werden kann, muss die Datei \textit{fahrzeugsteuerung.php} ausgeführt werden. Obligatorisch für die Fahrzeugsteuerung ist die Abschnittsüberwachung (\textit{abschnittueberwachung.php}), welche vor dem Start der Fahrzeugsteuerung ausgeführt werden muss und auf deren Verwendung und Funktionsweise in Kapitel \ref{main_5} eingegangen wird. Der Aufbau dieses Kapitels orientiert sich an dem Ablauf der Fahrzeugsteuerung, welcher in Abbildung \ref{fig:hauptprogramm} schematisch dargestellt wird.
 \begin{center}
 \begin{figure}
-\centering
+\resizebox{1\textwidth}{!}{
 \begin{tikzpicture}[node distance=0.7cm, auto,]
 \node[punkt] (a) {Einbindung aller benötigten Dateien};
 \node[below=of a, punkt] (b) {Einlesen von statischen und mehrfach verwendeter Daten aus der \textit{MySQL}-Datenbank in den Cache};
@@ -19,6 +19,7 @@ Damit die Fahrzeugsteuerung gestarten werden kann, muss die Datei \textit{fahrze
 \draw [pil] (f) -- (g);
 \draw [pil] (g.west) -- +(-0.5,0) -| (e.north);
 \end{tikzpicture}
+}
 \caption{Ablauf der Fahrzeugsteuerung}
 \label{fig:hauptprogramm}
 \end{figure}

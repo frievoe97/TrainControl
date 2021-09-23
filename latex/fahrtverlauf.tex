@@ -63,7 +63,7 @@ In dem folgenden Abschnitt werden die einzelnen Schritte beschrieben, die durchl
 \caption{Ablaufplan der \Gls{fahrtverlauf}sberechnung}
 \label{fig:fahrtverlauf}
 \end{figure}
-\subsection{Ermittlung der Start- und Endposition der einzelnen \ac{infra}e unter Berücksichtigung der Zuglänge}
+\subsection{Ermittlung der Start- und Endposition der einzelnen Infra-Abschnitte unter Berücksichtigung der Zuglänge}
 Für die Berechnung eines exemplarischen \Gls{fahrtverlauf}s wurden die in Tabelle \ref{table:infraex} definierten \ac{infra}e verwendet. Diese \ac{infra}e wurden so gewählt, dass alle Funktionen und die Allgemeingültigkeit des Algorithmus gezeigt werden können und existieren in dieser Form im \ac{ebuef} nicht. 
 \begin{table}
 \begin{center}
@@ -117,9 +117,9 @@ Die zuvor ermittelten nächsten \ac{infra}e inklusive derer Längen und zulässi
   \label{fig:it1}
 \end{figure}
 
-Bei der Berücksichtigung der Fahrzeuglänge wird mit einer \textit{for}-Schleife über alle \ac{infra}e iteriert und die Zuglänge auf die Länge das \ac{infra}s addiert. Von dieser neu ermittelten Endposition des \ac{infra}s wird überprüft, ob zwischen der vorherigen Endposition und der neu ermittelten Endposition ein \ac{infra} liegt, dessen zulässige Höchstgeschwindigkeit geringer ist, als die des ursprünglichen \ac{infra}s. Wenn dieser Fall eintritt, wird der \ac{infra} nur so weit verlängert, dass keine Höchstgeschwindigkeit der folgenden \ac{infra}e überschritten wird. Nach der Ermittlung der neuen Endposition, startet die \textit{for}-Schleife mit dem \ac{infra}, in dem sich die Endposition sich befindet. Sobald der Ziel-\ac{infra} erreicht wurde, wird die Schleife abgebrochen. Die neu ermittelten \ac{infra}e werden in den Arrays \textit{\$next\_lengths\_mod} und \textit{\$next\_v\_max\_mod} abgespeichert (analog zu den Arrays \textit{\$next\_lengths} und \textit{\$next\_v\_max}). 
+Bei der Berücksichtigung der Fahrzeuglänge wird mit einer \textit{for}-Schleife über alle \ac{infra}e iteriert und die Zuglänge auf die Länge das \ac{infra}s addiert. Von dieser neu ermittelten Endposition des \ac{infra}s wird überprüft, ob zwischen der vorherigen Endposition und der neu ermittelten Endposition ein Infra-Abschnitt liegt, dessen zulässige Höchstgeschwindigkeit geringer ist, als die des ursprünglichen \ac{infra}s. Wenn dieser Fall eintritt, wird der \ac{infra} nur so weit verlängert, dass keine Höchstgeschwindigkeit der folgenden \ac{infra}e überschritten wird. Nach der Ermittlung der neuen Endposition, startet die \textit{for}-Schleife mit dem \ac{infra}, in dem sich die Endposition sich befindet. Sobald der Ziel-\ac{infra} erreicht wurde, wird die Schleife abgebrochen. Die neu ermittelten \ac{infra}e werden in den Arrays \textit{\$next\_lengths\_mod} und \textit{\$next\_v\_max\_mod} abgespeichert (analog zu den Arrays \textit{\$next\_lengths} und \textit{\$next\_v\_max}). 
 
-Durch diesen Algorithmus kann es dazu kommen, dass sich die Anzahl der \ac{infra}e verändert hat, wodurch die \ac{infra}e nicht mehr eindeutig mit der Infrastruktur-ID bezeichnet werden können. Mittels \textit{\$next\_""lengths\_""mod} und \textit{\$next\_""v\_""max\_""mod} werden mit der Funktion \textit{create\-Cumulative\-Sec\-tions$($$)$} (\textit{func\-tions\_""fahrt\-ver\-lauf.php}) für jeden \ac{infra} die absolute Start- und Endposition in den Arrays \textit{\$cumulative\-Section\-Length\-Start\-Mod} und \textit{\$cumulativeSectionLengthEndMod} gespeichert. Diese Umwandlung ist essentiell für die Überprüfung, in welchem \ac{infra} ein Fahrzeug sich aktuell befindet. Die neu berechneten \ac{infra}e sind in der Darstellung \ref{fig:it2} in rot abgebildet und beschreiben die maximale Geschwindigkeit, die ein Fahrzeug an der jeweiligen Position fahren darf.
+Durch diesen Algorithmus kann es dazu kommen, dass sich die Anzahl der Infra-Abschnitte verändert hat, wodurch die \ac{infra}e nicht mehr eindeutig mit der Infrastruktur-ID bezeichnet werden können. Mittels \textit{\$next\_""lengths\_""mod} und \textit{\$next\_""v\_""max\_""mod} werden mit der Funktion \textit{create\-Cumulative\-Sec\-tions$($$)$} (\textit{func\-tions\_""fahrt\-ver\-lauf.php}) für jeden \ac{infra} die absolute Start- und Endposition in den Arrays \textit{\$cumulative\-Section\-Length\-Start\-Mod} und \textit{\$cumulativeSectionLengthEndMod} gespeichert. Diese Umwandlung ist essentiell für die Überprüfung, in welchem Infra-Abschnitt ein Fahrzeug sich aktuell befindet. Die neu berechneten \ac{infra}e sind in der Darstellung \ref{fig:it2} in rot abgebildet und beschreiben die maximale Geschwindigkeit, die ein Fahrzeug an der jeweiligen Position fahren darf.
 \begin{figure}
 \includegraphics[width=\linewidth]{../images/matlab/it2.pdf}
 \caption{Infra-Abschnitte und die zugehörige Höchstgeschwindigkeit unter Berücksichtigung der Fahrzeuglänge}
@@ -160,7 +160,7 @@ function getVMaxBetweenTwoPoints(float $distance, int $v_0, int $v_1) {
 \end{lstlisting}
 \end{figure}
 
-Durch die gegebene Startgeschwindigkeit und die größtmögliche Geschwindigkeit wird ein erster \Gls{fahrtverlauf} berechnet, wobei zwei \textit{\$keyPoints} erzeugt werden. Mithilfe der Funktion \textit{createTrainChanges$($$)$} (\textit{functions\_fahrtverlauf.php}) wird aus diesen beiden \textit{\$keyPoints} für jede Geschwindigkeitsveränderung die aktuelle absolute Position und Geschwindigkeit ermittelt. An den Positionen, an denen das Fahrzeug eine konstante Geschwindigkeit hat, wird in 1 Meter Abständen die absolute Position und die Geschwindigkeit gespeichert. Die ermittelten Daten werden in den Arrays \textit{\$trainPositionChange} und \textit{\$trainSpeedChange} gespeichert und sind in der Darstellung \ref{fig:it3} abgebildet.
+Durch die gegebene Startgeschwindigkeit und die größtmögliche Geschwindigkeit wird ein erster \Gls{fahrtverlauf} berechnet, wobei zwei \textit{\$keyPoints} erzeugt werden. In der Darstellung \ref{fig:it3} ist der erste Iterationsschritt der \Gls{fahrtverlauf}sermmittlung abgebildet, wobei die beiden \textit{\$keyPoints} in \Gls{echtzeitdaten} umgewandelt wurden (siehe Kapitel \ref{keypointumwandlung}).
 \begin{figure}
 \includegraphics[width=\linewidth]{../images/matlab/it3.pdf}
 \caption{\Gls{fahrtverlauf}sberechnung (1. Iterationsschritt)}
@@ -169,19 +169,12 @@ Durch die gegebene Startgeschwindigkeit und die größtmögliche Geschwindigkeit
 \subsection{Konvertierung der \textit{\$keyPoints} in \Gls{echtzeitdaten}} \label{keypointumwandlung}
 Die \Gls{echtzeitdaten} geben in mehreren Arrays den \Gls{fahrtverlauf} bei Beschleunigungen und Verzögerungen in 2 $km/h$-Schritten und bei \Gls{beharrungsfahrt}en in 1 Meter Abständen an. Die \Gls{echtzeitdaten} werden mit der Funktion \textit{createTrainChanges$($$)$} (\textit{func\-tions\_""fahrt\-ver\-lauf.php}) (Code-Beispiel \ref{lst:createTrainChanges}) erzeugt und geben die absolute Position des Fahrzeugs zur aktuellen Position (\textit{\$returnTrainPositionChange}), die Geschwindigkeit (\textit{\$returnTrainSpeedChange}), die Simulationszeit (\textit{\$returnTrainTimeChange}), die relative Position im \ac{infra} (\textit{\$returnTrainRelativePosition}), den \ac{infra} (\textit{\$returnTrainSection}) und ob eine Geschwindigkeitsveränderung vorliegt (\textit{\$return\-Is\-SpeedChange}) an.
 
-Im ersten Schritt wird mit einer \textit{for}-Schleife durch alle \textit{\$keyPoints} (exklusive des letzten \textit{\$keyPoints}) iteriert (Code-Beispiel \ref{lst:createTrainChanges}; Zeile 24 -- 60). Für jeden \textit{\$keyPoint} wird in einer zweiten \textit{for}-Schleife von der Startgeschwindigkeit (\textit{speed\_0}) bis Zielgeschwindigkeit (\textit{speed\_1}) in 2 $km/h$-Schritten iteriert und für jede Geschwindigkeitsveränderung die benötigte Zeit und Strecke errechnet, die Geschwindigkeit gespeichert und dass es sich um eine Geschwindigkeitsanpassung handelt (Code-Beispiel \ref{lst:createTrainChanges}; Zeile 32 -- 37 bzw. 39 -- 44). 
+Im ersten Schritt wird mit einer \textit{for}-Schleife über alle \textit{\$keyPoints} iteriert (Code-Beispiel \ref{lst:createTrainChanges}; Zeile 24 -- 57). Für jeden \textit{\$keyPoint} wird in einer zweiten \textit{for}-Schleife von der Startgeschwindigkeit (\textit{speed\_0}) bis zur Zielgeschwindigkeit (\textit{speed\_1}) in 2 $km/h$-Schritten iteriert und für jede Geschwindigkeitsveränderung wird die benötigte Zeit und Strecke errechnet, die Geschwindigkeit gespeichert und dass es sich um eine Geschwindigkeitsanpassung handelt (Code-Beispiel \ref{lst:createTrainChanges}; Zeile 32 -- 39). 
 
-Im Anschluss werden die \Gls{echtzeitdaten} für die \Gls{beharrungsfahrt}en berechnet. Dafür kann über die globale Variable \textit{\$globalDistanceUpdateInterval} (\textit{global\_variables.php}) festgelegt werden, in welchem Zeitintervall die Berechnung stattfinden soll. Der Standardwert entspricht 0,03, MUSS GEÄNDERT WERDEN AUF FEST EINEM METER!!!! (Code-Beispiel \ref{lst:createTrainChanges}; Zeile 47 -- 59).
+Im Anschluss werden die \Gls{echtzeitdaten} für die \Gls{beharrungsfahrt}en berechnet. Da \Gls{beharrungsfahrt}en immer zwischen zwei \textit{\$keyPoints} existieren, wird für jeden \textit{\$keyPoint} die \Gls{beharrungsfahrt} zum nächsten \textit{\$keyPoint} berechnet und der letzte \textit{\$keyPoint} wird ausgelassen (Code-Beispiel \ref{lst:createTrainChanges}; Zeile 41 -- 56). Das Distanzintervall, in welchem die \Gls{echtzeitdaten} für \Gls{beharrungsfahrt}en ermittelt werden, kann über die globale Variable \textit{\$globalDistanceUpdateInterval} (\textit{global\_variables.php}) festgelegt werden. Der Standardwert wurde auf 1 $m$ festgelegt.
 
-Dadurch, dass in der ersten \textit{for}-Schleife jeder \textit{\$keyPoint} inklusive der darauf folgenden \Gls{beharrungsfahrt} betrachtet wurde, wurde der letzten \textit{\$keyPoint} nicht berücksichtigt. Die \Gls{echtzeitdaten}
-
- 
-
-
-
-
-
-\vspace{20pt}
+Für die Ermittlung der zugehörigen \ac{infra}e und den relativen Positionen in den \ac{infra}en, wird über alle absoluten Positionen (\textit{\$returnTrainPositionChange}) iteriert und in einer zweiten \textit{foreach}-Schleife über alle Anfangspositionen der \ac{infra}e (\textit{\$cumulativeSectionLengthStart}). Sobald sich eine absolute Position in einem \ac{infra} befindet, wird der \ac{infra} inklusive der relativen Position ermittelt und die zweite \textit{foreach}-Schleife wird mit dem Befehl \textit{break} abgebrochen (Code-Beispiel \ref{lst:createTrainChanges}; Zeile 63 -- 96).
+%\vspace{20pt}
 \begin{lstlisting}[caption={\textit{createTrainChanges$($$)$} (\textit{functions\_fahrtverlauf.php})},captionpos=b,label={lst:createTrainChanges}]
 // Echtzeitdatenermittlung eines Fahrtverlaufs auf Grundlage der $keyPoints.
 // Mit dem Parameter $onlyPositionAndSpeed kann festgelegt werden, ob nur die
@@ -208,64 +201,43 @@ function createTrainChanges(bool $onlyPositionAndSpeed) {
 
 	// Ermittelt für alle bis auf den letzten $keyPoint die Echtzeitdaten der
 	// Zeit, Geschwindigkeit und Position
-	for ($i = 0; $i < (sizeof($keyPoints) - 1); $i++) {
+	for ($i = 0; $i < sizeof($keyPoints); $i++) {
 		array_push($returnTrainTimeChange, $keyPoints[$i]["time_0"]);
 		array_push($returnTrainSpeedChange, $keyPoints[$i]["speed_0"]);
 		array_push($returnTrainPositionChange, $keyPoints[$i]["position_0"]);
 		array_push($returnIsSpeedChange, true);
-		if ($keyPoints[$i]["speed_0"] < $keyPoints[$i]["speed_1"]) {
-			for ($j = ($keyPoints[$i]["speed_0"] + 2); $j <= $keyPoints[$i]["speed_1"]; $j = $j + 2) {
-				array_push($returnTrainPositionChange, (end($returnTrainPositionChange) + getBrakeDistance(($j - 2), $j, $verzoegerung)));
-				array_push($returnTrainSpeedChange, $j);
-				array_push($returnTrainTimeChange, (end($returnTrainTimeChange) + (getBrakeTime(($j - 2), $j, $verzoegerung))));
-				array_push($returnIsSpeedChange, true);
-			}
-		} else {
-			for ($j = ($keyPoints[$i]["speed_0"] - 2); $j >= $keyPoints[$i]["speed_1"]; $j = $j - 2) {
-				array_push($returnTrainPositionChange, (end($returnTrainPositionChange) + getBrakeDistance(($j + 2), $j, $verzoegerung)));
-				array_push($returnTrainSpeedChange, $j);
-				array_push($returnTrainTimeChange, (end($returnTrainTimeChange) + (getBrakeTime(($j + 2), $j, $verzoegerung))));
-				array_push($returnIsSpeedChange, true);
-			}
+
+		$itDir = ($keyPoints[$i]["speed_0"] < $keyPoints[$i]["speed_1"]) ? 2 : -2;
+
+		for ($j = ($keyPoints[$i]["speed_0"] + $itDir); $j <= $keyPoints[$i]["speed_1"]; $j = $j + $itDir) {
+			array_push($returnTrainPositionChange, (end($returnTrainPositionChange) + getBrakeDistance(($j - $itDir), $j, $verzoegerung)));
+			array_push($returnTrainSpeedChange, $j);
+			array_push($returnTrainTimeChange, (end($returnTrainTimeChange) + (getBrakeTime(($j - $itDir), $j, $verzoegerung))));
+			array_push($returnIsSpeedChange, true);
 		}
+		
+		// Überprüft, ob nach dem $keyPoint eine Beharrungsfahrt stattfindet
+		if ($i != array_key_last($keyPoints)) {
+			// Ermittelt für die Strecke zwischen zwei $keyPoints die Echtzeitdaten
+			// der Zeit, Geschwindigkeit und Position
+			$startPosition = $keyPoints[$i]["position_1"];
+			$endPosition =  $keyPoints[$i + 1]["position_0"];
+			$speedToNextKeyPoint = $keyPoints[$i]["speed_1"];
+			$timeForOneTimeInterval = distanceWithSpeedToTime($speedToNextKeyPoint, $globalDistanceUpdateInterval);
 
-		// Ermittelt für die Strecke zwischen zwei $keyPoints die Echtzeitdaten
-		// der Zeit, Geschwindigkeit und Position
-		$startPosition = $keyPoints[$i]["position_1"];
-		$endPosition =  $keyPoints[$i + 1]["position_0"];
-		$speedToNextKeyPoint = $keyPoints[$i]["speed_1"];
-		$distanceForOneTimeInterval = $speedToNextKeyPoint / 3.6;
-
-		for ($position = $startPosition + $distanceForOneTimeInterval; $position < $endPosition; $position = $position + $distanceForOneTimeInterval) {
-			array_push($returnTrainPositionChange, $position);
-			array_push($returnTrainSpeedChange, $speedToNextKeyPoint);
-			array_push($returnTrainTimeChange, end($returnTrainTimeChange) + $globalDistanceUpdateInterval);
-			array_push($returnIsSpeedChange, false);
+			for ($position = $startPosition + $globalDistanceUpdateInterval; $position < $endPosition; $position = $position + $globalDistanceUpdateInterval) {
+				array_push($returnTrainPositionChange, $position);
+				array_push($returnTrainSpeedChange, $speedToNextKeyPoint);
+				array_push($returnTrainTimeChange, end($returnTrainTimeChange) + $timeForOneTimeInterval);
+				array_push($returnIsSpeedChange, false);
+			}
 		}
 	}
 	array_push($returnTrainPositionChange, $keyPoints[array_key_last($keyPoints)]["position_1"] - getBrakeDistance($keyPoints[array_key_last($keyPoints)]["speed_0"],$keyPoints[array_key_last($keyPoints)]["speed_1"],$verzoegerung));
 	array_push($returnTrainSpeedChange, $keyPoints[array_key_last($keyPoints)]["speed_0"]);
 	array_push($returnTrainTimeChange, $keyPoints[array_key_last($keyPoints)]["time_0"]);
 	array_push($returnIsSpeedChange, true);
-
-	// Ermittelt für den letzten $keyPoint die Echtzeitdaten der Zeit,
-	// Geschwindigkeit und Position
-	if ($keyPoints[array_key_last($keyPoints)]["speed_0"] < $keyPoints[array_key_last($keyPoints)]["speed_1"]) {
-		for ($j = ($keyPoints[array_key_last($keyPoints)]["speed_0"] + 2); $j <= $keyPoints[array_key_last($keyPoints)]["speed_1"]; $j = $j + 2) {
-			array_push($returnTrainPositionChange, (end($returnTrainPositionChange) + getBrakeDistance(($j - 2), $j, $verzoegerung)));
-			array_push($returnTrainSpeedChange, $j);
-			array_push($returnTrainTimeChange, (end($returnTrainTimeChange) + (getBrakeTime(($j - 2), $j, $verzoegerung))));
-			array_push($returnIsSpeedChange, true);
-		}
-	} else {
-		for ($j = ($keyPoints[array_key_last($keyPoints)]["speed_0"] - 2); $j >= $keyPoints[array_key_last($keyPoints)]["speed_1"]; $j = $j - 2) {
-			array_push($returnTrainPositionChange, (end($returnTrainPositionChange) + getBrakeDistance(($j + 2), $j, $verzoegerung)));
-			array_push($returnTrainSpeedChange, $j);
-			array_push($returnTrainTimeChange, (end($returnTrainTimeChange) + (getBrakeTime(($j + 2), $j, $verzoegerung))));
-			array_push($returnIsSpeedChange, true);
-		}
-	}
-
+	
 	if ($onlyPositionAndSpeed) {
 		return array($returnTrainPositionChange, $returnTrainSpeedChange);
 	} else {
@@ -302,12 +274,6 @@ function createTrainChanges(bool $onlyPositionAndSpeed) {
 	}
 }
 \end{lstlisting}
-
-
-
-
-
-
 \subsection{Überprüfung des \Gls{fahrtverlauf}s nach Geschwindigkeitsüberschreitungen} \label{überprüfung}
 Für die Überprüfung, ob es bei einem \Gls{fahrtverlauf} zu einer Überschreitung der zulässigen Höchstgeschwindigkeit kommt, wird nach jeder Berechnung die Funktion \textit{check\-If\-Train\-Is\-To\-Fast\-In\-Certain\-Sec\-tions$($$)$} (\textit{functions\_fahrtverlauf.php}) (Code-Beispiel \ref{lst:checkIfTrainIsToFastInCertainSections}) aufgerufen. In dieser Funktion wird über alle absoluten Positionen (\textit{\$trainPositionChange}) iteriert, überprüft in welchem \ac{infra} sich diese Position befindet und überprüft, ob die zugehörige Geschwindigkeit aus dem \textit{\$trainSpeedChange}-Array die zulässige Höchstgeschwindigkeit überschreitet. Sobald in einem \ac{infra} eine Geschwindigkeitsüberschreitung vorliegt, wird der zugehörige Index des \ac{infra}s in dem \textit{\$faildSections}-Array gespeichert. Diese \ac{infra}e sind in der Darstellung \ref{fig:it3} Lila hinterlegt. 
 
@@ -355,7 +321,7 @@ function checkIfTrainIsToFastInCertainSections() {
 \end{lstlisting}
 \end{figure}
 \subsection{Neuberechnung unter Berücksichtigung der Geschwindigkeitsüber-\\schreitung} \label{neuberechnung}
-In dem Fall, dass es zu einer Geschwindigkeitsüberschreitung gekommen ist, wird der \Gls{fahrtverlauf} neu berechnet. Als Grundlage dafür dienen die \textit{failed\_sections} aus der \textit{check\-If\-Train\-Is\-To\-Fast\-In\-Certain\-Sections$($$)$}-Funktion (\textit{functions\_fahrtverlauf.php}) (Code-Beispiel \ref{lst:checkIfTrainIsToFastInCertainSections}). Die Funktion \textit{recalculate\-Key\-Points$($$)$} (\textit{functions\_fahrtverlauf.php}) vergleicht dabei immer zwei benachbarte \textit{\$keyPoints} und berechnet in dem Fall einer Geschwindigkeitsüberschreitung mit der Funktion \textit{check\-Between\-Two\-Key\-Points$($$)$} (\textit{func\-tions\_fahrt\-ver\-lauf\-.php}) diese neu. In dem Fall, dass zwischen zwei benachbarten \textit{\$keyPoints} die zulässige Höchst\-ge\-schwin\-dig\-keit überschritten wird, wird die absolute Start- und End-Position dieser Ge\-schwin\-digkeits\-über\-schrei\-tung gespeichert. 
+In dem Fall, dass es zu einer Geschwindigkeitsüberschreitung gekommen ist, wird der \Gls{fahrtverlauf} neu berechnet. Als Grundlage dafür dienen die \textit{failed\_sections} aus der \textit{check\-If\-Train\-Is\-To\-Fast\-In\-Certain\-Sections$($$)$} Funktion (\textit{functions\_fahrtverlauf.php}) (Code-Beispiel \ref{lst:checkIfTrainIsToFastInCertainSections}). Die Funktion \textit{recalculate\-Key\-Points$($$)$} (\textit{functions\_fahrtverlauf.php}) vergleicht dabei immer zwei benachbarte \textit{\$keyPoints} und berechnet in dem Fall einer Geschwindigkeitsüberschreitung mit der Funktion \textit{check\-Between\-Two\-Key\-Points$($$)$} (\textit{func\-tions\_fahrt\-ver\-lauf\-.php}) diese neu. In dem Fall, dass zwischen zwei benachbarten \textit{\$keyPoints} die zulässige Höchst\-ge\-schwin\-dig\-keit überschritten wird, wird die absolute Start- und End-Position dieser Ge\-schwin\-digkeits\-über\-schrei\-tung gespeichert. 
 
 In dem fol\-gen\-den Schritt wird wie in dem Abschnitt \ref{v_max} zwischen den Start-Werten des ersten \textit{\$keyPoints} und der ersten Geschwindigkeitsüberschreitung die maximale Geschwindigkeit berechnet und zwei neue \textit{\$keyPoints} erzeugt. Das gleiche passiert zwischen der Position der letzten Geschwindigkeitsüberschreitung und den End-Werten des zweiten \textit{\$keyPoints}. Dadurch wird sichergestellt, dass immer eine gerade Anzahl an \textit{\$keyPoints} existiert und somit in jedem Iterationsschritt zwei benachbarte \textit{\$keyPoints} verglichen werden können. Nachdem alle \textit{\$keyPoint}-Paare überprüft wurden, werden mit Hilfe der \textit{create\-Train\-Changes$($$)$}-Funktion (\textit{functions\_fahrtverlauf.php}) die Arrays \textit{\$train\-Position\-Change} und \textit{\$train\-Speed\-Change} erzeugt. Der neu berechnete \Gls{fahrtverlauf} wird erneut der Funktion \textit{check\-If\-Train\-Is\-To\-Fast\-In\-Certain\-Sections$($$)$} (\textit{func\-tions\_""fahrt\-ver\-lauf\-.php}) (Code-Bei\-spiel \ref{lst:checkIfTrainIsToFastInCertainSections}) übergeben. Dieser Prozess wird solange durchlaufen, bis es zu keiner Geschwindigkeitsüberschreitung mehr kommt. In den folgenden Abbildungen (Darstellung \ref{fig:it4}, \ref{fig:it5} und \ref{fig:it6}) werden die Ergebnisse der einzelnen Iterationsschritte visuell abgebildet, wobei die grau gepunkteten Linien die Ergebnisse der vorherigen Iterationsschritte darstellen.
 \begin{figure}
@@ -489,7 +455,7 @@ $t_4$                   	&   43,16 $s$                         	\\
 Der finale \Gls{fahrtverlauf} ist in Abbildung \ref{fig:it13} dargestellt und kann so dem Fahrzeug übergeben werden.
 \begin{figure}
   \includegraphics[width=\linewidth]{../images/matlab/it13.pdf}
-  \caption{Ergebnis der \Gls{fahrtverlauf}s-Ermittlung}
+  \caption{Ergebnis der \Gls{fahrtverlauf}sermittlung}
   \label{fig:it13}
 \end{figure}
 \subsection{Einleitung einer Gefahrenbremsung} \label{notbremsung}

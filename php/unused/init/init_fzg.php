@@ -4,30 +4,30 @@
 function initFzg (int $id, int $adresse, float $verzoegerung, int $speed, int $section, int $position, array $pushArray) {
 
 	$fzgTest = array(
-		"id" => $id,
-		"adresse" => $adresse,
-		"verzoegerung" => $verzoegerung,
-		"notverzoegerung" => 2,
-		"speedConstant" => "", // true or false
-		"laenge" => "",
-		"section" => $section,
-		"speed" => $speed,
-		"position" => $position,
-		"vmax" => 120,
-		"next_speed" => array(),
-		"next_time" => array(),
-		"next_position" => array(),
-		"next_sections" => array(),
-		"next_lengths" => array(),
-		"next_v_max" => array(),
-		"next_timetable_change_speed" => "",
-		"next_timetable_change_section" => "",
-		"next_timetable_change_position" => "",
-		"next_timetable_change_time" => "",
-		"next_signal_change_speed" => "",
-		"next_signal_change_section" => "",
-		"next_signal_change_position" => "",
-		"next_signal_change_time" => ""
+		'id' => $id,
+		'adresse' => $adresse,
+		'verzoegerung' => $verzoegerung,
+		'notverzoegerung' => 2,
+		'speedConstant' => '', // true or false
+		'laenge' => '',
+		'section' => $section,
+		'speed' => $speed,
+		'position' => $position,
+		'vmax' => 120,
+		'next_speed' => array(),
+		'next_time' => array(),
+		'next_position' => array(),
+		'next_sections' => array(),
+		'next_lengths' => array(),
+		'next_v_max' => array(),
+		'next_timetable_change_speed' => '',
+		'next_timetable_change_section' => '',
+		'next_timetable_change_position' => '',
+		'next_timetable_change_time' => '',
+		'next_signal_change_speed' => '',
+		'next_signal_change_section' => '',
+		'next_signal_change_position' => '',
+		'next_signal_change_time' => ''
 	);
 
 	/*
@@ -47,9 +47,9 @@ function initFzg (int $id, int $adresse, float $verzoegerung, int $speed, int $s
 function initAbschnitte (array $ID, array $LENGTH, array $VMAX, array $pushArray) {
 
 	$fzgTest = array(
-		"id" => $ID,
-		"length" => $LENGTH,
-		"v_max" => $VMAX
+		'id' => $ID,
+		'length' => $LENGTH,
+		'v_max' => $VMAX
 	);
 
 	array_push($pushArray, $fzgTest);
@@ -57,31 +57,31 @@ function initAbschnitte (array $ID, array $LENGTH, array $VMAX, array $pushArray
 }
 
 function setCurrentValues (array $allTrains, int $key, int $speed, int $section, int $position) {
-	$allTrains[$key]["current_speed"] = $speed;
-	$allTrains[$key]["current_infra_section"] = $section;
-	$allTrains[$key]["current_position"] = $position;
+	$allTrains[$key]['current_speed'] = $speed;
+	$allTrains[$key]['current_infra_section'] = $section;
+	$allTrains[$key]['current_position'] = $position;
 
 	return $allTrains[$key];
 }
 
 // Create a new fzg
 $fzgTest = array(
-	"id" => 652,
-	"adresse" => 7845,
-	"verzoegerung" => 1,
-	"section" => 100,
-	"speed" => "",
-	"position" => "",
-	"next_speed" => array(),
-	"next_time" => array(),
-	"next_position" => array(),
-	"next_sections" => "",
-	"next_lengths" => "",
-	"next_v_max" => "",
-	"next_timetable_change_speed" => "",
-	"next_timetable_change_section" => "",
-	"next_timetable_change_position" => "",
-	"next_timetable_change_time" => ""
+	'id' => 652,
+	'adresse' => 7845,
+	'verzoegerung' => 1,
+	'section' => 100,
+	'speed' => '',
+	'position' => '',
+	'next_speed' => array(),
+	'next_time' => array(),
+	'next_position' => array(),
+	'next_sections' => '',
+	'next_lengths' => '',
+	'next_v_max' => '',
+	'next_timetable_change_speed' => '',
+	'next_timetable_change_section' => '',
+	'next_timetable_change_position' => '',
+	'next_timetable_change_time' => ''
 );
 
 function updateVMax (array $allTrains) {
@@ -91,14 +91,14 @@ function updateVMax (array $allTrains) {
 	$DB = new DB_MySQL();
 
 	foreach ($allTrains as $train) {
-		$adresse = $train["adresse"];
-		$v_max = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`vmax`      
-                            FROM `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`
-                            WHERE `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`nummer` = $adresse
+		$adresse = $train['adresse'];
+		$v_max = $DB->select('SELECT `'.DB_TABLE_FAHRZEUGE_BAUREIHEN.'`.`vmax`      
+                            FROM `'.DB_TABLE_FAHRZEUGE_BAUREIHEN.'`
+                            WHERE `'.DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`nummer` = $adresse
                            ");
 
 		if (sizeof($v_max) != 0) {
-			$train["v_max"] = get_object_vars($v_max[0])["vmax"];
+			$train['v_max'] = get_object_vars($v_max[0])['vmax'];
 			array_push($returnTrains, $train);
 		}
 	}
@@ -111,16 +111,16 @@ function compareTwoNaechsteAbschnitte(int $id) {
 	global $allTrains;
 	global $allTimes;
 
-	if ($allTrains[$id]["can_drive"]) {
+	if ($allTrains[$id]['can_drive']) {
 
 		$newData = calculateNextSections($id, false);
 		$newNextSection = $newData[0];
 		$newNextLenghts = $newData[1];
 		$newNextVMax = $newData[2];
-		$oldNextSections = $allTrains[$id]["next_sections"];
-		$oldLenghts = $allTrains[$id]["next_lenghts"];
-		$oldNextVMax = $allTrains[$id]["next_v_max"];
-		$currentSection = $allTrains[$id]["current_infra_section"];
+		$oldNextSections = $allTrains[$id]['next_sections'];
+		$oldLenghts = $allTrains[$id]['next_lenghts'];
+		$oldNextVMax = $allTrains[$id]['next_v_max'];
+		$currentSection = $allTrains[$id]['current_infra_section'];
 
 		/*
 		$currentSection = 1000;
@@ -183,9 +183,9 @@ function compareTwoNaechsteAbschnitte(int $id) {
 
 
 		if (!$dataIsIdentical) {
-			var_dump("Neue Berechnung");
+			var_dump('Neue Berechnung');
 			calculateNextSections($id);
-			$adresse = $allTrains[$id]["adresse"];
+			$adresse = $allTrains[$id]['adresse'];
 			$allTimes[$adresse] = array();
 			checkIfFahrstrasseIsCorrrect($id);
 			calculateFahrtverlauf($id);
@@ -203,14 +203,14 @@ function startMessage() {
 	global $realEndTime;
 	global $simulationStartTime;
 
-	$realStartTimeAsHHMMSS = getUhrzeit($realStartTime, "simulationszeit", null, array("outputtyp"=>"h:i:s"));
-	$simulationEndTimeAsHHMMSS = getUhrzeit($simulationEndTime, "simulationszeit", null, array("outputtyp"=>"h:i:s"));
+	$realStartTimeAsHHMMSS = getUhrzeit($realStartTime, 'simulationszeit', null, array('outputtyp' => 'h:i:s'));
+	$simulationEndTimeAsHHMMSS = getUhrzeit($simulationEndTime, 'simulationszeit', null, array('outputtyp' => 'h:i:s'));
 	$simulationDurationAsHHMMSS = toStd($simulationDuration);
-	$realEndTimeAsHHMMSS = getUhrzeit($realEndTime, "simulationszeit", null, array("outputtyp"=>"h:i:s"));
-	$simulationStartTimeAsHHMMSS = getUhrzeit($simulationStartTime, "simulationszeit", null, array("outputtyp"=>"h:i:s"));
+	$realEndTimeAsHHMMSS = getUhrzeit($realEndTime, 'simulationszeit', null, array('outputtyp' => 'h:i:s'));
+	$simulationStartTimeAsHHMMSS = getUhrzeit($simulationStartTime, 'simulationszeit', null, array('outputtyp' => 'h:i:s'));
 
-	$fahrplanSessionkey = getDataFromFahrplanSession("sessionkey");
-	$fahrplanSessionName = getDataFromFahrplanSession("name");
+	$fahrplanSessionkey = getDataFromFahrplanSession('sessionkey');
+	$fahrplanSessionName = getDataFromFahrplanSession('name');
 
 	$hashtagLine = "#####################################################################\n";
 	$emptyLine = "#\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t#\n";
@@ -247,7 +247,7 @@ function startMessage() {
 
 
 	echo "simulationStartTime = getDataFromFahrplanSession('sim_startzeit') \n \n";
-	echo getDataFromFahrplanSession("sim_startzeit"), "\n\n";
+	echo getDataFromFahrplanSession('sim_startzeit'), "\n\n";
 	echo "getUhrzeit('simulationStartTime', 'simulationszeit', null, array('outputtyp'=>'h:i:s'))\n\n";
 	echo getUhrzeit(getDataFromFahrplanSession('sim_startzeit'), 'simulationszeit', null, array('outputtyp'=>'h:i:s')), "\n\n";
 
@@ -263,19 +263,19 @@ function toStd($sekunden)
 	$sekunden = round($sekunden - ($stunden * 3600) - ($minuten * 60), 0);
 
 	if ($stunden <= 9) {
-		$strStunden = "0" . $stunden;
+		$strStunden = '0'. $stunden;
 	} else {
 		$strStunden = $stunden;
 	}
 
 	if ($minuten <= 9) {
-		$strMinuten = "0" . $minuten;
+		$strMinuten = '0'. $minuten;
 	} else {
 		$strMinuten = $minuten;
 	}
 
 	if ($sekunden <= 9) {
-		$strSekunden = "0" . $sekunden;
+		$strSekunden = '0'. $sekunden;
 	} else {
 		$strSekunden = $sekunden;
 	}
@@ -292,22 +292,22 @@ function getDataFromFahrplanSession(string $columnName) {
 	$DB = new DB_MySQL();
 
 
-	$simStartTime = $DB->select("SELECT `".DB_TABLE_FAHRPLAN_SESSION."`.`$columnName`    
-                            FROM `".DB_TABLE_FAHRPLAN_SESSION."`
-                            WHERE `".DB_TABLE_FAHRPLAN_SESSION."`.`status` = $status
+	$simStartTime = $DB->select('SELECT `'.DB_TABLE_FAHRPLAN_SESSION."`.`$columnName`    
+                            FROM `".DB_TABLE_FAHRPLAN_SESSION.'`
+                            WHERE `'.DB_TABLE_FAHRPLAN_SESSION."`.`status` = $status
                            ");
 
 	unset($DB);
 
-	if ($columnName == "sim_startzeit") {
+	if ($columnName == 'sim_startzeit') {
 		return $simStartTime[0]->sim_startzeit;
-	} else if ($columnName == "real_startzeit"){
+	} else if ($columnName == 'real_startzeit'){
 		return $simStartTime[0]->real_startzeit;
-	} else if ($columnName == "sim_endzeit") {
+	} else if ($columnName == 'sim_endzeit') {
 		return $simStartTime[0]->sim_endzeit;
-	} else if ($columnName == "name") {
+	} else if ($columnName == 'name') {
 		return $simStartTime[0]->name;
-	} else if ($columnName == "sessionkey") {
+	} else if ($columnName == 'sessionkey') {
 		return $simStartTime[0]->sessionkey;
 	} else {
 		return false;
@@ -336,7 +336,7 @@ function getFahrplanAndPosition () {
 
 
 
-		$allTrains[$trainIndex]["error"] = array();
+		$allTrains[$trainIndex]['error'] = array();
 		/*
 		$allTrains[$trainIndex]["live_position"] = array();
 		$allTrains[$trainIndex]["live_speed"] = array();
@@ -347,19 +347,19 @@ function getFahrplanAndPosition () {
 		$allTrains[$trainIndex]["live_target_reached"] = array();
 		$allTrains[$trainIndex]["error"] = array();
 		*/
-		$allTrains[$trainIndex]["next_sections"] = array();
-		$allTrains[$trainIndex]["next_lenghts"] = array();
-		$allTrains[$trainIndex]["next_v_max"] = array();
-		$allTrains[$trainIndex]["next_stop"] = array();
-		$values = getFahrzeugZugIds(array($allTrains[$trainIndex]["id"]));
+		$allTrains[$trainIndex]['next_sections'] = array();
+		$allTrains[$trainIndex]['next_lenghts'] = array();
+		$allTrains[$trainIndex]['next_v_max'] = array();
+		$allTrains[$trainIndex]['next_stop'] = array();
+		$values = getFahrzeugZugIds(array($allTrains[$trainIndex]['id']));
 		if (sizeof($values) != 0) {
 			$value = $values[array_key_first($values)];
-			$allTrains[$trainIndex]["zug_id"] = intval($value["zug_id"]);
-			$allTrains[$trainIndex]["operates_on_timetable"] = 1;
+			$allTrains[$trainIndex]['zug_id'] = intval($value['zug_id']);
+			$allTrains[$trainIndex]['operates_on_timetable'] = 1;
 
 		} else {
-			$allTrains[$trainIndex]["zug_id"] = null;
-			$allTrains[$trainIndex]["operates_on_timetable"] = 0;
+			$allTrains[$trainIndex]['zug_id'] = null;
+			$allTrains[$trainIndex]['operates_on_timetable'] = 0;
 		}
 	}
 
@@ -367,35 +367,35 @@ function getFahrplanAndPosition () {
 
 	// Get next Betriebsstellen
 	foreach ($allTrains as $trainIndex => $trainValue) {
-		$allTrains[$trainIndex]["next_betriebsstellen_data"] = array();
-		$zug_id = intval($allTrains[$trainIndex]["zug_id"]);
+		$allTrains[$trainIndex]['next_betriebsstellen_data'] = array();
+		$zug_id = intval($allTrains[$trainIndex]['zug_id']);
 
 
 		if ($zug_id != 0) {
 			$nextBetriebsstellen = getNextBetriebsstellen($zug_id);
 			if (sizeof($nextBetriebsstellen) != 0) {
 				for ($i = 0; $i < sizeof($nextBetriebsstellen); $i++) {
-					if (sizeof(explode("_", $nextBetriebsstellen[$i])) != 2) {
-						$allTrains[$trainIndex]["next_betriebsstellen_data"][$i]["betriebstelle"] = $nextBetriebsstellen[$i];
-						$allTrains[$trainIndex]["next_betriebsstellen_data"][$i]["zeiten"] = getFahrplanzeiten($nextBetriebsstellen[$i], $zug_id);
-						$allTrains[$trainIndex]["next_betriebsstellen_data"][$i]["fahrplanhalt"] = true;
+					if (sizeof(explode('_', $nextBetriebsstellen[$i])) != 2) {
+						$allTrains[$trainIndex]['next_betriebsstellen_data'][$i]['betriebstelle'] = $nextBetriebsstellen[$i];
+						$allTrains[$trainIndex]['next_betriebsstellen_data'][$i]['zeiten'] = getFahrplanzeiten($nextBetriebsstellen[$i], $zug_id);
+						$allTrains[$trainIndex]['next_betriebsstellen_data'][$i]['fahrplanhalt'] = true;
 					} else if(in_array($nextBetriebsstellen[$i], $keysZwischenhalte)) {
-						$allTrains[$trainIndex]["next_betriebsstellen_data"][$i]["betriebstelle"] = $nextBetriebsstellen[$i];
-						$allTrains[$trainIndex]["next_betriebsstellen_data"][$i]["zeiten"] = getFahrplanzeiten($nextBetriebsstellen[$i], $zug_id);
-						$allTrains[$trainIndex]["next_betriebsstellen_data"][$i]["fahrplanhalt"] = false;
+						$allTrains[$trainIndex]['next_betriebsstellen_data'][$i]['betriebstelle'] = $nextBetriebsstellen[$i];
+						$allTrains[$trainIndex]['next_betriebsstellen_data'][$i]['zeiten'] = getFahrplanzeiten($nextBetriebsstellen[$i], $zug_id);
+						$allTrains[$trainIndex]['next_betriebsstellen_data'][$i]['fahrplanhalt'] = false;
 
 					}
 				}
 				//$allTrains[$trainIndex]["next_betriebsstellen_name"] = $nextBetriebsstellen;
 			} else {
-				$allTrains[$trainIndex]["next_betriebsstellen_data"] = null;
+				$allTrains[$trainIndex]['next_betriebsstellen_data'] = null;
 				//$allTrains[$trainIndex]["next_betriebsstellen_name"] = null;
 			}
 		} else {
-			$allTrains[$trainIndex]["next_betriebsstellen_data"] = array();
+			$allTrains[$trainIndex]['next_betriebsstellen_data'] = array();
 
 		}
-		$allTrains[$trainIndex]["next_betriebsstellen_data"] = array_values($allTrains[$trainIndex]["next_betriebsstellen_data"]);
+		$allTrains[$trainIndex]['next_betriebsstellen_data'] = array_values($allTrains[$trainIndex]['next_betriebsstellen_data']);
 	}
 
 
@@ -404,21 +404,21 @@ function getFahrplanAndPosition () {
 
 	// Get the current position of all trains
 	foreach ($allTrains as $trainIndex => $trainValue) {
-		$fma = getPosition($trainValue["adresse"]);
+		$fma = getPosition($trainValue['adresse']);
 		if (sizeof($fma) == 0) {
-			$allTrains[$trainIndex]["current_fma_section"] = null;
-			$allTrains[$trainIndex]["current_infra_section"] = null;
+			$allTrains[$trainIndex]['current_fma_section'] = null;
+			$allTrains[$trainIndex]['current_infra_section'] = null;
 		} elseif (sizeof($fma) == 1) {
-			$allTrains[$trainIndex]["current_fma_section"] = $fma[0];
-			$allTrains[$trainIndex]["current_infra_section"] = $fmaToInfra[$fma[0]];
+			$allTrains[$trainIndex]['current_fma_section'] = $fma[0];
+			$allTrains[$trainIndex]['current_infra_section'] = $fmaToInfra[$fma[0]];
 		} else {
 			$infraArray = array();
 			foreach ($fma as $value) {
 				array_push($infraArray, $fmaToInfra[$value]);
 			}
-			$infra = getFrontPosition($infraArray, $allTrains[$trainIndex]["dir"]);
-			$allTrains[$trainIndex]["current_fma_section"] = $infraToFma[$infra];
-			$allTrains[$trainIndex]["current_infra_section"] = $infra;
+			$infra = getFrontPosition($infraArray, $allTrains[$trainIndex]['dir']);
+			$allTrains[$trainIndex]['current_fma_section'] = $infraToFma[$infra];
+			$allTrains[$trainIndex]['current_infra_section'] = $infra;
 		}
 	}
 
@@ -461,8 +461,8 @@ function getFahrplanAndPosition () {
 	// Remove trains, that are not on the tracks
 	foreach ($allTrains as $train) {
 
-		if ($train["current_fma_section"] != null) {
-			$returnArray[intval($train["id"])] = $train;
+		if ($train['current_fma_section'] != null) {
+			$returnArray[intval($train['id'])] = $train;
 		}
 
 	}
@@ -470,19 +470,19 @@ function getFahrplanAndPosition () {
 
 
 	foreach ($returnArray as $trainIndex => $trainValue) {
-		foreach ($trainValue["next_betriebsstellen_data"] as $betriebsstelleIndex => $betriebsstelleValue) {
+		foreach ($trainValue['next_betriebsstellen_data'] as $betriebsstelleIndex => $betriebsstelleValue) {
 			// bei getUhrzeit was vorher $timeDifferenceGetUhrzeit
-			if ($betriebsstelleValue["zeiten"] != false) {
-				if ($betriebsstelleValue["zeiten"]["abfahrt_soll"] != null) {
-					$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["abfahrt_soll_timestamp"] = getUhrzeit($betriebsstelleValue["zeiten"]["abfahrt_soll"], "simulationszeit", null, array("inputtyp" => "h:i:s"));
+			if ($betriebsstelleValue['zeiten'] != false) {
+				if ($betriebsstelleValue['zeiten']['abfahrt_soll'] != null) {
+					$returnArray[$trainIndex]['next_betriebsstellen_data'][$betriebsstelleIndex]['zeiten']['abfahrt_soll_timestamp'] = getUhrzeit($betriebsstelleValue['zeiten']['abfahrt_soll'], 'simulationszeit', null, array('inputtyp' => 'h:i:s'));
 				} else {
-					$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["abfahrt_soll_timestamp"] = null;
+					$returnArray[$trainIndex]['next_betriebsstellen_data'][$betriebsstelleIndex]['zeiten']['abfahrt_soll_timestamp'] = null;
 				}
 
-				if ($betriebsstelleValue["zeiten"]["ankunft_soll"] != null) {
-					$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["ankunft_soll_timestamp"] = getUhrzeit($betriebsstelleValue["zeiten"]["ankunft_soll"], "simulationszeit", null, array("inputtyp" => "h:i:s"));
+				if ($betriebsstelleValue['zeiten']['ankunft_soll'] != null) {
+					$returnArray[$trainIndex]['next_betriebsstellen_data'][$betriebsstelleIndex]['zeiten']['ankunft_soll_timestamp'] = getUhrzeit($betriebsstelleValue['zeiten']['ankunft_soll'], 'simulationszeit', null, array('inputtyp' => 'h:i:s'));
 				} else {
-					$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["ankunft_soll_timestamp"] = null;
+					$returnArray[$trainIndex]['next_betriebsstellen_data'][$betriebsstelleIndex]['zeiten']['ankunft_soll_timestamp'] = null;
 				}
 
 			}
@@ -492,29 +492,29 @@ function getFahrplanAndPosition () {
 
 
 	foreach ($returnArray as $trainIndex => $trainValue) {
-		$returnArray[$trainIndex]["current_position"] = $cacheInfraLaenge[$trainValue["current_infra_section"]];
+		$returnArray[$trainIndex]['current_position'] = $cacheInfraLaenge[$trainValue['current_infra_section']];
 	}
 
 
 	foreach ($returnArray as $trainIndex => $trainValue) {
-		$returnArray[$trainIndex]["notverzoegerung"] = 2;
+		$returnArray[$trainIndex]['notverzoegerung'] = 2;
 	}
 
 	foreach ($returnArray as $trainIndex => $trainValue) {
-		foreach ($trainValue["next_betriebsstellen_data"] as $betriebsstelleIndex => $betriebsstelleValue) {
+		foreach ($trainValue['next_betriebsstellen_data'] as $betriebsstelleIndex => $betriebsstelleValue) {
 
-			if ($betriebsstelleValue["zeiten"]["abfahrt_soll_timestamp"] != null && $betriebsstelleValue["zeiten"]["ankunft_soll_timestamp"] != null) {
-				$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["haltezeit"] = $betriebsstelleValue["zeiten"]["abfahrt_soll_timestamp"] - $betriebsstelleValue["zeiten"]["ankunft_soll_timestamp"];
-				if (($betriebsstelleValue["zeiten"]["abfahrt_soll_timestamp"] - $betriebsstelleValue["zeiten"]["ankunft_soll_timestamp"]) > 0) {
-					$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["is_halt"] = true;
+			if ($betriebsstelleValue['zeiten']['abfahrt_soll_timestamp'] != null && $betriebsstelleValue['zeiten']['ankunft_soll_timestamp'] != null) {
+				$returnArray[$trainIndex]['next_betriebsstellen_data'][$betriebsstelleIndex]['zeiten']['haltezeit'] = $betriebsstelleValue['zeiten']['abfahrt_soll_timestamp'] - $betriebsstelleValue['zeiten']['ankunft_soll_timestamp'];
+				if (($betriebsstelleValue['zeiten']['abfahrt_soll_timestamp'] - $betriebsstelleValue['zeiten']['ankunft_soll_timestamp']) > 0) {
+					$returnArray[$trainIndex]['next_betriebsstellen_data'][$betriebsstelleIndex]['zeiten']['is_halt'] = true;
 				} else {
-					$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["is_halt"] = false;
+					$returnArray[$trainIndex]['next_betriebsstellen_data'][$betriebsstelleIndex]['zeiten']['is_halt'] = false;
 				}
 			} else {
-				$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["haltezeit"] = 0;
-				$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["is_halt"] = true;
+				$returnArray[$trainIndex]['next_betriebsstellen_data'][$betriebsstelleIndex]['zeiten']['haltezeit'] = 0;
+				$returnArray[$trainIndex]['next_betriebsstellen_data'][$betriebsstelleIndex]['zeiten']['is_halt'] = true;
 			}
-			$returnArray[$trainIndex]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["verspaetung"] = 0;
+			$returnArray[$trainIndex]['next_betriebsstellen_data'][$betriebsstelleIndex]['zeiten']['verspaetung'] = 0;
 
 		}
 
@@ -538,7 +538,7 @@ function getFahrplanAndPositionForOneTrain (int $id) {
 
 
 
-	$allTrains[$id]["error"] = array();
+	$allTrains[$id]['error'] = array();
 	/*
 	$allTrains[$trainIndex]["live_position"] = array();
 	$allTrains[$trainIndex]["live_speed"] = array();
@@ -549,44 +549,44 @@ function getFahrplanAndPositionForOneTrain (int $id) {
 	$allTrains[$trainIndex]["live_target_reached"] = array();
 	$allTrains[$trainIndex]["error"] = array();
 	*/
-	$allTrains[$id]["next_sections"] = array();
-	$allTrains[$id]["next_lenghts"] = array();
-	$allTrains[$id]["next_v_max"] = array();
-	$allTrains[$id]["next_stop"] = array();
-	$values = getFahrzeugZugIds(array($allTrains[$id]["id"]));
+	$allTrains[$id]['next_sections'] = array();
+	$allTrains[$id]['next_lenghts'] = array();
+	$allTrains[$id]['next_v_max'] = array();
+	$allTrains[$id]['next_stop'] = array();
+	$values = getFahrzeugZugIds(array($allTrains[$id]['id']));
 	if (sizeof($values) != 0) {
 		$value = $values[array_key_first($values)];
-		$allTrains[$id]["zug_id"] = intval($value["zug_id"]);
-		$allTrains[$id]["operates_on_timetable"] = 1;
+		$allTrains[$id]['zug_id'] = intval($value['zug_id']);
+		$allTrains[$id]['operates_on_timetable'] = 1;
 
 	} else {
-		$allTrains[$id]["zug_id"] = null;
-		$allTrains[$id]["operates_on_timetable"] = 0;
+		$allTrains[$id]['zug_id'] = null;
+		$allTrains[$id]['operates_on_timetable'] = 0;
 	}
 
 	// Get next Betriebsstellen
-	$allTrains[$id]["next_betriebsstellen_data"] = array();
-	$zug_id = intval($allTrains[$id]["zug_id"]);
+	$allTrains[$id]['next_betriebsstellen_data'] = array();
+	$zug_id = intval($allTrains[$id]['zug_id']);
 
 	if ($zug_id != 0) {
 		$nextBetriebsstellen = getNextBetriebsstellen($zug_id);
 		if (sizeof($nextBetriebsstellen) != 0) {
 			for ($i = 0; $i < sizeof($nextBetriebsstellen); $i++) {
-				if (sizeof(explode("_", $nextBetriebsstellen[$i])) != 2) {
-					$allTrains[$id]["next_betriebsstellen_data"][$i]["betriebstelle"] = $nextBetriebsstellen[$i];
-					$allTrains[$id]["next_betriebsstellen_data"][$i]["zeiten"] = getFahrplanzeiten($nextBetriebsstellen[$i], $zug_id);
+				if (sizeof(explode('_', $nextBetriebsstellen[$i])) != 2) {
+					$allTrains[$id]['next_betriebsstellen_data'][$i]['betriebstelle'] = $nextBetriebsstellen[$i];
+					$allTrains[$id]['next_betriebsstellen_data'][$i]['zeiten'] = getFahrplanzeiten($nextBetriebsstellen[$i], $zug_id);
 				}
 			}
 			//$allTrains[$trainIndex]["next_betriebsstellen_name"] = $nextBetriebsstellen;
 		} else {
-			$allTrains[$id]["next_betriebsstellen_data"] = null;
+			$allTrains[$id]['next_betriebsstellen_data'] = null;
 			//$allTrains[$trainIndex]["next_betriebsstellen_name"] = null;
 		}
 	} else {
-		$allTrains[$id]["next_betriebsstellen_data"] = array();
+		$allTrains[$id]['next_betriebsstellen_data'] = array();
 
 	}
-	$allTrains[$id]["next_betriebsstellen_data"] = array_values($allTrains[$id]["next_betriebsstellen_data"]);
+	$allTrains[$id]['next_betriebsstellen_data'] = array_values($allTrains[$id]['next_betriebsstellen_data']);
 
 
 
@@ -663,18 +663,18 @@ function getFahrplanAndPositionForOneTrain (int $id) {
 
 
 
-	foreach ($allTrains[$id]["next_betriebsstellen_data"] as $betriebsstelleIndex => $betriebsstelleValue) {
-		if ($betriebsstelleValue["zeiten"] != false) {
-			if ($betriebsstelleValue["zeiten"]["abfahrt_soll"] != null) {
-				$allTrains[$id]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["abfahrt_soll_timestamp"] = getUhrzeit($betriebsstelleValue["zeiten"]["abfahrt_soll"], "simulationszeit", $timeDifferenceGetUhrzeit, array("inputtyp" => "h:i:s"));
+	foreach ($allTrains[$id]['next_betriebsstellen_data'] as $betriebsstelleIndex => $betriebsstelleValue) {
+		if ($betriebsstelleValue['zeiten'] != false) {
+			if ($betriebsstelleValue['zeiten']['abfahrt_soll'] != null) {
+				$allTrains[$id]['next_betriebsstellen_data'][$betriebsstelleIndex]['zeiten']['abfahrt_soll_timestamp'] = getUhrzeit($betriebsstelleValue['zeiten']['abfahrt_soll'], 'simulationszeit', $timeDifferenceGetUhrzeit, array('inputtyp' => 'h:i:s'));
 			} else {
-				$allTrains[$id]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["abfahrt_soll_timestamp"] = null;
+				$allTrains[$id]['next_betriebsstellen_data'][$betriebsstelleIndex]['zeiten']['abfahrt_soll_timestamp'] = null;
 			}
 
-			if ($betriebsstelleValue["zeiten"]["ankunft_soll"] != null) {
-				$allTrains[$id]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["ankunft_soll_timestamp"] = getUhrzeit($betriebsstelleValue["zeiten"]["ankunft_soll"], "simulationszeit", $timeDifferenceGetUhrzeit, array("inputtyp" => "h:i:s"));
+			if ($betriebsstelleValue['zeiten']['ankunft_soll'] != null) {
+				$allTrains[$id]['next_betriebsstellen_data'][$betriebsstelleIndex]['zeiten']['ankunft_soll_timestamp'] = getUhrzeit($betriebsstelleValue['zeiten']['ankunft_soll'], 'simulationszeit', $timeDifferenceGetUhrzeit, array('inputtyp' => 'h:i:s'));
 			} else {
-				$allTrains[$id]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["ankunft_soll_timestamp"] = null;
+				$allTrains[$id]['next_betriebsstellen_data'][$betriebsstelleIndex]['zeiten']['ankunft_soll_timestamp'] = null;
 			}
 
 		}
@@ -690,22 +690,22 @@ function getFahrplanAndPositionForOneTrain (int $id) {
 
 
 	foreach ($returnArray as $trainIndex => $trainValue) {
-		$returnArray[$trainIndex]["notverzoegerung"] = 2;
+		$returnArray[$trainIndex]['notverzoegerung'] = 2;
 	}
 
-	foreach ($allTrains[$id]["next_betriebsstellen_data"] as $betriebsstelleIndex => $betriebsstelleValue) {
-		if ($betriebsstelleValue["zeiten"]["abfahrt_soll_timestamp"] != null && $betriebsstelleValue["zeiten"]["ankunft_soll_timestamp"] != null) {
-			$allTrains[$id]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["haltezeit"] = $betriebsstelleValue["zeiten"]["abfahrt_soll_timestamp"] - $betriebsstelleValue["zeiten"]["ankunft_soll_timestamp"];
-			if (($betriebsstelleValue["zeiten"]["abfahrt_soll_timestamp"] - $betriebsstelleValue["zeiten"]["ankunft_soll_timestamp"]) > 0) {
-				$allTrains[$id]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["is_halt"] = true;
+	foreach ($allTrains[$id]['next_betriebsstellen_data'] as $betriebsstelleIndex => $betriebsstelleValue) {
+		if ($betriebsstelleValue['zeiten']['abfahrt_soll_timestamp'] != null && $betriebsstelleValue['zeiten']['ankunft_soll_timestamp'] != null) {
+			$allTrains[$id]['next_betriebsstellen_data'][$betriebsstelleIndex]['zeiten']['haltezeit'] = $betriebsstelleValue['zeiten']['abfahrt_soll_timestamp'] - $betriebsstelleValue['zeiten']['ankunft_soll_timestamp'];
+			if (($betriebsstelleValue['zeiten']['abfahrt_soll_timestamp'] - $betriebsstelleValue['zeiten']['ankunft_soll_timestamp']) > 0) {
+				$allTrains[$id]['next_betriebsstellen_data'][$betriebsstelleIndex]['zeiten']['is_halt'] = true;
 			} else {
-				$allTrains[$id]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["is_halt"] = false;
+				$allTrains[$id]['next_betriebsstellen_data'][$betriebsstelleIndex]['zeiten']['is_halt'] = false;
 			}
 		} else {
-			$allTrains[$id]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["haltezeit"] = 0;
-			$allTrains[$id]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["is_halt"] = true;
+			$allTrains[$id]['next_betriebsstellen_data'][$betriebsstelleIndex]['zeiten']['haltezeit'] = 0;
+			$allTrains[$id]['next_betriebsstellen_data'][$betriebsstelleIndex]['zeiten']['is_halt'] = true;
 		}
-		$allTrains[$id]["next_betriebsstellen_data"][$betriebsstelleIndex]["zeiten"]["verspaetung"] = 0;
+		$allTrains[$id]['next_betriebsstellen_data'][$betriebsstelleIndex]['zeiten']['verspaetung'] = 0;
 	}
 
 
@@ -722,16 +722,16 @@ function getSignalForSectionAndDirection(int $section, int $dir) {
 
 	$DB = new DB_MySQL();
 
-	$signal = $DB->select("SELECT `".DB_TABLE_SIGNALE_STANDORTE."`.`id`    
-                            FROM `".DB_TABLE_SIGNALE_STANDORTE."`
-                            WHERE `".DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id` = $section
+	$signal = $DB->select('SELECT `'.DB_TABLE_SIGNALE_STANDORTE.'`.`id`    
+                            FROM `'.DB_TABLE_SIGNALE_STANDORTE.'`
+                            WHERE `'.DB_TABLE_SIGNALE_STANDORTE."`.`freimelde_id` = $section
                             AND `".DB_TABLE_SIGNALE_STANDORTE."`.`wirkrichtung` = $dir
                            ");
 
 	unset($DB);
 
 	if ($signal != null) {
-		$signal = intval(get_object_vars($signal[0])["id"]);
+		$signal = intval(get_object_vars($signal[0])['id']);
 	} else {
 		//$signal = getNaechsteAbschnitte($section, $dir, array("naechstessignal" => true));
 		//$signal = $signal[array_key_last($signal)]["signal_id"];
@@ -754,10 +754,10 @@ function calculateNextSections($id = false, $writeResultToTrain = true) {
 
 	foreach ($allTrains as $trainIndex => $trainValue) {
 
-		if ($checkAllTrains || $trainValue["id"] == $id) {
-			if ($trainValue["can_drive"]) {
-				$dir = $trainValue["dir"];
-				$currentSection = $trainValue["current_infra_section"];
+		if ($checkAllTrains || $trainValue['id'] == $id) {
+			if ($trainValue['can_drive']) {
+				$dir = $trainValue['dir'];
+				$currentSection = $trainValue['current_infra_section'];
 				$signal = getSignalForSectionAndDirection($currentSection, $dir);
 				$nextSections = array();
 				$nextVMax = array();
@@ -766,7 +766,7 @@ function calculateNextSections($id = false, $writeResultToTrain = true) {
 
 				if ($signal != null) {
 					$nextSignalbegriff = getSignalbegriff($signal);
-					$nextSignalbegriff = $nextSignalbegriff[array_key_last($nextSignalbegriff)]["geschwindigkeit"];
+					$nextSignalbegriff = $nextSignalbegriff[array_key_last($nextSignalbegriff)]['geschwindigkeit'];
 					if ($nextSignalbegriff == -25) {
 						$nextSignalbegriff = 25;
 					} else if ($nextSignalbegriff < 0) {
@@ -777,7 +777,7 @@ function calculateNextSections($id = false, $writeResultToTrain = true) {
 				}
 
 				$return = getNaechsteAbschnitte($currentSection, $dir);
-				$allTrains[$trainIndex]["last_get_naechste_abschnitte"] = $return;
+				$allTrains[$trainIndex]['last_get_naechste_abschnitte'] = $return;
 				$currentVMax = 60; // max speed for a train in the current section
 
 				array_push($nextSections, $currentSection);
@@ -790,21 +790,21 @@ function calculateNextSections($id = false, $writeResultToTrain = true) {
 
 				if ($currentVMax == 0) {
 					if ($writeResultToTrain) {
-						$allTrains[$trainIndex]["next_sections"] = $nextSections;
-						$allTrains[$trainIndex]["next_lenghts"] = $nextLengths;
-						$allTrains[$trainIndex]["next_v_max"] = $nextVMax;
+						$allTrains[$trainIndex]['next_sections'] = $nextSections;
+						$allTrains[$trainIndex]['next_lenghts'] = $nextLengths;
+						$allTrains[$trainIndex]['next_v_max'] = $nextVMax;
 					} else {
 						return array($nextSections, $nextLengths, $nextVMax);
 					}
 				} else {
 					foreach ($return as $section) {
-						array_push($nextSections, $section["infra_id"]);
+						array_push($nextSections, $section['infra_id']);
 						array_push($nextVMax, $currentVMax);
-						array_push($nextLengths, $cacheInfraLaenge[$section["infra_id"]]);
-						if ($section["signal_id"] != null) {
-							$signal = $section["signal_id"];
+						array_push($nextLengths, $cacheInfraLaenge[$section['infra_id']]);
+						if ($section['signal_id'] != null) {
+							$signal = $section['signal_id'];
 							$nextSignalbegriff = getSignalbegriff($signal);
-							$nextSignalbegriff = $nextSignalbegriff[array_key_last($nextSignalbegriff)]["geschwindigkeit"];
+							$nextSignalbegriff = $nextSignalbegriff[array_key_last($nextSignalbegriff)]['geschwindigkeit'];
 							if ($nextSignalbegriff == -25) {
 								$currentVMax = 25;
 							} else if ($nextSignalbegriff < 0) {
@@ -815,9 +815,9 @@ function calculateNextSections($id = false, $writeResultToTrain = true) {
 						}
 					}
 					if ($writeResultToTrain) {
-						$allTrains[$trainIndex]["next_sections"] = $nextSections;
-						$allTrains[$trainIndex]["next_lenghts"] = $nextLengths;
-						$allTrains[$trainIndex]["next_v_max"] = $nextVMax;
+						$allTrains[$trainIndex]['next_sections'] = $nextSections;
+						$allTrains[$trainIndex]['next_lenghts'] = $nextLengths;
+						$allTrains[$trainIndex]['next_v_max'] = $nextVMax;
 					} else {
 						return array($nextSections, $nextLengths, $nextVMax);
 					}
@@ -838,34 +838,34 @@ function getAllTrains () : array {
 
 	foreach ($allAdresses as $adress) {
 
-		$train_fahrzeuge = get_object_vars($DB->select("SELECT `".DB_TABLE_FAHRZEUGE."`.`id`, 
-							`".DB_TABLE_FAHRZEUGE."`.`adresse`, 
-							`".DB_TABLE_FAHRZEUGE."`.`timestamp`, 
-							`".DB_TABLE_FAHRZEUGE."`.`speed`, 
-							`".DB_TABLE_FAHRZEUGE."`.`dir`, 
-							`".DB_TABLE_FAHRZEUGE."`.`zugtyp`, 
-							`".DB_TABLE_FAHRZEUGE."`.`zuglaenge`, 
-							`".DB_TABLE_FAHRZEUGE."`.`prev_speed`, 
-							`".DB_TABLE_FAHRZEUGE."`.`fzs`, 
-							`".DB_TABLE_FAHRZEUGE."`.`verzoegerung`, 
-							`".DB_TABLE_FAHRZEUGE."`.`zustand`        
-                            FROM `".DB_TABLE_FAHRZEUGE."`
-                            WHERE `".DB_TABLE_FAHRZEUGE."`.`adresse` = $adress
+		$train_fahrzeuge = get_object_vars($DB->select('SELECT `'.DB_TABLE_FAHRZEUGE.'`.`id`, 
+							`'.DB_TABLE_FAHRZEUGE.'`.`adresse`, 
+							`'.DB_TABLE_FAHRZEUGE.'`.`timestamp`, 
+							`'.DB_TABLE_FAHRZEUGE.'`.`speed`, 
+							`'.DB_TABLE_FAHRZEUGE.'`.`dir`, 
+							`'.DB_TABLE_FAHRZEUGE.'`.`zugtyp`, 
+							`'.DB_TABLE_FAHRZEUGE.'`.`zuglaenge`, 
+							`'.DB_TABLE_FAHRZEUGE.'`.`prev_speed`, 
+							`'.DB_TABLE_FAHRZEUGE.'`.`fzs`, 
+							`'.DB_TABLE_FAHRZEUGE.'`.`verzoegerung`, 
+							`'.DB_TABLE_FAHRZEUGE.'`.`zustand`        
+                            FROM `'.DB_TABLE_FAHRZEUGE.'`
+                            WHERE `'.DB_TABLE_FAHRZEUGE."`.`adresse` = $adress
                            ")[0]);
 
-		$train_baureihe = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`bezeichnung`, 
-							`".DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`vmax`, 
-							`".DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`traktion`      
-                            FROM `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`
-                            WHERE `".DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`nummer` = $adress
+		$train_baureihe = $DB->select('SELECT `'.DB_TABLE_FAHRZEUGE_BAUREIHEN.'`.`bezeichnung`, 
+							`'.DB_TABLE_FAHRZEUGE_BAUREIHEN.'`.`vmax`, 
+							`'.DB_TABLE_FAHRZEUGE_BAUREIHEN.'`.`traktion`      
+                            FROM `'.DB_TABLE_FAHRZEUGE_BAUREIHEN.'`
+                            WHERE `'.DB_TABLE_FAHRZEUGE_BAUREIHEN."`.`nummer` = $adress
                            ");
 
 		if (sizeof($train_baureihe) != 0) {
 			$train_baureihe = get_object_vars($train_baureihe[0]);
 		} else {
-			$train_baureihe["bezeichnung"] = null;
-			$train_baureihe["vmax"] = null;
-			$train_baureihe["traktion"] = null;
+			$train_baureihe['bezeichnung'] = null;
+			$train_baureihe['vmax'] = null;
+			$train_baureihe['traktion'] = null;
 		}
 
 		$returnArray = array_merge($train_fahrzeuge, $train_baureihe);
@@ -880,16 +880,16 @@ function getAllTrains () : array {
 
 function getAllAdresses () : array {
 
-	$zustand = array("0", "1");
+	$zustand = array('0', '1');
 	//$zustand = array("0", "1", "2");
-	echo "Alle Züge, die den Zustand ", implode(", ", $zustand), " haben, werden eingelesen.\n\n";
+	echo 'Alle Züge, die den Zustand ', implode(', ', $zustand), " haben, werden eingelesen.\n\n";
 	$returnAdresses = array();
 	$DB = new DB_MySQL();
 
-	$adresses = $DB->select("SELECT `".DB_TABLE_FAHRZEUGE."`.`adresse`,
-										`".DB_TABLE_FAHRZEUGE."`.`zustand`
-                            FROM `".DB_TABLE_FAHRZEUGE."`
-                           ");
+	$adresses = $DB->select('SELECT `'.DB_TABLE_FAHRZEUGE.'`.`adresse`,
+										`'.DB_TABLE_FAHRZEUGE.'`.`zustand`
+                            FROM `'.DB_TABLE_FAHRZEUGE.'`
+                           ');
 	unset($DB);
 
 	foreach ($adresses as $adressIndex => $adressValue) {
@@ -905,11 +905,11 @@ function getNextBetriebsstellen (int $id) : array {
 	$DB = new DB_MySQL();
 	$returnBetriebsstellen = array();
 
-	$betriebsstellen = $DB->select("SELECT `".DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`.`betriebsstelle`
-                            FROM `".DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`
-                            WHERE `".DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`.`zug_id` = $id
-                            ORDER BY `".DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`.`id` ASC
-                           ");
+	$betriebsstellen = $DB->select('SELECT `'.DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN.'`.`betriebsstelle`
+                            FROM `'.DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN.'`
+                            WHERE `'.DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN."`.`zug_id` = $id
+                            ORDER BY `".DB_TABLE_FAHRPLAN_SESSIONFAHRPLAN.'`.`id` ASC
+                           ');
 
 	unset($DB);
 
@@ -918,7 +918,7 @@ function getNextBetriebsstellen (int $id) : array {
 	}
 
 	if (sizeof($betriebsstellen) == 0) {
-		debugMessage("Zu dieser Zug ID sind keine nächsten Betriebsstellen im Fahrplan vorhanden.");
+		debugMessage('Zu dieser Zug ID sind keine nächsten Betriebsstellen im Fahrplan vorhanden.');
 	}
 
 	return $returnBetriebsstellen;

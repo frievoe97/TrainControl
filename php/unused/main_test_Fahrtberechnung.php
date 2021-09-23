@@ -12,7 +12,7 @@ require '../functions/functions_fahrtverlauf.php';
 
 // Zeit (Die Berechnung findet in Millisekunden als Nachkommastellen statt)
 $DB = new DB_MySQL();
-$databaseTime = (float) strtotime($DB->select("SELECT CURRENT_TIMESTAMP")[0]->CURRENT_TIMESTAMP);
+$databaseTime = (float) strtotime($DB->select('SELECT CURRENT_TIMESTAMP')[0]->CURRENT_TIMESTAMP);
 unset($DB);
 $computerTime = microtime(true);
 $fixedTestTime = (float) 1612811700;
@@ -59,7 +59,7 @@ if (true) {
 // Fahrtverlauf berechnen:
 if (true) {
 	foreach ($allTrains as $key => $value) {
-		$returnValue = updateNextSpeed($value, $fixedTestTime, $value["next_timetable_change_time"], "ABC");
+		$returnValue = updateNextSpeed($value, $fixedTestTime, $value['next_timetable_change_time'], 'ABC');
 		$allTrains[$key]['position_change'] = $returnValue[0];
 		$allTrains[$key]['speed_change'] = $returnValue[1];
 		$allTrains[$key]['time_change'] = $returnValue[2];
@@ -82,9 +82,9 @@ foreach ($allTrains as $key => $value) {
 
 
 while (sizeof($allTimes) == 0) {
-	if ((microtime(true) - $timeDiff) > $allTimes[0]["time_change"]) {
-		sendFahrzeugbefehl($allTimes[0]["adresse"], $allTimes[0]["speed_change"]);
-		var_dump($allTimes[0]["speed_change"]);
+	if ((microtime(true) - $timeDiff) > $allTimes[0]['time_change']) {
+		sendFahrzeugbefehl($allTimes[0]['adresse'], $allTimes[0]['speed_change']);
+		var_dump($allTimes[0]['speed_change']);
 		array_shift($allTimes);
 	}
 }

@@ -1,5 +1,5 @@
 \section{Beispielrechnung eines Fahrtverlaufs im \ac{ebuef}} \label{beispielrechnungKapitel}
-Die in Kapitel \ref{kapitelFahrtverlauf} beschriebene Berechnung des Fahrtverlaufs wird in diesem Kapitel an einer Beispielfahrt von Ausblick (XAB) nach Zoo (XZO) exemplarisch gezeigt. Dafür wurde dem Zug ein Fahrplan zugewiesen, nach dem der Zug nach \Gls{simulationszeit} um 10:00:05 in Ausblick losfahren soll und um 10:02:00 in dem Bahnhof Zoo ankommen soll. Zu Beginn steht der Zug im \ac{infra}  1189, hat die Fahrtrichtung 1 und die \Gls{fahrstrasse} ist so eingestellt, dass das Fahrzeug bis zum Ausfahrsignal im Bahnhof Zoo fahren kann und dort im \ac{infra} 1178 zum Stehen kommen kann. Somit beträgt die Strecke bis zum nächsten Halt 672 $m$ und das Fahrzeug hat 115 $s$ zur Verfügung. Die Bremsverzögerung des Fahrzeugs beträgt 0,8 $m/s^{2}$.
+Die in Kapitel \ref{kapitelFahrtverlauf} beschriebene Berechnung des Fahrtverlaufs wird in diesem Kapitel an einer Beispielfahrt von Ausblick (XAB) nach Zoo (XZO) exemplarisch gezeigt. Dafür wurde dem Zug ein Fahrplan zugewiesen, nach dem der Zug nach \Gls{simulationszeit} um 10:00:05 in Ausblick losfahren soll und um 10:02:00 in dem Bahnhof Zoo ankommen soll. Zu Beginn steht der Zug im \ac{infra} 1189 (XAB), hat die Fahrtrichtung 1 und die \Gls{fahrstrasse} ist so eingestellt, dass das Fahrzeug bis zum Ausfahrsignal im Bahnhof Zoo fahren kann und dort im \ac{infra} 1178 zum Stehen kommen kann. Somit beträgt die Strecke bis zum nächsten Halt 672 $m$ und das Fahrzeug hat 115 $s$ zur Verfügung. Die Bremsverzögerung des Fahrzeugs beträgt 0,8 $m/s^{2}$.
 
 Für die Fahrt wurde eine Mindestzeit von 20 $s$ für \Gls{beharrungsfahrt}en (\textit{\$glo\-bal\-Time\-On\-One\-Speed = 20}) festgelegt, den Optionen \textit{\$useSpeedFineTuning}, \textit{\$useMinTimeOnSpeed} und \textit{\$slowDownIfTooEarly} wurde der Wert \textit{true} zugewiesen und der Option \textit{\$errorMinTimeOnSpeed} der Wert \textit{false}.
 
@@ -25,7 +25,7 @@ In der Tabelle \ref{table:beispielebuefkeypoint} sind die berechneten \textit{\$
 \end{table}
 \begin{figure}
 \includegraphics[width=\linewidth]{../images/matlab/it14.pdf}
-\caption{Fahrtverlauf für eine Beispielrechnung}
+\caption{\Gls{fahrtverlauf} am Beispiel von der Fahrt von XAB nach XZO}
 \label{fig:it14}
 \end{figure}
 Durch die \textit{\$keyPoints} und die Darstellung des Fahrtverlaufs (Abbildung \ref{fig:it14}) lässt sich der Fahrtverlauf in 5 Abschnitte einteilen. Die Start- und Zielgeschwindigkeit, die Strecke und die Zeit der einzelnen Abschnitte sind in der Tabelle \ref{table:beispielebuef} aufgelistet und werden mittels der Formeln aus Kapitel \ref{formula} überprüft. Bei der Überprüfung werden die Start- und Zielgeschwindigkeiten als Grundlage genommen und untersucht, ob unter Einhaltung der gegebenen Zeit die selben Werte rauskommen.
@@ -34,7 +34,7 @@ Durch die \textit{\$keyPoints} und die Darstellung des Fahrtverlaufs (Abbildung 
 \begin{threeparttable}
 \renewcommand{\arraystretch}{1.2}
 \begin{tabular}{c|c|c|c|c|c}
-Abschnitt & Beschleunigung/Verzögerung& $v_0$ & $v_1$ & Strecke & Zeit\\ \hline
+Abschnitt & \makecell{Beschleunigung/\\Verzögerung}& $v_0$ & $v_1$ & Strecke & Zeit\\ \hline
 1                   &   ja (Beschleunigung)   & 0 $km/h$ & 30 $km/h$        &         43,40 $m$    & 10,42 $s$   \\ \hline
 2                  &       nein& 30 $km/h$ & 30 $km/h$       &    485,43 $m$ & 58,25 $s$   \\ \hline
 3                   &       ja (Verzögerung)& 30 $km/h$ & 10 $km/h$           &   38,58 $m$    & 6,94 $s$  \\ \hline
@@ -43,7 +43,7 @@ Abschnitt & Beschleunigung/Verzögerung& $v_0$ & $v_1$ & Strecke & Zeit\\ \hline
 $\sum$                   &       ---& --- & ---          &    672 $m$\tnote{1}  & 115 $s$ \\ 
 \end{tabular}
 \begin{tablenotes}\footnotesize
-    \item[1] Die Werte in der Strecken-Spalte sind auf zwei Nachkommastellen gerundet und würden durch das Aufsummieren der Strecken von Abschnitt 1 bis 5 eine Gesamtstrecke von 671,99 $m$ ergeben. Die angegebenen 672 $m$ entsprechen der Summe der Abschnitte 1 bis 5, ohne dass die einzelnen Strecken gerundet werden.
+    \item[1] Die Werte in der Strecken-Spalte sind auf zwei Nachkommastellen gerundet und würden durch das Aufsummieren der Strecken von Abschnitt 1 -- 5 eine Gesamtstrecke von 671,99 $m$ ergeben. Die angegebenen 672 $m$ entsprechen der Summe der Abschnitte\\1 -- 5, ohne dass die einzelnen Strecken gerundet werden.
 \end{tablenotes}
 \renewcommand{\arraystretch}{1}
 \caption{Fahrtverlauf am Beispiel von der Fahrt von XAB nach XZO}
@@ -70,7 +70,7 @@ Für die gleichmäßig beschleunigten Bewegungen gilt nach den Gleichungen \ref{
 \[s_1 = \frac{1}{2}\cdot\abs{\frac{{\frac{30\:km/h}{3,6}}^2-{\frac{0\:km/h}{3,6}}^2}{0,8\:m/s^{2}}} = \frac{3125}{72}\:m \approx 43,40\:m\]
 \[s_3 = \frac{1}{2}\cdot\abs{\frac{{\frac{10\:km/h}{3,6}}^2-{\frac{30\:km/h}{3,6}}^2}{0,8\:m/s^{2}}} = \frac{3125}{81}\:m \approx 38,58\:m\]
 \[s_5 = \frac{1}{2}\cdot\abs{\frac{{\frac{0\:km/h}{3,6}}^2-{\frac{10\:km/h}{3,6}}^2}{0,8\:m/s^{2}}} = \frac{3125}{648}\:m \approx 4,82\:m\]
-Dadurch ergibt sich für die Beschleunigungen und Verzögerungen insgesamt eine Strecke von:
+Dadurch ergibt sich für die Beschleunigungen und Verzögerungen insgesamt eine\linebreak[4]Strecke von:
 \[t_{gleichmässig Beschleunigte Bewegungen} = \frac{125}{6}\:s\]
 \[s_{gleichmässig Beschleunigte Bewegungen} = \frac{3125}{36}\:m\]
 Und für die gleichförmigen Bewegungen gilt dementsprechend:

@@ -19,7 +19,7 @@ To use this code, you need to create a file called db_access.php in the php/conf
 ```php
 <?php
 
-define("DB_STANDARD", 1);
+define('DB_STANDARD', 1);
 
 $MySQL_config[1]['host'] = '127.0.0.1';
 $MySQL_config[1]['benutzer'] = 'username';
@@ -85,7 +85,7 @@ Um diesen Code nutzen zu können, muss in dem php/config Ordner eine Datei namen
 ```php
 <?php
 
-define("DB_STANDARD", 1);
+define('DB_STANDARD', 1);
 
 $MySQL_config[1]['host'] = '127.0.0.1';
 $MySQL_config[1]['benutzer'] = 'username';
