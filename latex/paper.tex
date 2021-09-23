@@ -256,11 +256,12 @@ description={Die Zug-ID ordnet den Fahrzeugen die Fahrpläne zu und ist nicht mi
 \begin{document}
 \pagenumbering{gobble}  % No Pagenumbers
 \input{titelseite}
+\newpage\null\thispagestyle{empty}\newpage
 \input{aufgabenstellung}
 \newpage
 \input{zusammenfassung}
-\newpage
-\input{todo}
+%\newpage
+%\input{todo}
 \newpage
 \pagenumbering{Roman} % roman pagenumbers
 \tableofcontents % set the table of contents
@@ -268,7 +269,7 @@ description={Die Zug-ID ordnet den Fahrzeugen die Fahrpläne zu und ist nicht mi
 \listoffigures % set the table of figures
 \newpage
 \listoftables % set the table of tables
-%\newpage
+\newpage
 \lstlistoflistings
 \newpage
 \section*{Abkürzungsverzeichnis}

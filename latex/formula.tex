@@ -38,7 +38,7 @@ t(v) = \frac{v}{a}
 \begin{equation}
 s(v) =\frac{1}{2} \cdot \frac{v^{2}}{a}
 \end{equation}
-Durch die Festlegung von $v_{0} = 0$ wird so die benötigte Strecke ermittelt, welche ein Fahrzeug bei einer gegebenen Bremsverzögerung $a$ benötigt, um von 0 $m/s$ auf eine gegebenen Zielgeschwindigkeit $v_{1}$ zu beschleunigen. Bei der Berechnung des Beschleuniguns- und Abbremsverhalten wird es aber auch zu Situationen kommen, bei denen ein Fahrzeug eine Startgeschwindigkeit hat, für die gilt $v_{0} \neq 0$. Um eine allgemein gültige Gleichung aufzustellen, wird für die Ermittlung der benötigten Strecke bei einer gegebenen Start- und Zielgeschwindigkeit die Strecke berechnet, die das Fahrzeug benötigt um von 0 $m/s$ auf $v_{1}$ zu beschleunigen und von 0 $m/s$ auf $v_{0}$. Für die gesuchte Strecke gilt dann: 
+Durch die Festlegung von $v_{0} = 0$ wird so die benötigte Strecke ermittelt, welche ein Fahrzeug bei einer gegebenen Bremsverzögerung $a$ benötigt, um von 0 $m/s$ auf eine gegebenen Zielgeschwindigkeit $v_{1}$ zu beschleunigen. Bei der Berechnung des Beschleuniguns- und Abbremsverhalten wird es aber auch zu Situationen kommen, bei denen ein Fahrzeug eine Startgeschwindigkeit hat, für die gilt $v_{0} \neq 0$. Um eine allgemein gültige Gleichung aufzustellen, wird für die Ermittlung der benötigten Strecke bei einer gegebenen Start- und Zielgeschwindigkeit die Strecke berechnet, die das Fahrzeug benötigt, um von 0 $m/s$ auf $v_{1}$ und von 0 $m/s$ auf $v_{0}$ zu beschleunigen. Für die gesuchte Strecke gilt dann: 
 \begin{equation}
 s(v_{0}, v_{1}) = \abs{s(v_{1}) - s(v_{0})} 
 \end{equation}
@@ -46,7 +46,7 @@ s(v_{0}, v_{1}) = \abs{s(v_{1}) - s(v_{0})}
 \label{eq:s_v_ges}
 s(v_{0}, v_{1}) =\frac{1}{2} \cdot\abs{\frac{v_{1}^{2} - v_{0}^{2}}{a}}
 \end{equation}
-In dem Programm übernimmt diese Berechnung die Funktion \textit{getBrakeDistance()} (Code-Beispiel \ref{lst:getBrakeDistance}). 
+In der Fahrzeugsteuerung übernimmt diese Berechnung die Funktion \textit{getBrakeDistance()} (Code-Beispiel \ref{lst:getBrakeDistance}). 
 \begin{figure}[H]
 \begin{lstlisting}[caption={\textit{getBrakeDistance$($$)$} (\textit{functions\_math.php})},captionpos=b,label={lst:getBrakeDistance}]
 // Ermittlung der Strecke für eine Beschleunigung bzw. Verzögerung
@@ -55,12 +55,12 @@ function getBrakeDistance (float $v_0, float $v_1, float $verzoegerung) {
 }
 \end{lstlisting}
 \end{figure}
-Neben der Berechnung der Strecke ist auch die benötigte Zeit essenziell. Dafür wird mittels $t(v)$ die Zeit berechnet, die das Fahrzeug benötigt, um von 0 $km/h$ auf $v_{0}$ bzw. $v_{1}$ zu beschleunigen und aus der Differenz wird die benötigte Zeit berechnet.
+\noindent Neben der Berechnung der Strecke ist auch die benötigte Zeit essenziell. Dafür wird mittels $t(v)$ die Zeit berechnet, die das Fahrzeug benötigt, um von 0 $km/h$ auf $v_{0}$ bzw. $v_{1}$ zu beschleunigen und aus der Differenz wird die benötigte Zeit berechnet.
 \begin{equation}
 \label{eq:t_v_ges}
 t(v_{0}, v_{1}) = \abs{\frac{v_{1} - v_{0}}{a}}
 \end{equation}
-In dem Programm übernimmt diese Berechnung die Funktion \textit{getBrakeTime()} (\textit{func\-tions\_""math\-.php}) (Code-Beispiel \ref{lst:getBrakeTime}).
+In der Fahrzeugsteuerung übernimmt diese Berechnung die Funktion \textit{getBrakeTime()} (\textit{func\-tions\_""math\-.php}) (Code-Beispiel \ref{lst:getBrakeTime}).
 \begin{figure}[H]
 \begin{lstlisting}[caption={\textit{getBrakeTime$($$)$} (\textit{functions\_math.php})},captionpos=b,label={lst:getBrakeTime}]
 // Ermittelt die Distanz für Brems- und Verzögerungsvorgänge
@@ -69,7 +69,7 @@ function getBrakeTime (float $v_0, float $v_1, float $verzoegerung) {
 }
 \end{lstlisting}
 \end{figure}
-Für die Berechnung einer Gefahrenbremsung ist es notwendig zu wissen, welche Geschwindigkeit das Fahrzeug an der Position der Gefahrenstelle hat. Dafür wird die Gleichung \eqref{eq:s_v_ges} nach $v_{2}$ umgestellt.
+\noindent Für die Berechnung einer Gefahrenbremsung ist es notwendig zu wissen, welche Geschwindigkeit das Fahrzeug an der Position der Gefahrenstelle hat. Dafür wird die Gleichung \eqref{eq:s_v_ges} nach $v_{2}$ umgestellt. Umgesetzt wird diese Gleichung mit der Funktion \textit{get\-Tar\-get\-Brake\-Speed\-With\-Dis\-tance\-And\-Start\-Speed$($$)$} (\textit{func\-tions\_""math\-.php}) (Code-Beispiel \ref{lst:getTargetBrakeSpeedWithDistanceAndStartSpeed}).
 \begin{equation}
 \label{eq:gefahrenbremsung}
 v_{2}(v_{1}, s) = \sqrt{-2 \cdot s \cdot a} + v_{1}
@@ -109,7 +109,7 @@ function distanceWithSpeedToTime (int $v, float $distance) {
 }
 \end{lstlisting}
 \end{figure}
-Für die Einhaltung der exakten Ankunftszeit, muss errechnet werden, wie lange das Fahrzeug bei zwei gegebenen Geschwindigkeiten ($v_1$ und $v_2$) auf den jeweiligen Geschwindigkeiten fahren muss, um die Gesamtstrecke ($s_{ges}$) und die Gesamtzeit ($t_{ges}$) einzuhalten. Für die Zeiten und Strecken gilt:
+\noindent Für die Einhaltung der exakten Ankunftszeit, muss errechnet werden, wie lange das Fahrzeug bei zwei gegebenen Geschwindigkeiten ($v_1$ und $v_2$) auf den jeweiligen Geschwindigkeiten fahren muss, um die Gesamtstrecke ($s_{ges}$) und die Gesamtzeit ($t_{ges}$) einzuhalten. Für die Zeiten und Strecken gilt:
 \begin{equation}
 \label{eq:t_ges}
 t_{ges} = t_{1} + t_{2}

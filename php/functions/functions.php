@@ -517,25 +517,6 @@ function addStopsectionsForTimetable($id = false) {
 	}
 }
 
-// TODO: KANN GELÖSCHT WERDEN?!?!
-function initalFirstLiveData($id = false) {
-
-	global $allUsedTrains;
-	global $allTimes;
-
-	$checkAllTrains = true;
-
-	if ($id != false) {
-		$checkAllTrains = false;
-	}
-
-	foreach ($allUsedTrains as $trainIndex => $trainValue) {
-		if (($checkAllTrains || $trainValue["id"] == $id)) {
-			$allTimes[$trainValue["adresse"]] = array();
-		}
-	}
-}
-
 // Ermittelt für alle Fahrzeuge (wenn keine ID übergeben wird) oder für ein
 // Fahrzeug (wenn eine ID übergeben wird) die Fahrstraße inkl. der Längen,
 // der zulässigen Höchstgeschwindigkeiten und der IDs der nächsten Abschnitte.
@@ -815,7 +796,6 @@ function calculateFahrtverlauf($id = false, $recalibrate = false) {
 							$verapetung = updateNextSpeed($trainValue, $startTime, $endTime, $targetSection, $targetPosition, $reachedBetriebsstele, $nextBetriebsstelleIndex, $wendet, false, $allreachedInfras);
 
 							if ($nextBetriebsstelleIndex != 0) {
-								// TODO: Reicht nicht einer der Einträge aus? Wenn ja, welcher?
 								$allUsedTrains[$trainIndex]["next_betriebsstellen_data"][$nextBetriebsstelleIndex]["zeiten"]["verspaetung"] = $verapetung;
 								$trainValue["next_betriebsstellen_data"][$nextBetriebsstelleIndex]["zeiten"]["verspaetung"] = $verapetung;
 							} else {

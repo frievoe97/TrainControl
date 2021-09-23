@@ -3,24 +3,15 @@
 Der Entwickelte Algorithmus ist in der Lage, für eine gegebene Position und Geschwindigkeit, \acp{infra} inklusive deren Längen und zulässigen Höchstgeschwindigkeiten und einer Zielposition den optimalen \Gls{fahrtverlauf} zu ermitteln, sodass das Fahrzeug ohne eine Überschreitung der zulässigen Höchstgeschwindigkeit und unter Berücksichtigung der Fahrzeuglänge frühstmöglich die Zielposition erreicht. Unter Berücksichtigung der Ankunftszeit wurden Ansätze entwickelt, die dafür sorgen, dass das Fahrzeug -- durch eine Reduzierung der Geschwindigkeit -- pünktlich das Ziel erreicht und durch eine geringere Geschwindigkeit energiesparsamer fährt. Die Ansätze für die Einhaltung der Ankunftszeit ermitteln nicht den optimalsten \Gls{fahrtverlauf}, da in vereinzelten Fällen die Geschwindigkeit reduziert wird, obwohl eine Verschiebung von Brems- bzw. Verzögerungsvorgängen ausreichen würde.
 
 Bei der Entwicklung und Testung der Fahrzeugsteuerung wurden die Fahrten am Rechner auf Grundlage der \textit{MySQL}-Datenbank simuliert. Die dabei ermittelten \Glspl{fahrtverlauf} haben die erforderlichen Bedingungen (Ankunfts-, Abfahrts- und Mindesthaltezeit und zulässige Höchstgeschwindigkeit) eingehalten und die Fahrzeuge haben richtig auf \Glspl{fahrstrasse}-Änderungen reagiert (Einleitung einer Gefahrenbremsung und Berücksichtigung der Signalbegriffe). Bei der Verwendung der Fahrzeugsteuerung im \ac{ebuef} ist es zu Fehlern gekommen, welche in dem folgenden Kapitel \ref{fazit2} erläutert werden.
-\subsection{Was hat nicht geklappt} \label{fazit2}
+\subsection{Komplikationen bei dem Betrieb der Fahrzeugsteuerung im \ac{ebuef}} \label{fazit2}
 \subsubsection{Einhaltung der Zielposition}
-Bei Zugfahrten ist es dazu gekommen, dass die Fahrzeuge den Bremsvorgang zu spät eingeleitet haben und an dem Ausfahrsignal bzw. einem Halt zeigenden Signal vorbei gefahren sind. 
-\begin{itemize}
-\item Test
-\end{itemize}
+Bei Zugfahrten ist es dazu gekommen, dass die Fahrzeuge den Bremsvorgang zu spät eingeleitet haben und an dem Ausfahrsignal bzw. einem Halt zeigenden Signal vorbei gefahren sind. Für die Fehlerbehebung wurde überprüft, ob die eingetragenen Längen der \ac{infra}e aus der \textit{MySQL}-Datenbank mit den realen Werten des \acp{ebuef} übereinstimmen. Diese mögliche Ursache konnte ausgeschlossen werden und weitere Ursachen konnten nicht ermittelt werden.
 \subsubsection{Ermittlung der \Glspl{fahrstrasse}}
-\begin{itemize}
-\item \textit{getNaechsteAbschnitte$($$)$} hat bei bestimmten Betriebsstellen nicht die eingestellte Fahrstraße wiedergegebene
-\end{itemize}
+Bei der Ermittlung der \Gls{fahrstrasse}n hat die Funktion \textit{getNaechsteAbschnitte$($$)$}$^\ast$ (\textit{functions\_ebuef.php}) in manchen Fällen nicht die eingestellte \Gls{fahrstrasse} und die erwarteten \ac{infra}e wiedergegeben, wodurch für Fahrzeuge kein \Gls{fahrtverlauf} berechnet wurde.
 \subsubsection{Kalibrierung der Position}
-\begin{itemize}
-\item nicht erklärbar, entweder wird der Eintrag in \textit{fahrzeuge\_abschnitte} nicht pünktlich eingetragen (falsche Zeit), oder die hinterlegten Längen stimmen nicht
-\end{itemize}
-\subsection{Potential für die Zukunft}
-\begin{itemize}
-\item Moving-Block Verfahren
-\end{itemize}
+Bei der Kalibrierung der Fahrzeugposition wurden Positionen ermittelt, welche stark von der realen Position abwichen. Mögliche Ursachen könnten eine falsche Positionsermittlung bei der Berechnung des \Gls{fahrtverlauf}s oder eine nicht rechtzeitige Eintragung der aktuellen Abschnitte in die \textit{MySQL}-Tabelle \textit{fahrzeuge\_abschnitte} sein. Keine der beiden Ursachen konnte eindeutig widerlegt oder belegt werden.
+\subsection{Möglichkeiten für eine Weiterentwicklung der Fahrzeugsteuerung}
+Durch die kontinuierliche Positionsbestimmung der Fahrzeuge ist es in zukünftigen Weiterentwicklungen der Fahrzeugsteuerung möglich, anstatt der Zugfolge im festen Raumabstand, einen Zugbetrieb im Bremswegabstand (Moving Block) zu realisieren, wodurch die Zugfolgezeiten zweier aufeinander folgender Züge deutlich reduziert werden können.\footnote{\citet[S. 37]{etr}}
 
 
 
