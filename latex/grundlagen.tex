@@ -6,7 +6,7 @@ Das \ac{ebuef} ist in ein eingleisiges nicht-elektrifiziertes und ein zweigleisi
   \caption[Schienennetz des \ac{ebuef}s]{Schienennetz des \ac{ebuef}s (Quelle: www.ebuef.de/das-betriebs\-feld/stell\-werke; Letzter Zugriff am: 4. September 2021)}
   \label{fig:ebuefNetz}
 \end{figure}
-Das eingleisige Netz ist in \acp{infra} -- welche mit Blockstrecken vergleichbar sind und eine Zugfolge im festen Raumabstand ermöglichen -- eingeteilt.\footnote{\citet[S. 7, 42]{pachl1999systemtechnik}} Die \acp{infra} sind mit der RailCom-Technik ausgestattet, welche über Decoder in den Fahrzeugen den aktuellen \ac{infra} ermittelt und diesen in der \textit{fma}-Tabelle der \textit{MySQL}-Datenbank speichert.\footnote{\cite{railcomnorm}} Zudem sind in der Datenbank alle Informationen über die Infrastruktur gespeichert. Für die Fahrzeugsteuerung essentiell sind dabei die aktuellen Signalbegriffe aller Signale und die Längen der \acp{infra}.\footnote{\cite{ebuef}}
+Das eingleisige Netz ist in \acp{infra} -- welche mit Blockstrecken vergleichbar sind und eine Zugfolge im festen Raumabstand ermöglichen -- eingeteilt.\footnote{\citet[S. 7, 42]{pachl1999systemtechnik}} Die \acp{infra} sind mit der RailCom-Technik ausgestattet, welche über Decoder in den Fahrzeugen den aktuellen \ac{infra} ermittelt und diesen in der \textit{fma}-Tabelle der \textit{MySQL}-Datenbank speichert.\footnote{\cite{railcomnorm}} Zudem sind in der Datenbank alle Informationen über die Infrastruktur gespeichert. Für die Fahrzeugsteuerung essenziell sind dabei die aktuellen Signalbegriffe aller Signale und die Längen der \acp{infra}.\footnote{\cite{ebuef}}
 
 Der Betrieb des \ac{ebuef}s erfordert eine angelegte Session, welche vor dem Start der Fahrzeugsteuerung gestartet werden muss, da die Fahrzeugsteuerung beim Start alle benötigten Informationen der Session einliest.
 \subsection{Aufbau der \textit{MySQL}-Datenbank}
@@ -45,24 +45,23 @@ In der Realität gibt es vier Bewegungsphasen, in denen sich ein Fahrzeug befind
 \end{itemize}
 Beim Anfahren ist die Antriebskraft größer als die Summe der Widerstandskräfte, wodurch das Fahrzeug beschleunigt und in der \Gls{beharrungsfahrt} entspricht die Antriebskraft der Summe der Widerstandskräfte, wodurch die Geschwindigkeit des Fahrzeugs konstant bleibt. Für die Reduzierung der Geschwindigkeit kann entweder die Antriebskraft gleich null sein oder eine Bremskraft aufgewendet werden.\footnote{\citet[S. 23 ff.]{pachl1999systemtechnik}}
 
-Die Widerstandskräfte setzen sich aus dem Streckenwiderstand, dem Fahrzeugwiderstand und dem Anfahrwiderstand zusammen und lassen sich mit den gegebenen Daten des \ac{ebuef}s nicht vollständig berechnen.\footnote{\citet[S. 25 ff.]{pachl1999systemtechnik}} Aus diesem Grund werden die Widerstandskräfte bei der Fahrzeugsteuerung nicht berücksichtigt und die Auslaufphase, welche nur von der Widerstandskräften abhängig ist, wird ebenfalls nicht berücksichtigt.
+Die Widerstandskräfte setzen sich aus dem Streckenwiderstand, dem Fahrzeugwiderstand und dem Anfahrwiderstand zusammen und lassen sich mit den gegebenen Daten des \ac{ebuef}s nicht vollständig berechnen.\footnote{\citet[S. 25 ff.]{pachl1999systemtechnik}} Aus diesem Grund werden die Widerstandskräfte bei der Fahrzeugsteuerung nicht berücksichtigt und die Auslaufphase, welche nur von den Widerstandskräften abhängig ist, wird ebenfalls nicht berücksichtigt.
 \subsection{Aufbau des Projekts}
-In der Darstellung \ref{fig:aufbauProjekt} ist der Aufbau des Projekts und die für die Arbeit relevanten Dateien/Ordner dargestellt. Dateien, welche bereits vorhanden waren, sind wie Funktionen mit einem Sternchen ($^\ast$) markiert. Die für die Fahrzeugsteuerung essentiellen Dateien befinden sich innerhalb des \textit{php}-Ordners, wobei die Datei \textit{fahrzeugsteuerung.php} die Fahrzeugsteuerung startet und für die Berechnung der \glspl{fahrtverlauf} auf die Dateien in dem \textit{functions}-Unterordner zugreift. Die benötigten Dateien für den Zugriff auf die \textit{MySQL}-Datenbank befinden sich in dem \textit{config}-Unterordner und global festgelegte Parameter sind in der Datei \textit{global\_variables.php} abgespeichert. Für die Visualisierung (siehe Kapitel \ref{visualisierungFahrtverlaeufe}) der \glspl{fahrtverlauf} werden die Dateien aus dem \textit{matlab}- und \textit{json}-Ordner benötigt.
+In der Darstellung \ref{fig:aufbauProjekt} ist der Aufbau des Projekts und die für die Arbeit relevanten Dateien/Ordner dargestellt. Dateien, welche bereits vorhanden waren, sind wie Funktionen mit einem Sternchen ($^\ast$) markiert. Die für die Fahrzeugsteuerung essenziellen Dateien befinden sich innerhalb des \textit{php}-Ordners, wobei die Datei \textit{fahrzeugsteuerung.php} die Fahrzeugsteuerung startet und für die Berechnung der \glspl{fahrtverlauf} auf die Dateien in dem \textit{functions}-Unterordner zugreift. Die benötigten Dateien für den Zugriff auf die \textit{MySQL}-Datenbank befinden sich in dem \textit{config}-Unterordner und global festgelegte Parameter sind in der Datei \textit{global\_variables.php} abgespeichert. Für die Visualisierung (siehe Kapitel \ref{visualisierungFahrtverlaeufe}) der \glspl{fahrtverlauf} werden die Dateien aus dem \textit{matlab}- und \textit{json}-Ordner benötigt.
 \begin{figure}
 \begin{center}
 \begin{forest}
   dir tree
 [project
 [php
-	[db\_tables.php$^\ast$]
   	[fahrzeugsteuerung.php]
 	[global\_variables.php]
-	[mysqli.php$^\ast$]
-	[vorbelegung.php$^\ast$]
 	[config
 		[config.php$^\ast$]
 		[db\_access.php$^\ast$]
+		[db\_tables.php$^\ast$]
 		[multicast.php$^\ast$]
+		[mysqli.php$^\ast$]
 	]
 	[functions
 		[functions.php]
@@ -71,6 +70,7 @@ In der Darstellung \ref{fig:aufbauProjekt} ist der Aufbau des Projekts und die f
 		[functions\_ebuef.php$^\ast$]
 		[functions\_fahrtverlauf.php]
 		[functions\_math.php]
+		[vorbelegung.php$^\ast$]
 	]	
   ]
   [matlab

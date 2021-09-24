@@ -2,7 +2,7 @@
 
 // Liest alle benötigten Dateien ein
 require 'config/multicast.php';
-require 'vorbelegung.php';
+require 'functions/vorbelegung.php';
 require 'functions/functions.php';
 require 'functions/functions_cache.php';
 require 'functions/functions_db.php';
@@ -43,8 +43,9 @@ $cacheSignalIDToBetriebsstelle = createCacheToBetriebsstelle();
 $cacheFahrzeugeAbschnitte = createCacheFahrzeugeAbschnitte();
 $cacheIDTDecoder = createCacheDecoderToAdresse();
 $cacheDecoderToID = array_flip($cacheIDTDecoder);
-$cacheAdresseToID = array();		// Filled with data in getAllTrains()
-$cacheIDToAdresse = array();		// Filled with data in getAllTrains()
+// Werden in der Funktion getAllTrains() initialisiert
+$cacheAdresseToID = array();
+$cacheIDToAdresse = array();
 
 // Variablendeklaration
 $allTrainsOnTheTrack = array();

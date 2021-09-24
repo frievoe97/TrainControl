@@ -2,9 +2,9 @@
 
 // Dieses Skript wird in der Abschnitts�berwachung und im Steuerungsprozess eingebunden
 
-require 'db_tables.php';
-require 'mysqli.php';
-require  'config/config.php';
+require 'config/db_tables.php';
+require 'config/mysqli.php';
+require 'config/config.php';
 require 'config/db_access.php';
 
 // --------------------------------------------------------------------------------------------------------
