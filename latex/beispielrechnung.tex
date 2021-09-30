@@ -1,7 +1,7 @@
 \section{Beispielrechnung eines Fahrtverlaufs im \ac{ebuef}} \label{beispielrechnungKapitel}
-Die in Kapitel \ref{kapitelFahrtverlauf} beschriebene Berechnung des Fahrtverlaufs wird in diesem Kapitel an einer Beispielfahrt von Ausblick (XAB) nach Zoo (XZO) exemplarisch gezeigt. Dafür wurde dem Zug ein Fahrplan zugewiesen, nach dem der Zug nach \Gls{simulationszeit} um 10:00:05 in Ausblick losfahren soll und um 10:02:00 in dem Bahnhof Zoo ankommen soll. Zu Beginn steht der Zug im \ac{infra} 1189 (XAB), hat die Fahrtrichtung 1 und die \Gls{fahrstrasse} ist so eingestellt, dass das Fahrzeug bis zum Ausfahrsignal im Bahnhof Zoo fahren kann und dort im \ac{infra} 1178 zum Stehen kommen kann. Somit beträgt die Strecke bis zum nächsten Halt 672 $m$ und das Fahrzeug hat 115 $s$ zur Verfügung. Die Bremsverzögerung des Fahrzeugs beträgt 0,8 $m/s^{2}$.
+Die in Kapitel \ref{kapitelFahrtverlauf} beschriebene Berechnung des Fahrtverlaufs wird in diesem Kapitel an einer Beispielfahrt von Ausblick (XAB) nach Zoo (XZO) exemplarisch gezeigt. Dafür wurde dem Zug ein Fahrplan zugewiesen, nach dem der Zug nach \Gls{simulationszeit} um 10:00:05 in Ausblick losfahren soll und um 10:02:00 in dem Bahnhof Zoo ankommen soll. Zu Beginn steht der Zug im \ac{infra} 1189 (XAB), hat die Fahrtrichtung 1 und die \Gls{fahrstrasse} ist so eingestellt, dass das Fahrzeug bis zum Ausfahrsignal im Bahnhof Zoo fahren und dort im \ac{infra} 1178 zum Stehen kommen kann. Somit beträgt die Strecke bis zum nächsten Halt 672 $m$ und das Fahrzeug hat 115 $s$ zur Verfügung. Die Bremsverzögerung des Fahrzeugs beträgt 0,8 $m/s^{2}$.
 
-Für die Fahrt wurde eine Mindestzeit von 20 $s$ für \Gls{beharrungsfahrt}en (\textit{\$glo\-bal\-Time\-On\-One\-Speed = 20}) festgelegt, den Optionen \textit{\$useSpeedFineTuning}, \textit{\$useMinTimeOnSpeed} und \textit{\$slowDownIfTooEarly} wurde der Wert \textit{true} zugewiesen und der Option \textit{\$errorMinTimeOnSpeed} der Wert \textit{false}.
+Für die Fahrt wurde eine Mindestzeit von 20 $s$ für \Gls{beharrungsfahrt}en (\textit{\$glo\-bal\-Time\-On\-One\-Speed = 20}) festgelegt, den Optionen \textit{\$useSpeedFineTuning}, \textit{\$use\-Min\-Time\-On\-Speed} und \textit{\$slowDownIfTooEarly} wurde der Wert \textit{true} zugewiesen und der Option \textit{\$errorMinTimeOnSpeed} der Wert \textit{false}.
 
 In der Tabelle \ref{table:beispielebuefkeypoint} sind die berechneten \textit{\$keyPoints} aufgelistet, welche durch die Berechnung des Fahrtverlaufs ermittelt wurden, und in der Darstellung \ref{fig:it14} ist der Fahrtverlauf visuell dargestellt. Bei der Berechnung des \Gls{fahrtverlauf}s wurde laut der Fahrzeugsteuerung die Ankunftszeit exakt eingehalten. Die Zeit-Werte der \textit{\$keyPoints} geben bei der Berechnung die \Gls{simulationszeit} im Unix-Timestamp-Format an und sind deswegen ebenfalls im Format \textit{hh:mm:ss} angegeben.
 \begin{table}
@@ -25,7 +25,7 @@ In der Tabelle \ref{table:beispielebuefkeypoint} sind die berechneten \textit{\$
 \end{table}
 \begin{figure}
 \includegraphics[width=\linewidth]{../images/matlab/it14.pdf}
-\caption{\Gls{fahrtverlauf} am Beispiel von der Fahrt von XAB nach XZO}
+\caption[\Gls{fahrtverlauf} am Beispiel von der Fahrt von XAB nach XZO]{\Gls{fahrtverlauf} am Beispiel von der Fahrt von XAB nach XZO (Quelle: Eigene Darstellung)}
 \label{fig:it14}
 \end{figure}
 Durch die \textit{\$keyPoints} und die Darstellung des Fahrtverlaufs (Abbildung \ref{fig:it14}) lässt sich der Fahrtverlauf in 5 Abschnitte einteilen. Die Start- und Zielgeschwindigkeit, die Strecke und die Zeit der einzelnen Abschnitte sind in der Tabelle \ref{table:beispielebuef} aufgelistet und werden mittels der Formeln aus Kapitel \ref{formula} überprüft. Bei der Überprüfung werden die Start- und Zielgeschwindigkeiten als Grundlage genommen und untersucht, ob unter Einhaltung der gegebenen Zeit dieselben Werte rauskommen.
@@ -70,7 +70,7 @@ Für die gleichmäßig beschleunigten Bewegungen gilt nach den Gleichungen \ref{
 \[s_1 = \frac{1}{2}\cdot\abs{\frac{{\frac{30\:km/h}{3,6}}^2-{\frac{0\:km/h}{3,6}}^2}{0,8\:m/s^{2}}} = \frac{3125}{72}\:m \approx 43,40\:m\]
 \[s_3 = \frac{1}{2}\cdot\abs{\frac{{\frac{10\:km/h}{3,6}}^2-{\frac{30\:km/h}{3,6}}^2}{0,8\:m/s^{2}}} = \frac{3125}{81}\:m \approx 38,58\:m\]
 \[s_5 = \frac{1}{2}\cdot\abs{\frac{{\frac{0\:km/h}{3,6}}^2-{\frac{10\:km/h}{3,6}}^2}{0,8\:m/s^{2}}} = \frac{3125}{648}\:m \approx 4,82\:m\]
-Dadurch ergibt sich für die Beschleunigungen und Verzögerungen insgesamt eine\linebreak[4]Strecke von:
+Dadurch ergibt sich für die Beschleunigungen und Verzögerungen insgesamt eine Strecke von:
 \[t_{gleichmässig Beschleunigte Bewegungen} = \frac{125}{6}\:s\]
 \[s_{gleichmässig Beschleunigte Bewegungen} = \frac{3125}{36}\:m\]
 Und für die gleichförmigen Bewegungen gilt dementsprechend:

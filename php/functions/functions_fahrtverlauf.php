@@ -477,7 +477,7 @@ function updateNextSpeed (array $train, float $startTime, float $endTime, int $t
 	return (end($trainTimeChange) - $trainTimeChange[0]) - ($endTime - $startTime);
 }
 
-// Ermittelt die maximale Geschwindigkeit zwischen zwei Punkten
+// Ermittelt die maximale Geschwindigkeit zwischen zwei Positionen
 function getVMaxBetweenTwoPoints(float $distance, int $v_0, int $v_1, int  $id) {
 
 	global $verzoegerung;

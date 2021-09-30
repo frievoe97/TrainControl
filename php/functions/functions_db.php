@@ -119,8 +119,8 @@ function getNextBetriebsstellen (int $id) {
 	return $returnBetriebsstellen;
 }
 
-// Bestimmt das zugehörige Signal (falls vorhanden) für einen Abschnitt und eine
-// Richtung.
+// Bestimmt das zugehörige Signal (falls vorhanden) für
+// einen Abschnitt und eine Richtung.
 function getSignalForSectionAndDirection(int $section, int $dir) {
 
 	$DB = new DB_MySQL();
@@ -134,8 +134,8 @@ function getSignalForSectionAndDirection(int $section, int $dir) {
 	return $signal;
 }
 
-// Kalibriert die Position des Fahrzeugs neu anhand der Daten in der Tabelle
-// 'fahrzeuge_abschnitte'
+// Kalibriert die Position des Fahrzeugs anhand der Daten in der Tabelle
+// 'fahrzeuge_abschnitte' neu.
 function getCalibratedPosition ($id, $speed) {
 
 	global $cacheFahrzeugeAbschnitte;

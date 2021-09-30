@@ -1,7 +1,6 @@
 <?php
 
 // Liest alle benötigten Dateien ein
-require 'config/multicast.php';
 require 'functions/vorbelegung.php';
 require 'functions/functions.php';
 require 'functions/functions_cache.php';

@@ -58,7 +58,7 @@ function createCacheHaltepunkte() {
 			}
 		}
 	}
-	$returnArray['XSC'][1] = array(734, 732, 735, 733, 692); // In der Datenbank ist für Richtung 1 für diese Abschnitte fahrplanhalt auf nein eingestellt
+	$returnArray['XSC'][1] = array(734, 732, 735, 733, 692);
 	return $returnArray;
 }
 
@@ -85,6 +85,8 @@ function createChacheZwischenhaltepunkte() {
 	return $returnArray;
 }
 
+// Ermittelt die Zuordnung zwischen den
+// Infra-Abschnitten und den GBT-Abschnitten
 function createCacheInfraToGbt () {
 	$DB = new DB_MySQL();
 	$infraArray = array();
@@ -103,6 +105,8 @@ function createCacheInfraToGbt () {
 	return $returnArray;
 }
 
+// Ermittelt die Zuordnung zwischen den
+// GBT-Abschnitten und den Infra-Abschnitten
 function createCacheGbtToInfra () {
 
 	$DB = new DB_MySQL();
@@ -125,6 +129,8 @@ function createCacheGbtToInfra () {
 	return $returnArray;
 }
 
+// Ermittelt die Zuordnung zwischen den
+// FMA-Abschnitten und den Infra-Abschnitten
 function createCacheFmaToInfra () {
 	$DB = new DB_MySQL();
 	$returnArray = array();
@@ -136,6 +142,7 @@ function createCacheFmaToInfra () {
 	return $returnArray;
 }
 
+// Ordnet die Signal ID den Betriebsstellen zu
 function createCacheToBetriebsstelle() {
 	$DB = new DB_MySQL();
 	$returnArray = array();
@@ -147,6 +154,7 @@ function createCacheToBetriebsstelle() {
 	return $returnArray;
 }
 
+// Ermittelt die Daten aus der Abschnittsüberwachung
 function createCacheFahrzeugeAbschnitte () {
 	$DB = new DB_MySQL();
 	$returnArray = array();
@@ -159,6 +167,7 @@ function createCacheFahrzeugeAbschnitte () {
 	return $returnArray;
 }
 
+// Ermittelt die Zuordnung zwischen Fahrzeug ID und Decoder-Adresse
 function createCacheDecoderToAdresse () {
 	$DB = new DB_MySQL();
 	$returnArray = array();
@@ -170,6 +179,7 @@ function createCacheDecoderToAdresse () {
 	return $returnArray;
 }
 
+// Ermittelt die Daten der Fahrplansession
 function createCacheFahrplanSession() {
 	$DB = new DB_MySQL();
 	$fahrplanData = $DB->select('SELECT * FROM `'.DB_TABLE_FAHRPLAN_SESSION.'` WHERE `'.DB_TABLE_FAHRPLAN_SESSION."`.`status` = '".'1'."'");

@@ -1,6 +1,4 @@
 <?php
-ini_set('memory_limit', '1024M');
-
 // Zeigt beim Starten der Fahrzeugsteuerung eine Startmeldung im Terminal an,
 // in der Informationen zur Session angezeigt werden.
 function startMessage() {
@@ -455,7 +453,7 @@ function changeDirection (int $id) {
 	}
 }
 
-// Gibt für alle Fahrzeuge die vorhanden Fehlermeldungen an.
+// Gibt die vorhanden Fehlermeldungen für alle Fahrzeuge an.
 function showErrors() {
 
 	global $allUsedTrains;
@@ -840,7 +838,6 @@ function calculateFahrtverlauf($id = false, $recalibrate = false) {
 						}
 					}
 					if (!isset($signalId)) {
-						// gibt kein nächstes Signal
 						if ($trainValue['current_speed'] != 0) {
 							emergencyBreak($trainValue['id']);
 						}
